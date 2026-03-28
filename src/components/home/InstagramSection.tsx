@@ -1,10 +1,11 @@
 'use client'
 
-const POSTS = [
-  'DWaDbrdET7G',
-  'DVqAByGkuw-',
-  'DVmy8rlEvI1',
-  'DE_67LszoXu',
+// Updated with latest posts from @beloved_ch_ (as of 2026-03-29)
+const POSTS: { id: string; type: 'p' | 'reel' }[] = [
+  { id: 'DWbIfyUEd8c', type: 'reel' },
+  { id: 'DWaDbrdET7G', type: 'p' },
+  { id: 'DWVRcsAkbEr', type: 'reel' },
+  { id: 'DWK2nuZER5k', type: 'reel' },
 ]
 
 export function InstagramSection() {
@@ -37,14 +38,14 @@ export function InstagramSection() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {POSTS.map((postId) => (
-            <div key={postId} className="relative w-full overflow-hidden rounded-lg bg-black/20" style={{ paddingBottom: '125%' }}>
+          {POSTS.map(({ id, type }) => (
+            <div key={id} className="relative w-full overflow-hidden rounded-lg bg-black/20" style={{ paddingBottom: '125%' }}>
               <iframe
-                src={`https://www.instagram.com/p/${postId}/embed/`}
+                src={`https://www.instagram.com/${type}/${id}/embed/`}
                 className="absolute inset-0 w-full h-full border-0"
                 allowTransparency
                 loading="lazy"
-                title={`Instagram post ${postId}`}
+                title={`Instagram ${type} ${id}`}
               />
             </div>
           ))}
