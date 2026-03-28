@@ -1,0 +1,9 @@
+{
+  "active": true,
+  "started_at": "2026-03-28T16:16:03.192Z",
+  "original_prompt": "gemini cli mcp 로 사용하라는건데 구현할때 쓰라는게 아니고, 나머지도 브라우저 쓰고 알아서 병렬로 진행하고.\n\n깃헙에 레포 생성하고 버셀에 배포하고 테스트하자, 그외 콘텐츠 보완도 진행하고 필요한 정보는 유튜브 인스타 등에서 알아서 찾아봐. 병렬로 진행하라. ulw",
+  "session_id": "49188906-4a52-413a-be4d-caf9cbaf075e",
+  "project_path": "/Users/seokmogu/project/beloved-church-wirye",
+  "reinforcement_count": 0,
+  "last_checked_at": "2026-03-28T16:16:03.193Z"
+}

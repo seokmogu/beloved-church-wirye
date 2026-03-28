@@ -1,0 +1,62 @@
+import Image from 'next/image'
+import Link from 'next/link'
+
+export function HeroSection() {
+  return (
+    <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
+      {/* Background image */}
+      <Image
+        src="https://images.unsplash.com/photo-1438232992991-995b671e4b9a?w=1920&q=80"
+        alt="Church interior"
+        fill
+        priority
+        className="object-cover"
+        sizes="100vw"
+      />
+
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#1B3A2D]/70 via-[#1B3A2D]/50 to-[#1B3A2D]/80" />
+
+      {/* Content */}
+      <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
+        <p className="text-[#C9A84C] text-sm md:text-base tracking-[0.3em] uppercase mb-4 font-medium">
+          Beloved Church Wirye
+        </p>
+        <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+          사랑하는교회
+        </h1>
+        <p className="text-white/80 text-lg md:text-xl mb-10 leading-relaxed">
+          위례에서 하나님의 사랑을 나누는 공동체
+        </p>
+
+        {/* Worship time badges */}
+        <div className="flex flex-wrap justify-center gap-3 mb-10">
+          <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white rounded-full px-5 py-2.5 text-sm">
+            <span className="w-2 h-2 rounded-full bg-[#C9A84C]" />
+            주일예배 12:00
+          </span>
+          <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white rounded-full px-5 py-2.5 text-sm">
+            <span className="w-2 h-2 rounded-full bg-[#C9A84C]" />
+            저녁예배 20:00
+          </span>
+        </div>
+
+        {/* CTA */}
+        <Link
+          href="#map"
+          className="inline-flex items-center gap-2 bg-[#C9A84C] hover:bg-[#b8963f] text-[#1B3A2D] font-semibold rounded-full px-8 py-3.5 text-base transition-colors"
+        >
+          예배 안내
+          <span aria-hidden="true">&rarr;</span>
+        </Link>
+      </div>
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+        <div className="w-6 h-10 rounded-full border-2 border-white/40 flex justify-center pt-2">
+          <div className="w-1 h-3 rounded-full bg-white/60 animate-bounce" />
+        </div>
+      </div>
+    </section>
+  )
+}

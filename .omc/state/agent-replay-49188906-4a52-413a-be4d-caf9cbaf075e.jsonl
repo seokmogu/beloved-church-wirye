@@ -1,0 +1,12 @@
+{"t":0,"agent":"a9981e9","agent_type":"expert-backend","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a9981e9","agent_type":"expert-backend","event":"agent_stop","success":true,"duration_ms":228290}
+{"t":0,"agent":"a49682d","agent_type":"expert-frontend","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a49682d","agent_type":"expert-frontend","event":"agent_stop","success":true,"duration_ms":246513}
+{"t":0,"agent":"a993cca","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"a49cb6d","agent_type":"expert-debug","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a49cb6d","agent_type":"expert-debug","event":"agent_stop","success":true,"duration_ms":255067}
+{"t":0,"agent":"system","event":"keyword_detected","keyword":"ultrawork"}
+{"t":0,"agent":"system","event":"mode_change","mode_from":"none","mode_to":"ultrawork"}
+{"t":0,"agent":"system","event":"skill_invoked","skill_name":"oh-my-claudecode:ultrawork"}
+{"t":0,"agent":"ad363ed","agent_type":"executor","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a4a7b68","agent_type":"executor","event":"agent_start","parent_mode":"none"}
