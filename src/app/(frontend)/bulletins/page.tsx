@@ -12,6 +12,7 @@ export const revalidate = 300
 
 export default async function BulletinsPage() {
   let bulletins: any[] = []
+  let hasError = false
 
   try {
     const payload = await getPayload({ config: configPromise })
@@ -26,6 +27,7 @@ export default async function BulletinsPage() {
     bulletins = result.docs
   } catch (error) {
     console.error('Failed to fetch bulletins:', error)
+    hasError = true
   }
 
   return (
@@ -45,7 +47,7 @@ export default async function BulletinsPage() {
       <div className="container py-12">
         {bulletins.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground">
-            <p>등록된 주보가 없습니다.</p>
+            <p>{hasError ? '주보를 불러오는 중 오류가 발생했습니다.' : '등록된 주보가 없습니다.'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -82,7 +84,7 @@ export default async function BulletinsPage() {
                       <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{bulletin.description}</p>
                     )}
                     <p className="text-xs text-muted-foreground mb-3">
-                      {new Date(bulletin.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      {new Date(bulletin.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' })}
                     </p>
                     {fileUrl && (
                       <a

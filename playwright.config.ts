@@ -6,11 +6,13 @@ import { defineConfig, devices } from '@playwright/test'
  */
 import 'dotenv/config'
 
+const isProduction = process.env.E2E_BASE_URL || !process.env.CI
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './tests/e2e',
+  testDir: './e2e',
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -21,21 +23,20 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://localhost:3000',
-
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    baseURL: process.env.E2E_BASE_URL || 'https://beloved-church-wirye.vercel.app',
     trace: 'on-first-retry',
   },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], channel: 'chromium' },
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'pnpm dev',
-    reuseExistingServer: true,
-    url: 'http://localhost:3000',
-  },
+  ...(!isProduction && {
+    webServer: {
+      command: 'pnpm dev',
+      reuseExistingServer: true,
+      url: 'http://localhost:3000',
+    },
+  }),
 })

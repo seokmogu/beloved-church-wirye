@@ -18,27 +18,30 @@ export const metadata = {
 export const revalidate = 600 // Revalidate every 10 minutes
 
 export default async function HomePage() {
-  // Fetch announcements from Payload CMS
+  // Fetch announcements and YouTube videos in parallel
   let announcements: AnnouncementItem[] = []
-  try {
-    const payload = await getPayload({ config: configPromise })
-    const result = await payload.find({
-      collection: 'announcements',
-      limit: 3,
-      sort: '-publishedAt',
-    })
-    announcements = result.docs.map((doc) => ({
+  const [announcementsResult, videos] = await Promise.all([
+    getPayload({ config: configPromise }).then((payload) =>
+      payload.find({
+        collection: 'announcements',
+        limit: 3,
+        sort: '-publishedAt',
+      }),
+    ).catch((error) => {
+      console.error('Failed to fetch announcements:', error)
+      return null
+    }),
+    fetchLatestVideos(4),
+  ])
+
+  if (announcementsResult) {
+    announcements = announcementsResult.docs.map((doc) => ({
       id: String(doc.id),
       title: doc.title as string,
       publishedAt: doc.publishedAt as string,
       isPinned: doc.isPinned as boolean | null,
     }))
-  } catch (error) {
-    console.error('Failed to fetch announcements:', error)
   }
-
-  // Fetch YouTube videos
-  const videos = await fetchLatestVideos(4)
 
   return (
     <main>
