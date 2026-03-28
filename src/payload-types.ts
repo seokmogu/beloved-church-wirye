@@ -70,6 +70,7 @@ export interface Config {
     pages: Page;
     posts: Post;
     announcements: Announcement;
+    bulletins: Bulletin;
     media: Media;
     users: User;
     redirects: Redirect;
@@ -92,6 +93,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
+    bulletins: BulletinsSelect<false> | BulletinsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -565,6 +567,34 @@ export interface Announcement {
   createdAt: string;
 }
 /**
+ * 매주 주보를 업로드하고 관리합니다. 공개 여부를 선택할 수 있습니다.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bulletins".
+ */
+export interface Bulletin {
+  id: number;
+  /**
+   * 예: 2026년 3월 22일 주보
+   */
+  title: string;
+  date: string;
+  /**
+   * 체크하면 로그인 없이도 열람 가능합니다.
+   */
+  isPublic?: boolean | null;
+  /**
+   * PDF 또는 이미지 파일을 업로드하세요.
+   */
+  file?: (number | null) | Media;
+  /**
+   * 이번 주 설교 제목이나 특별 사항을 입력하세요.
+   */
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -941,6 +971,10 @@ export interface PayloadLockedDocument {
         value: number | Announcement;
       } | null)
     | ({
+        relationTo: 'bulletins';
+        value: number | Bulletin;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
@@ -1182,6 +1216,19 @@ export interface AnnouncementsSelect<T extends boolean = true> {
   publishedAt?: T;
   isPinned?: T;
   googleDriveLink?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bulletins_select".
+ */
+export interface BulletinsSelect<T extends boolean = true> {
+  title?: T;
+  date?: T;
+  isPublic?: T;
+  file?: T;
+  description?: T;
   updatedAt?: T;
   createdAt?: T;
 }
