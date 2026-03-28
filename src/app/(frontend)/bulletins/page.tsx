@@ -1,6 +1,5 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import Link from 'next/link'
 import type { Metadata } from 'next'
 import type { Media } from '@/payload-types'
 
