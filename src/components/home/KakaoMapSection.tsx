@@ -124,7 +124,7 @@ export function KakaoMapSection() {
                   주소
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  위례사업소 3길 21-4
+                  위례서일로 3길 21-4
                   <br />
                   (BELOVED LOUNGE)
                 </p>

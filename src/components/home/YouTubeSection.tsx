@@ -18,7 +18,7 @@ export function YouTubeSection({ videos }: Props) {
   if (videos.length === 0) return null
 
   return (
-    <section className="py-20 bg-secondary/30">
+    <section className="py-20 bg-muted/30">
       <div className="container">
         {/* Section header */}
         <div className="flex items-end justify-between mb-10">
@@ -41,7 +41,7 @@ export function YouTubeSection({ videos }: Props) {
         </div>
 
         {/* Video grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {videos.map((video) => (
             <a
               key={video.id}

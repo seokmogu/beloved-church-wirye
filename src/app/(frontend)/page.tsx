@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { HeroSection } from '@/components/home/HeroSection'
+import { ChurchIntroSection } from '@/components/home/ChurchIntroSection'
 import { AnnouncementsSection } from '@/components/home/AnnouncementsSection'
 import type { AnnouncementItem } from '@/components/home/AnnouncementsSection'
 import { YouTubeSection } from '@/components/home/YouTubeSection'
@@ -42,6 +43,7 @@ export default async function HomePage() {
   return (
     <main>
       <HeroSection />
+      <ChurchIntroSection />
       <AnnouncementsSection announcements={announcements} />
       <YouTubeSection videos={videos} />
       <InstagramSection />

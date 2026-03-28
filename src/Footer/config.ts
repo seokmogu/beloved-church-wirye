@@ -35,7 +35,7 @@ export const Footer: GlobalConfig = {
       name: 'address',
       type: 'text',
       label: '주소',
-      defaultValue: '위례사업소 3길 21-4 (BELOVED LOUNGE)',
+      defaultValue: '위례서일로 3길 21-4 (BELOVED LOUNGE)',
     },
     {
       name: 'churchPhone',

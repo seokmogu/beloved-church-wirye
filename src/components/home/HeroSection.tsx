@@ -1,21 +1,40 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
+import type { Media } from '@/payload-types'
 
-export function HeroSection() {
+async function getSiteSettings() {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    return await payload.findGlobal({ slug: 'site-settings' })
+  } catch {
+    return null
+  }
+}
+
+export async function HeroSection() {
+  const settings = await getSiteSettings()
+  const heroImage = settings?.heroImage as Media | null | undefined
+  const heroImageUrl =
+    heroImage && typeof heroImage === 'object' && heroImage.url ? heroImage.url : null
+
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
-      {/* Background image */}
-      <Image
-        src="https://images.unsplash.com/photo-1438232992991-995b671e4b9a?w=1920&q=80"
-        alt="Church interior"
-        fill
-        priority
-        className="object-cover"
-        sizes="100vw"
-      />
-
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1B3A2D]/70 via-[#1B3A2D]/50 to-[#1B3A2D]/80" />
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1B3A2D] via-[#243d30] to-[#0f2318]" />
+      {heroImageUrl && (
+        <Image
+          src={heroImageUrl}
+          alt="교회 배경 이미지"
+          fill
+          priority
+          className="object-cover"
+          sizes="100vw"
+        />
+      )}
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#1B3A2D]/60 via-[#1B3A2D]/40 to-[#1B3A2D]/75" />
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
@@ -23,10 +42,10 @@ export function HeroSection() {
           Beloved Church Wirye
         </p>
         <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-          사랑하는교회
+          {settings?.heroTitle || '사랑하는교회'}
         </h1>
         <p className="text-white/80 text-lg md:text-xl mb-10 leading-relaxed">
-          위례에서 하나님의 사랑을 나누는 공동체
+          {settings?.heroSubtitle || '위례에서 하나님의 사랑을 나누는 공동체'}
         </p>
 
         {/* Worship time badges */}
@@ -37,7 +56,7 @@ export function HeroSection() {
           </span>
           <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white rounded-full px-5 py-2.5 text-sm">
             <span className="w-2 h-2 rounded-full bg-[#C9A84C]" />
-            저녁예배 20:00
+            금요기도회 20:00
           </span>
         </div>
 

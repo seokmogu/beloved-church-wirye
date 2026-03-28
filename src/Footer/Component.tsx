@@ -14,7 +14,7 @@ export async function Footer() {
               <p className="text-white/60 text-sm">Beloved Church Wirye</p>
             </Link>
             <p className="text-white/70 text-sm leading-relaxed">
-              위례사업소 3길 21-4
+              위례서일로 3길 21-4
               <br />
               (BELOVED LOUNGE)
             </p>
