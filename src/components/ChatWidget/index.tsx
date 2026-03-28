@@ -52,7 +52,7 @@ export function ChatWidget(): React.ReactElement {
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
     setIsLoading(true)
 
-    if (!process.env.NEXT_PUBLIC_OPENCLAW_API_URL) {
+    if (process.env.NEXT_PUBLIC_CHAT_ENABLED === 'false') {
       setMessages((prev) => [
         ...prev,
         { role: 'assistant', content: '채팅 서비스 준비 중입니다' },
@@ -292,6 +292,7 @@ export function ChatWidget(): React.ReactElement {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
+              aria-label="메시지 입력"
               placeholder="궁금한 것을 물어보세요..."
               disabled={isBusy}
               style={{

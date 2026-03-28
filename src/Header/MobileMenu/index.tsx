@@ -22,7 +22,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ data, open, onClose }) =
 
   return (
     <div
-      className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${open ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}
+      className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${open ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 pointer-events-none invisible'}`}
       aria-hidden={!open}
       onKeyDown={handleKeyDown}
     >

@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import type { Media } from '@/payload-types'
@@ -26,7 +25,7 @@ export async function HeroSection() {
       {heroImageUrl && (
         <Image
           src={heroImageUrl}
-          alt="교회 배경 이미지"
+          alt="위례 신도시 사랑하는교회 예배당 전경"
           fill
           priority
           className="object-cover"
@@ -61,13 +60,13 @@ export async function HeroSection() {
         </div>
 
         {/* CTA */}
-        <Link
+        <a
           href="#map"
           className="inline-flex items-center gap-2 bg-[#C9A84C] hover:bg-[#b8963f] text-[#1B3A2D] font-semibold rounded-full px-8 py-3.5 text-base transition-colors"
         >
           예배 안내
           <span aria-hidden="true">&rarr;</span>
-        </Link>
+        </a>
       </div>
 
       {/* Scroll indicator */}

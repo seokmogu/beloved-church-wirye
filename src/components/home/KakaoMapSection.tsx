@@ -181,7 +181,7 @@ export function KakaoMapSection() {
                     <span className="text-[#C9A84C] font-semibold">12:00</span>
                   </div>
                   <div className="flex justify-between items-center py-2">
-                    <span className="text-foreground font-medium">저녁예배</span>
+                    <span className="text-foreground font-medium">금요기도회</span>
                     <span className="text-[#C9A84C] font-semibold">20:00</span>
                   </div>
                 </div>

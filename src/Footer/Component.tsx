@@ -9,15 +9,16 @@ export async function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Church info */}
           <div>
-            <Link href="/" className="inline-block mb-4">
+            <Link href="/" className="inline-block mb-4 hover:opacity-80 transition-opacity">
               <h3 className="text-xl font-bold">사랑하는교회</h3>
               <p className="text-white/60 text-sm">Beloved Church Wirye</p>
             </Link>
-            <p className="text-white/70 text-sm leading-relaxed">
+            <p className="text-white/50 text-xs mt-2">담임목사 차원석</p>
+            <address className="not-italic text-white/70 text-sm leading-relaxed">
               위례서일로 3길 21-4
               <br />
               (BELOVED LOUNGE)
-            </p>
+            </address>
           </div>
 
           {/* Worship schedule */}
@@ -29,7 +30,7 @@ export async function Footer() {
                 <span className="text-white">12:00</span>
               </div>
               <div className="flex justify-between max-w-[200px]">
-                <span>저녁예배</span>
+                <span>금요기도회</span>
                 <span className="text-white">20:00</span>
               </div>
             </div>
@@ -43,6 +44,7 @@ export async function Footer() {
                 href="https://www.youtube.com/@BelovedChurchWirye"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="사랑하는교회 유튜브 채널 (새 탭에서 열림)"
                 className="text-white/70 hover:text-white transition-colors inline-flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -54,6 +56,7 @@ export async function Footer() {
                 href="https://www.instagram.com/beloved_ch_/"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="사랑하는교회 인스타그램 (새 탭에서 열림)"
                 className="text-white/70 hover:text-white transition-colors inline-flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">

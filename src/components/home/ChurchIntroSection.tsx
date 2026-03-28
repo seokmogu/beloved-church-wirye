@@ -18,7 +18,7 @@ export function ChurchIntroSection() {
                 우리는 <strong className="text-foreground">Like Christ (그리스도를 본받아)</strong>라는 비전 아래, 예수님의 삶과 사랑을 삶 속에서 실천하는 교회를 지향합니다.
               </p>
               <p>
-                주일 낮 예배와 저녁 예배를 통해 말씀을 나누며, 소그룹과 다양한 사역으로 서로 연결된 공동체를 만들어가고 있습니다.
+                주일예배와 금요기도회를 통해 말씀을 나누며, 소그룹과 다양한 사역으로 서로 연결된 공동체를 만들어가고 있습니다.
               </p>
             </div>
             <div className="mt-8 flex flex-wrap gap-4">
@@ -36,17 +36,17 @@ export function ChurchIntroSection() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-[#1B3A2D] rounded-2xl p-6 text-white">
-              <div className="text-3xl font-bold text-[#C9A84C] mb-1">주일</div>
-              <div className="text-sm text-white/70 mb-3">Sunday Service</div>
+              <div className="text-3xl font-bold text-[#C9A84C] mb-1">예배</div>
+              <div className="text-sm text-white/70 mb-3">Worship</div>
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-white/70">낮 예배</span>
+                  <span className="text-white/70">주일예배</span>
                   <span className="font-semibold">12:00</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/70">저녁 예배</span>
+                  <span className="text-white/70">금요기도회</span>
                   <span className="font-semibold">20:00</span>
                 </div>
               </div>
