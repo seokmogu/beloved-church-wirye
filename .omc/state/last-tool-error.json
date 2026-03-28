@@ -1,7 +1,0 @@
-{
-  "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"/Users/seokmogu/.claude/plugins/marketplaces/omc/skills/ultrawork/docs/shared/agent-tiers.md\"}",
-  "error": "File does not exist. Note: your current working directory is /Users/seokmogu/project/beloved-church-wirye.",
-  "timestamp": "2026-03-28T16:16:17.663Z",
-  "retry_count": 1
-}
