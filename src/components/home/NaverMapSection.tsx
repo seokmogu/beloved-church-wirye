@@ -3,17 +3,12 @@
 import { useEffect, useRef } from 'react'
 import Script from 'next/script'
 
-// Church coordinates (approximate for Wirye)
-const CHURCH_LAT = 37.4697
-const CHURCH_LNG = 127.1489
-
 declare global {
   interface Window {
-    kakao: {
+    naver: {
       maps: {
-        load: (callback: () => void) => void
-        LatLng: new (lat: number, lng: number) => unknown
         Map: new (container: HTMLElement, options: Record<string, unknown>) => unknown
+        LatLng: new (lat: number, lng: number) => unknown
         Marker: new (options: Record<string, unknown>) => unknown
         InfoWindow: new (options: Record<string, unknown>) => {
           open: (map: unknown, marker: unknown) => void
@@ -23,46 +18,62 @@ declare global {
   }
 }
 
-export function KakaoMapSection() {
+type NaverMapSectionProps = {
+  address?: string
+  addressDetail?: string
+  transitInfo?: string
+  sundayServiceTime?: string
+  fridayServiceTime?: string
+  lat?: number
+  lng?: number
+}
+
+export function NaverMapSection({
+  address = '위례서일로 3길 21-4',
+  addressDetail = 'BELOVED LOUNGE',
+  transitInfo = '남위례역 근처, 도보 약 5분 거리',
+  sundayServiceTime = '12:00',
+  fridayServiceTime = '20:00',
+  lat = 37.4697,
+  lng = 127.1489,
+}: NaverMapSectionProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<unknown>(null)
 
-  const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY
+  const naverClientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID
 
   function initMap() {
-    if (!mapRef.current || !window.kakao?.maps) return
+    if (!mapRef.current || !window.naver?.maps) return
     if (mapInstanceRef.current) return
 
-    window.kakao.maps.load(() => {
-      const position = new window.kakao.maps.LatLng(CHURCH_LAT, CHURCH_LNG)
-      const map = new window.kakao.maps.Map(mapRef.current!, {
-        center: position,
-        level: 3,
-      })
-      mapInstanceRef.current = map
-
-      const marker = new window.kakao.maps.Marker({ map, position })
-
-      const infoWindow = new window.kakao.maps.InfoWindow({
-        content:
-          '<div style="padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap;">사랑하는교회</div>',
-      })
-      infoWindow.open(map, marker)
+    const position = new window.naver.maps.LatLng(lat, lng)
+    const map = new window.naver.maps.Map(mapRef.current, {
+      center: position,
+      zoom: 16,
     })
+    mapInstanceRef.current = map
+
+    const marker = new window.naver.maps.Marker({ map, position })
+
+    const infoWindow = new window.naver.maps.InfoWindow({
+      content:
+        '<div style="padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap;">사랑하는교회</div>',
+    })
+    infoWindow.open(map, marker)
   }
 
   useEffect(() => {
-    // If the script has already been loaded on a previous render
-    if (window.kakao?.maps) {
+    if (window.naver?.maps) {
       initMap()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (!kakaoKey) {
+  if (!naverClientId) {
     return (
       <section id="map" className="py-20 bg-secondary/30">
         <div className="container text-center text-muted-foreground">
-          <p>Kakao Map key is not configured.</p>
+          <p>Naver Map client ID is not configured.</p>
         </div>
       </section>
     )
@@ -71,7 +82,7 @@ export function KakaoMapSection() {
   return (
     <>
       <Script
-        src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoKey}&autoload=false`}
+        src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${naverClientId}`}
         strategy="afterInteractive"
         onLoad={initMap}
       />
@@ -124,9 +135,12 @@ export function KakaoMapSection() {
                   주소
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  위례서일로 3길 21-4
-                  <br />
-                  (BELOVED LOUNGE)
+                  {address}
+                  {addressDetail && (
+                    <>
+                      <br />({addressDetail})
+                    </>
+                  )}
                 </p>
               </div>
 
@@ -149,10 +163,8 @@ export function KakaoMapSection() {
                   </svg>
                   교통편
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  남위례역 근처
-                  <br />
-                  도보 약 5분 거리
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {transitInfo}
                 </p>
               </div>
 
@@ -178,11 +190,11 @@ export function KakaoMapSection() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center py-2 border-b border-border">
                     <span className="text-foreground font-medium">주일예배</span>
-                    <span className="text-[#C9A84C] font-semibold">12:00</span>
+                    <span className="text-[#C9A84C] font-semibold">{sundayServiceTime}</span>
                   </div>
                   <div className="flex justify-between items-center py-2">
                     <span className="text-foreground font-medium">금요기도회</span>
-                    <span className="text-[#C9A84C] font-semibold">20:00</span>
+                    <span className="text-[#C9A84C] font-semibold">{fridayServiceTime}</span>
                   </div>
                 </div>
               </div>

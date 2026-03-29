@@ -7,7 +7,7 @@ import { AnnouncementsSection } from '@/components/home/AnnouncementsSection'
 import type { AnnouncementItem } from '@/components/home/AnnouncementsSection'
 import { YouTubeSection } from '@/components/home/YouTubeSection'
 import { InstagramSection } from '@/components/home/InstagramSection'
-import { KakaoMapSection } from '@/components/home/KakaoMapSection'
+import { NaverMapSectionServer } from '@/components/home/NaverMapSection.server'
 import { fetchLatestVideos } from '@/lib/youtube'
 
 export const metadata = {
@@ -50,7 +50,7 @@ export default async function HomePage() {
       <AnnouncementsSection announcements={announcements} />
       <YouTubeSection videos={videos} />
       <InstagramSection />
-      <KakaoMapSection />
+      <NaverMapSectionServer />
     </main>
   )
 }

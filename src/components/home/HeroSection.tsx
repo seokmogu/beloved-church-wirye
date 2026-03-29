@@ -51,11 +51,11 @@ export async function HeroSection() {
         <div className="flex flex-wrap justify-center gap-3 mb-10">
           <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white rounded-full px-5 py-2.5 text-sm">
             <span className="w-2 h-2 rounded-full bg-[#C9A84C]" />
-            주일예배 12:00
+            주일예배 {settings?.sundayServiceTime ?? '12:00'}
           </span>
           <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white rounded-full px-5 py-2.5 text-sm">
             <span className="w-2 h-2 rounded-full bg-[#C9A84C]" />
-            금요기도회 20:00
+            금요기도회 {settings?.fridayServiceTime ?? '20:00'}
           </span>
         </div>
 

@@ -250,6 +250,14 @@ export interface Page {
         blockName?: string | null;
         blockType: 'googleDriveBlock';
       }
+    | {
+        title?: string | null;
+        description?: string | null;
+        limit?: number | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'bulletinsBlock';
+      }
   )[];
   meta?: {
     title?: string | null;
@@ -1117,6 +1125,15 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        bulletinsBlock?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              limit?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   meta?:
     | T
@@ -1697,7 +1714,23 @@ export interface SiteSetting {
   heroImage?: (number | null) | Media;
   heroTitle?: string | null;
   heroSubtitle?: string | null;
+  /**
+   * 예: 12:00 또는 오전 11시
+   */
+  sundayServiceTime?: string | null;
+  /**
+   * 예: 20:00 또는 저녁 8시
+   */
+  fridayServiceTime?: string | null;
+  address?: string | null;
+  addressDetail?: string | null;
+  transitInfo?: string | null;
+  mapLat?: number | null;
+  mapLng?: number | null;
   churchDescription?: string | null;
+  churchVision?: string | null;
+  churchQuote?: string | null;
+  denomination?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1758,7 +1791,17 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   heroImage?: T;
   heroTitle?: T;
   heroSubtitle?: T;
+  sundayServiceTime?: T;
+  fridayServiceTime?: T;
+  address?: T;
+  addressDetail?: T;
+  transitInfo?: T;
+  mapLat?: T;
+  mapLng?: T;
   churchDescription?: T;
+  churchVision?: T;
+  churchQuote?: T;
+  denomination?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
