@@ -5,11 +5,10 @@ import Script from 'next/script'
 
 declare global {
   interface Window {
-    kakao: {
+    naver: {
       maps: {
-        load: (callback: () => void) => void
-        LatLng: new (lat: number, lng: number) => unknown
         Map: new (container: HTMLElement, options: Record<string, unknown>) => unknown
+        LatLng: new (lat: number, lng: number) => unknown
         Marker: new (options: Record<string, unknown>) => unknown
         InfoWindow: new (options: Record<string, unknown>) => {
           open: (map: unknown, marker: unknown) => void
@@ -41,42 +40,40 @@ export function KakaoMapSection({
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<unknown>(null)
 
-  const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY
+  const naverClientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID
 
   function initMap() {
-    if (!mapRef.current || !window.kakao?.maps) return
+    if (!mapRef.current || !window.naver?.maps) return
     if (mapInstanceRef.current) return
 
-    window.kakao.maps.load(() => {
-      const position = new window.kakao.maps.LatLng(lat, lng)
-      const map = new window.kakao.maps.Map(mapRef.current!, {
-        center: position,
-        level: 3,
-      })
-      mapInstanceRef.current = map
-
-      const marker = new window.kakao.maps.Marker({ map, position })
-
-      const infoWindow = new window.kakao.maps.InfoWindow({
-        content:
-          '<div style="padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap;">사랑하는교회</div>',
-      })
-      infoWindow.open(map, marker)
+    const position = new window.naver.maps.LatLng(lat, lng)
+    const map = new window.naver.maps.Map(mapRef.current, {
+      center: position,
+      zoom: 16,
     })
+    mapInstanceRef.current = map
+
+    const marker = new window.naver.maps.Marker({ map, position })
+
+    const infoWindow = new window.naver.maps.InfoWindow({
+      content:
+        '<div style="padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap;">사랑하는교회</div>',
+    })
+    infoWindow.open(map, marker)
   }
 
   useEffect(() => {
-    if (window.kakao?.maps) {
+    if (window.naver?.maps) {
       initMap()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (!kakaoKey) {
+  if (!naverClientId) {
     return (
       <section id="map" className="py-20 bg-secondary/30">
         <div className="container text-center text-muted-foreground">
-          <p>Kakao Map key is not configured.</p>
+          <p>Naver Map client ID is not configured.</p>
         </div>
       </section>
     )
@@ -85,7 +82,7 @@ export function KakaoMapSection({
   return (
     <>
       <Script
-        src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoKey}&autoload=false`}
+        src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${naverClientId}`}
         strategy="afterInteractive"
         onLoad={initMap}
       />
