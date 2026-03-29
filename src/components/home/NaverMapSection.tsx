@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-type KakaoMapSectionProps = {
+type NaverMapSectionProps = {
   address?: string
   addressDetail?: string
   transitInfo?: string
@@ -28,7 +28,7 @@ type KakaoMapSectionProps = {
   lng?: number
 }
 
-export function KakaoMapSection({
+export function NaverMapSection({
   address = '위례서일로 3길 21-4',
   addressDetail = 'BELOVED LOUNGE',
   transitInfo = '남위례역 근처, 도보 약 5분 거리',
@@ -36,7 +36,7 @@ export function KakaoMapSection({
   fridayServiceTime = '20:00',
   lat = 37.4697,
   lng = 127.1489,
-}: KakaoMapSectionProps) {
+}: NaverMapSectionProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<unknown>(null)
 

@@ -1,6 +1,6 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import { KakaoMapSection } from './KakaoMapSection'
+import { NaverMapSection } from './NaverMapSection'
 
 async function getSiteSettings() {
   try {
@@ -11,11 +11,11 @@ async function getSiteSettings() {
   }
 }
 
-export async function KakaoMapSectionServer() {
+export async function NaverMapSectionServer() {
   const settings = await getSiteSettings()
 
   return (
-    <KakaoMapSection
+    <NaverMapSection
       address={settings?.address ?? '위례서일로 3길 21-4'}
       addressDetail={settings?.addressDetail ?? 'BELOVED LOUNGE'}
       transitInfo={settings?.transitInfo ?? '남위례역 근처, 도보 약 5분 거리'}
