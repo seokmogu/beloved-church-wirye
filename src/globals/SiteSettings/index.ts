@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload'
+import { revalidateSiteSettings } from './hooks/revalidateSiteSettings'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -7,7 +8,11 @@ export const SiteSettings: GlobalConfig = {
     read: () => true,
     update: ({ req }) => Boolean(req.user),
   },
+  hooks: {
+    afterChange: [revalidateSiteSettings],
+  },
   fields: [
+    // ─── 히어로 ───────────────────────────────────────────────
     {
       name: 'heroImage',
       type: 'upload',
@@ -29,12 +34,84 @@ export const SiteSettings: GlobalConfig = {
       label: '히어로 부제목',
       defaultValue: '위례에서 하나님의 사랑을 나누는 공동체',
     },
+
+    // ─── 예배 시간 ────────────────────────────────────────────
+    {
+      name: 'sundayServiceTime',
+      type: 'text',
+      label: '주일예배 시간',
+      defaultValue: '12:00',
+      admin: {
+        description: '예: 12:00 또는 오전 11시',
+      },
+    },
+    {
+      name: 'fridayServiceTime',
+      type: 'text',
+      label: '금요기도회 시간',
+      defaultValue: '20:00',
+      admin: {
+        description: '예: 20:00 또는 저녁 8시',
+      },
+    },
+
+    // ─── 위치 정보 ────────────────────────────────────────────
+    {
+      name: 'address',
+      type: 'text',
+      label: '주소',
+      defaultValue: '위례서일로 3길 21-4',
+    },
+    {
+      name: 'addressDetail',
+      type: 'text',
+      label: '상세 주소 (건물명 등)',
+      defaultValue: 'BELOVED LOUNGE',
+    },
+    {
+      name: 'transitInfo',
+      type: 'text',
+      label: '교통편 안내',
+      defaultValue: '남위례역 근처, 도보 약 5분 거리',
+    },
+    {
+      name: 'mapLat',
+      type: 'number',
+      label: '지도 위도',
+      defaultValue: 37.4697,
+    },
+    {
+      name: 'mapLng',
+      type: 'number',
+      label: '지도 경도',
+      defaultValue: 127.1489,
+    },
+
+    // ─── 교회 소개 ────────────────────────────────────────────
     {
       name: 'churchDescription',
       type: 'textarea',
-      label: '교회 소개',
+      label: '교회 소개 (첫 문장)',
       defaultValue:
         '사랑하는교회는 기독교대한감리회 소속으로, 위례 신도시에서 하나님의 말씀을 중심으로 모이는 공동체입니다.',
+    },
+    {
+      name: 'churchVision',
+      type: 'text',
+      label: '비전',
+      defaultValue: 'Like Christ (그리스도를 본받아)',
+    },
+    {
+      name: 'churchQuote',
+      type: 'text',
+      label: '인용 문구',
+      defaultValue: '사랑 안에서 진리를 말하고, 그리스도 안에서 함께 자라가는 교회',
+    },
+    {
+      name: 'denomination',
+      type: 'text',
+      label: '교단',
+      defaultValue: '기독교대한감리회',
     },
   ],
 }
