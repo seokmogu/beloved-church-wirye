@@ -163,7 +163,7 @@ export interface Page {
   id: number;
   title: string;
   hero: {
-    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact' | 'pageBanner';
     richText?: {
       root: {
         type: string;
@@ -205,60 +205,69 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (
-    | ContentBlock
-    | MediaBlock
-    | {
-        /**
-         * YouTube URL에서 v= 뒤의 값 (예: dQw4w9WgXcQ)
-         */
-        videoId: string;
-        title?: string | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'youtubeBlock';
-      }
-    | {
-        /**
-         * 인스타그램 게시물에서 공유 > 임베드로 복사한 코드를 붙여넣으세요
-         */
-        embedCode: string;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'instagramBlock';
-      }
-    | {
-        title?: string | null;
-        items?:
-          | {
-              dayTime: string;
-              name: string;
-              location?: string | null;
-              description?: string | null;
-              id?: string | null;
-            }[]
-          | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'scheduleBlock';
-      }
-    | {
-        driveLink: string;
-        title?: string | null;
-        showPreview?: boolean | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'googleDriveBlock';
-      }
-    | {
-        title?: string | null;
-        description?: string | null;
-        limit?: number | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'bulletinsBlock';
-      }
-  )[];
+  layout?:
+    | (
+        | ContentBlock
+        | MediaBlock
+        | {
+            /**
+             * YouTube URL에서 v= 뒤의 값 (예: dQw4w9WgXcQ)
+             */
+            videoId: string;
+            title?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'youtubeBlock';
+          }
+        | {
+            /**
+             * 인스타그램 게시물에서 공유 > 임베드로 복사한 코드를 붙여넣으세요
+             */
+            embedCode: string;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'instagramBlock';
+          }
+        | {
+            title?: string | null;
+            items?:
+              | {
+                  dayTime: string;
+                  name: string;
+                  location?: string | null;
+                  description?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'scheduleBlock';
+          }
+        | {
+            driveLink: string;
+            title?: string | null;
+            showPreview?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'googleDriveBlock';
+          }
+        | {
+            title?: string | null;
+            description?: string | null;
+            limit?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'bulletinsBlock';
+          }
+        | {
+            limit?: number | null;
+            showPinnedFirst?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'announcementsBlock';
+          }
+      )[]
+    | null;
   meta?: {
     title?: string | null;
     /**
@@ -1131,6 +1140,14 @@ export interface PagesSelect<T extends boolean = true> {
               title?: T;
               description?: T;
               limit?: T;
+              id?: T;
+              blockName?: T;
+            };
+        announcementsBlock?:
+          | T
+          | {
+              limit?: T;
+              showPinnedFirst?: T;
               id?: T;
               blockName?: T;
             };

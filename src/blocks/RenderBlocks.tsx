@@ -9,6 +9,7 @@ import { InstagramBlockComponent } from '@/blocks/InstagramBlock/Component'
 import { ScheduleBlockComponent } from '@/blocks/ScheduleBlock/Component'
 import { GoogleDriveBlockComponent } from '@/blocks/GoogleDriveBlock/Component'
 import { BulletinsBlockComponent } from '@/blocks/BulletinsBlock/Component'
+import { AnnouncementsBlockComponent } from '@/blocks/AnnouncementsBlock/Component'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const blockComponents: Record<string, React.FC<any>> = {
@@ -19,10 +20,12 @@ const blockComponents: Record<string, React.FC<any>> = {
   scheduleBlock: ScheduleBlockComponent,
   googleDriveBlock: GoogleDriveBlockComponent,
   bulletinsBlock: BulletinsBlockComponent,
+  announcementsBlock: AnnouncementsBlockComponent,
 }
 
 export const RenderBlocks: React.FC<{
-  blocks: Page['layout'][0][]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  blocks: any[]
 }> = (props) => {
   const { blocks } = props
 
