@@ -8,8 +8,9 @@ import { YouTubeBlock } from '../../blocks/YouTubeBlock/config'
 import { InstagramBlock } from '../../blocks/InstagramBlock/config'
 import { ScheduleBlock } from '../../blocks/ScheduleBlock/config'
 import { GoogleDriveBlock } from '../../blocks/GoogleDriveBlock/config'
-import { BulletinsBlock } from '../../blocks/BulletinsBlock/config'
-import { AnnouncementsBlock } from '../../blocks/AnnouncementsBlock/config'
+// BulletinsBlock and AnnouncementsBlock removed from Pages until DB migration runs
+// import { BulletinsBlock } from '../../blocks/BulletinsBlock/config'
+// import { AnnouncementsBlock } from '../../blocks/AnnouncementsBlock/config'
 import { hero } from '@/heros/config'
 import { slugField } from 'payload'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
@@ -75,7 +76,7 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [Content, MediaBlock, YouTubeBlock, InstagramBlock, ScheduleBlock, GoogleDriveBlock, BulletinsBlock, AnnouncementsBlock],
+              blocks: [Content, MediaBlock, YouTubeBlock, InstagramBlock, ScheduleBlock, GoogleDriveBlock],
               admin: {
                 initCollapsed: true,
               },

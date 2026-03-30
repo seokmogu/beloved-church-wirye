@@ -251,21 +251,6 @@ export interface Page {
             blockName?: string | null;
             blockType: 'googleDriveBlock';
           }
-        | {
-            title?: string | null;
-            description?: string | null;
-            limit?: number | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'bulletinsBlock';
-          }
-        | {
-            limit?: number | null;
-            showPinnedFirst?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'announcementsBlock';
-          }
       )[]
     | null;
   meta?: {
@@ -1131,23 +1116,6 @@ export interface PagesSelect<T extends boolean = true> {
               driveLink?: T;
               title?: T;
               showPreview?: T;
-              id?: T;
-              blockName?: T;
-            };
-        bulletinsBlock?:
-          | T
-          | {
-              title?: T;
-              description?: T;
-              limit?: T;
-              id?: T;
-              blockName?: T;
-            };
-        announcementsBlock?:
-          | T
-          | {
-              limit?: T;
-              showPinnedFirst?: T;
               id?: T;
               blockName?: T;
             };
