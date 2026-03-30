@@ -75,7 +75,6 @@ export const Pages: CollectionConfig<'pages'> = {
               name: 'layout',
               type: 'blocks',
               blocks: [Content, MediaBlock, YouTubeBlock, InstagramBlock, ScheduleBlock, GoogleDriveBlock, BulletinsBlock],
-              required: true,
               admin: {
                 initCollapsed: true,
               },
