@@ -12,10 +12,26 @@ export const Header: GlobalConfig = {
     {
       name: 'navItems',
       type: 'array',
+      label: '메뉴 항목',
       fields: [
         link({
           appearances: false,
         }),
+        {
+          name: 'subItems',
+          type: 'array',
+          label: '하위 메뉴',
+          maxRows: 8,
+          admin: {
+            description: '하위 메뉴를 추가하면 드롭다운으로 표시됩니다.',
+            initCollapsed: true,
+          },
+          fields: [
+            link({
+              appearances: false,
+            }),
+          ],
+        },
       ],
       maxRows: 10,
       admin: {
