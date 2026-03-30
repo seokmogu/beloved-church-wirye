@@ -45,7 +45,8 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   }, [mobileOpen])
 
   return (
-    <header className="relative z-20 shadow-sm" style={{ backgroundColor: '#1B3A2D', color: 'white' }}>
+    {/* GNB: fixed green background */}
+    <header className="relative z-20 shadow-sm" style={{ backgroundColor: '#1B3A2D', color: '#ffffff' }}>
       <div ref={menuRef} className="container">
         <div className="py-5 flex justify-between items-center">
           <Link href="/">
