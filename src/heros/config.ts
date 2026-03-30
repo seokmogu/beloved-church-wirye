@@ -35,6 +35,10 @@ export const hero: Field = {
           label: 'Low Impact',
           value: 'lowImpact',
         },
+        {
+          label: 'Page Banner (녹색 배너)',
+          value: 'pageBanner',
+        },
       ],
       required: true,
     },
