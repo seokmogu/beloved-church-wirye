@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { SearchIcon } from 'lucide-react'
 
 import type { Header as HeaderType } from '@/payload-types'
-import { CMSLink } from '@/components/Link'
+
 
 interface MobileMenuProps {
   data: HeaderType
@@ -27,30 +27,34 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ data, open, onClose }) =
       onKeyDown={handleKeyDown}
     >
       <nav
-        className="flex flex-col gap-0 border-t border-[#1B3A2D]/20 pb-4"
-        style={{ backgroundColor: 'transparent' }}
+        className="flex flex-col gap-0 border-t border-white/20 pb-4 bg-[#1B3A2D]"
       >
         {navItems.map(({ link }, i) => (
-          <div key={i} className="px-2 py-3 border-b border-[#1B3A2D]/10" onClick={onClose}>
-            <CMSLink {...link} appearance="link" />
+          <div key={i} className="px-4 py-3 border-b border-white/10" onClick={onClose}>
+            <Link
+              href={(link as { url?: string }).url || '/'}
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              {(link as { label?: string }).label}
+            </Link>
           </div>
         ))}
-        <div className="px-2 py-3 border-b border-[#1B3A2D]/10">
+        <div className="px-4 py-3 border-b border-white/10">
           <Link
             href="/bulletins"
-            className="text-sm font-medium text-foreground/80 hover:text-[#C9A84C] transition-colors"
+            className="text-sm font-medium text-white/80 hover:text-[#C9A84C] transition-colors"
             onClick={onClose}
           >
             주보
           </Link>
         </div>
-        <div className="px-2 py-3">
+        <div className="px-4 py-3">
           <Link
             href="/search"
-            className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-[#C9A84C] transition-colors"
+            className="flex items-center gap-2 text-sm font-medium text-white/80 hover:text-[#C9A84C] transition-colors"
             onClick={onClose}
           >
-            <SearchIcon className="w-4 h-4 text-primary" />
+            <SearchIcon className="w-4 h-4 text-white/60" />
             검색
           </Link>
         </div>
