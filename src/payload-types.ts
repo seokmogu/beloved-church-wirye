@@ -71,6 +71,7 @@ export interface Config {
     posts: Post;
     announcements: Announcement;
     bulletins: Bulletin;
+    newcomers: Newcomer;
     media: Media;
     users: User;
     redirects: Redirect;
@@ -94,6 +95,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     bulletins: BulletinsSelect<false> | BulletinsSelect<true>;
+    newcomers: NewcomersSelect<false> | NewcomersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -598,6 +600,39 @@ export interface Bulletin {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newcomers".
+ */
+export interface Newcomer {
+  id: number;
+  name: string;
+  /**
+   * 휴대폰 번호 (예: 010-1234-5678)
+   */
+  phone: string;
+  /**
+   * 선택 사항
+   */
+  email?: string | null;
+  age?: ('20s-below' | '30s' | '40s' | '50s' | '60s-above' | 'not-specified') | null;
+  familyStatus?: ('single' | 'married-no-children' | 'married-with-children' | 'not-specified') | null;
+  visitSource: 'referral' | 'search' | 'social-media' | 'neighborhood' | 'advertisement' | 'other';
+  /**
+   * 복수 선택 가능
+   */
+  interests?: ('worship' | 'bible-study' | 'small-group' | 'volunteer' | 'prayer' | 'praise' | 'not-sure')[] | null;
+  /**
+   * 자유롭게 작성해 주세요 (선택 사항)
+   */
+  message?: string | null;
+  /**
+   * 새가족 담당자가 연락드리는 것에 동의합니다
+   */
+  contactConsent: boolean;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -977,6 +1012,10 @@ export interface PayloadLockedDocument {
         value: number | Bulletin;
       } | null)
     | ({
+        relationTo: 'newcomers';
+        value: number | Newcomer;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
@@ -1231,6 +1270,23 @@ export interface BulletinsSelect<T extends boolean = true> {
   isPublic?: T;
   file?: T;
   description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newcomers_select".
+ */
+export interface NewcomersSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  email?: T;
+  age?: T;
+  familyStatus?: T;
+  visitSource?: T;
+  interests?: T;
+  message?: T;
+  contactConsent?: T;
   updatedAt?: T;
   createdAt?: T;
 }
