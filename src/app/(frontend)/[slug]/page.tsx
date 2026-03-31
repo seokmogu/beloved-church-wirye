@@ -32,7 +32,8 @@ export async function generateStaticParams() {
 
     const params = pages.docs
       ?.filter((doc) => {
-        return doc.slug !== 'home'
+        // Exclude home (handled by root) and sermon (dedicated page)
+        return doc.slug !== 'home' && doc.slug !== 'sermon'
       })
       .map(({ slug }) => {
         return { slug }
@@ -57,6 +58,12 @@ export default async function Page({ params: paramsPromise }: Args) {
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
   const url = '/' + decodedSlug
+
+  // Exclude sermon slug - handled by dedicated /sermon page
+  if (decodedSlug === 'sermon') {
+    return <PayloadRedirects url={url} />
+  }
+
   let page: RequiredDataFromCollectionSlug<'pages'> | null
 
   page = await queryPageBySlug({
