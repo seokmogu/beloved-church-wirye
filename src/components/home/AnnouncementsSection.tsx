@@ -47,10 +47,12 @@ export function AnnouncementsSection({ announcements }: Props) {
         {/* Cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {announcements.map((item) => (
-            <article
+            <Link
               key={item.id}
-              className="group bg-card border border-border rounded-xl p-6 hover:shadow-lg hover:border-primary/20 transition-all duration-300"
+              href="/announcements"
+              className="group bg-card border border-border rounded-xl p-6 hover:shadow-lg hover:border-primary/20 transition-all duration-300 block"
             >
+              <article>
               <div className="flex items-start justify-between gap-3 mb-3">
                 <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
                   {item.title}
@@ -64,7 +66,8 @@ export function AnnouncementsSection({ announcements }: Props) {
               <time className="text-sm text-muted-foreground" dateTime={item.publishedAt}>
                 {formatDate(item.publishedAt)}
               </time>
-            </article>
+              </article>
+            </Link>
           ))}
         </div>
 
