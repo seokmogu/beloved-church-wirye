@@ -1,5 +1,4 @@
 import clsx from 'clsx'
-import Image from 'next/image'
 
 interface Props {
   className?: string
@@ -8,18 +7,16 @@ interface Props {
 }
 
 export const Logo = (props: Props) => {
-  const { className, loading = 'lazy', priority = 'auto' } = props
+  const { className, loading = 'lazy' } = props
 
   return (
     <div className={clsx('flex items-center', className)}>
-      <Image
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src="/logo-beloved.png"
         alt="사랑하는교회 BELOVED"
-        width={120}
-        height={40}
-        loading={loading === 'eager' ? 'eager' : 'lazy'}
-        priority={priority === 'high'}
-        className="h-8 w-auto object-contain"
+        loading={loading}
+        className="h-8 w-auto object-contain brightness-0 invert"
       />
     </div>
   )

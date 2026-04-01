@@ -49,7 +49,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
       <div ref={menuRef} className="container">
         <div className="py-5 flex justify-between items-center">
           <Link href="/">
-            <Logo loading="eager" priority="high" className="invert" />
+            <Logo loading="eager" priority="high" />
           </Link>
           <HeaderNav data={data} />
           {/* Hamburger button - mobile only */}

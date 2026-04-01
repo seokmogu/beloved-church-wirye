@@ -37,9 +37,9 @@ export function InstagramSection() {
           </a>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-4 md:overflow-visible md:pb-0">
           {POSTS.map(({ id, type }) => (
-            <div key={id} className="relative w-full overflow-hidden rounded-lg bg-black/20" style={{ paddingBottom: '125%' }}>
+            <div key={id} className="relative shrink-0 w-[260px] md:w-auto overflow-hidden rounded-lg bg-black/20 snap-start" style={{ paddingBottom: '125%', minWidth: '260px' }}>
               <iframe
                 src={`https://www.instagram.com/${type}/${id}/embed/`}
                 className="absolute inset-0 w-full h-full border-0"
