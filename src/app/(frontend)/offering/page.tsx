@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
 import { PageHero } from '@/components/PageHero'
-import { getCachedGlobal } from '@/utilities/getGlobals'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 import type { Media, SiteSetting } from '@/payload-types'
 import Image from 'next/image'
 import { CopyAccountButton } from '@/components/CopyAccountButton'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: '헌금 안내 | 사랑하는교회',
@@ -11,7 +14,11 @@ export const metadata: Metadata = {
 }
 
 export default async function OfferingPage() {
-  const siteSettings = (await getCachedGlobal('site-settings', 1)()) as SiteSetting
+  const payload = await getPayload({ config: configPromise })
+  const siteSettings = (await payload.findGlobal({
+    slug: 'site-settings',
+    depth: 1,
+  })) as SiteSetting
 
   const {
     offeringBankName,
