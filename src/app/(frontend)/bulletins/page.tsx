@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import type { Metadata } from 'next'
 import type { Media } from '@/payload-types'
+import { EmptyState } from '@/components/EmptyState'
 
 export const metadata: Metadata = {
   title: '주보 | 사랑하는교회',
@@ -47,9 +48,23 @@ export default async function BulletinsPage() {
       {/* Bulletins grid */}
       <div className="container py-12">
         {bulletins.length === 0 ? (
-          <div className="text-center py-20 text-muted-foreground">
-            <p>{hasError ? '주보를 불러오는 중 오류가 발생했습니다.' : '등록된 주보가 없습니다.'}</p>
-          </div>
+          hasError ? (
+            <EmptyState
+              icon="error"
+              title="주보를 불러올 수 없습니다"
+              description="일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+              ctaText="홈으로 돌아가기"
+              ctaLink="/"
+            />
+          ) : (
+            <EmptyState
+              icon="document"
+              title="등록된 주보가 없습니다"
+              description="사랑하는교회의 주보가 곧 업로드될 예정입니다. 자주 방문해주세요!"
+              ctaText="예배 안내 보기"
+              ctaLink="/worship"
+            />
+          )
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {bulletins.map((bulletin) => {
