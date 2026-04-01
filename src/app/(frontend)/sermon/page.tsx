@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { fetchLatestVideos } from '@/lib/youtube'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 import Image from 'next/image'
 
 export const metadata: Metadata = {
@@ -19,8 +20,21 @@ function formatDate(dateString: string): string {
 }
 
 export default async function SermonPage() {
-  // Fetch latest sermon videos from YouTube
-  const videos = await fetchLatestVideos(12) // Get 12 latest videos
+  const payload = await getPayload({ config })
+
+  // Fetch published sermons from CMS, sorted by date (latest first)
+  const sermonsData = await payload.find({
+    collection: 'sermons',
+    where: {
+      status: {
+        equals: 'published',
+      },
+    },
+    limit: 12,
+    sort: '-sermonDate',
+  })
+
+  const sermons = sermonsData.docs
 
   return (
     <article className="pt-16 pb-24">
@@ -42,7 +56,7 @@ export default async function SermonPage() {
       </section>
 
       {/* Latest Sermon Section */}
-      {videos.length > 0 && (
+      {sermons.length > 0 && (
         <section className="py-16">
           <div className="container">
             <div className="mb-10">
@@ -58,8 +72,8 @@ export default async function SermonPage() {
             <div className="mb-16">
               <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-muted mb-6">
                 <iframe
-                  src={`https://www.youtube.com/embed/${videos[0].id}`}
-                  title={videos[0].title}
+                  src={`https://www.youtube.com/embed/${sermons[0].youtubeId}`}
+                  title={sermons[0].title}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   className="absolute inset-0 h-full w-full"
@@ -67,19 +81,32 @@ export default async function SermonPage() {
               </div>
               <div className="max-w-3xl">
                 <h3 className="text-2xl font-semibold text-foreground mb-2">
-                  {videos[0].title}
+                  {sermons[0].title}
                 </h3>
-                <time
-                  className="text-sm text-muted-foreground"
-                  dateTime={videos[0].publishedAt}
-                >
-                  {formatDate(videos[0].publishedAt)}
-                </time>
+                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-3">
+                  <time dateTime={sermons[0].sermonDate}>
+                    {formatDate(sermons[0].sermonDate)}
+                  </time>
+                  <span>•</span>
+                  <span>{sermons[0].preacher}</span>
+                  <span>•</span>
+                  <span className="font-medium text-primary">{sermons[0].scriptureRef}</span>
+                </div>
+                {sermons[0].description && (
+                  <p className="text-muted-foreground">{sermons[0].description}</p>
+                )}
+                {sermons[0].sermonSeries && (
+                  <div className="mt-3">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-secondary/10 text-secondary">
+                      시리즈: {sermons[0].sermonSeries}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Previous Sermons Grid */}
-            {videos.length > 1 && (
+            {sermons.length > 1 && (
               <>
                 <div className="mb-10">
                   <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
@@ -88,10 +115,10 @@ export default async function SermonPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {videos.slice(1).map((video) => (
+                  {sermons.slice(1).map((sermon) => (
                     <a
-                      key={video.id}
-                      href={`https://www.youtube.com/watch?v=${video.id}`}
+                      key={sermon.id}
+                      href={`https://www.youtube.com/watch?v=${sermon.youtubeId}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group block bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all duration-300"
@@ -99,8 +126,8 @@ export default async function SermonPage() {
                       {/* Thumbnail */}
                       <div className="relative aspect-video overflow-hidden">
                         <Image
-                          src={video.thumbnail}
-                          alt={video.title}
+                          src={sermon.thumbnail || ''}
+                          alt={sermon.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -123,14 +150,25 @@ export default async function SermonPage() {
                       {/* Info */}
                       <div className="p-5">
                         <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2">
-                          {video.title}
+                          {sermon.title}
                         </h3>
-                        <time
-                          className="text-sm text-muted-foreground"
-                          dateTime={video.publishedAt}
-                        >
-                          {formatDate(video.publishedAt)}
-                        </time>
+                        <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+                          <time dateTime={sermon.sermonDate}>
+                            {formatDate(sermon.sermonDate)}
+                          </time>
+                          <div className="flex items-center gap-2">
+                            <span>{sermon.preacher}</span>
+                            <span>•</span>
+                            <span className="text-primary font-medium">{sermon.scriptureRef}</span>
+                          </div>
+                        </div>
+                        {sermon.sermonSeries && (
+                          <div className="mt-3">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-secondary/10 text-secondary">
+                              {sermon.sermonSeries}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </a>
                   ))}
@@ -162,7 +200,7 @@ export default async function SermonPage() {
       )}
 
       {/* Empty State */}
-      {videos.length === 0 && (
+      {sermons.length === 0 && (
         <section className="py-16">
           <div className="container">
             <div className="text-center max-w-md mx-auto">
@@ -185,7 +223,7 @@ export default async function SermonPage() {
                 설교 영상이 없습니다
               </h3>
               <p className="text-muted-foreground mb-6">
-                YouTube 채널에서 최신 설교를 확인해보세요.
+                CMS에서 설교 콘텐츠를 추가하거나 YouTube 채널에서 최신 설교를 확인해보세요.
               </p>
               <a
                 href="https://www.youtube.com/@BelovedChurchWirye"
