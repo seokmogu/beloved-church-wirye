@@ -17,7 +17,7 @@ export const redirects: NextConfig['redirects'] = async () => {
   const legacyRouteRedirects = [
     {
       source: '/ministry',
-      destination: '/about',
+      destination: '/',
       permanent: true,
     },
     {
