@@ -71,6 +71,7 @@ export interface Config {
     posts: Post;
     announcements: Announcement;
     bulletins: Bulletin;
+    sermons: Sermon;
     newcomers: Newcomer;
     media: Media;
     users: User;
@@ -95,6 +96,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     bulletins: BulletinsSelect<false> | BulletinsSelect<true>;
+    sermons: SermonsSelect<false> | SermonsSelect<true>;
     newcomers: NewcomersSelect<false> | NewcomersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -623,6 +625,59 @@ export interface Bulletin {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sermons".
+ */
+export interface Sermon {
+  id: number;
+  /**
+   * Enter the sermon title
+   */
+  title: string;
+  /**
+   * Auto-generated from title
+   */
+  slug?: string | null;
+  /**
+   * Name of the preacher
+   */
+  preacher: string;
+  /**
+   * Scripture reference (e.g., John 3:16, Genesis 1:1-5)
+   */
+  scriptureRef: string;
+  /**
+   * Date when the sermon was preached
+   */
+  sermonDate: string;
+  /**
+   * YouTube video URL
+   */
+  youtubeUrl: string;
+  /**
+   * Auto-extracted from YouTube URL
+   */
+  youtubeId?: string | null;
+  /**
+   * Auto-generated from YouTube ID
+   */
+  thumbnail?: string | null;
+  /**
+   * Brief description or summary of the sermon (optional)
+   */
+  description?: string | null;
+  /**
+   * Sermon series name (optional)
+   */
+  sermonSeries?: string | null;
+  /**
+   * Select the publication status
+   */
+  status: 'draft' | 'published';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "newcomers".
  */
 export interface Newcomer {
@@ -1049,6 +1104,10 @@ export interface PayloadLockedDocument {
         value: number | Bulletin;
       } | null)
     | ({
+        relationTo: 'sermons';
+        value: number | Sermon;
+      } | null)
+    | ({
         relationTo: 'newcomers';
         value: number | Newcomer;
       } | null)
@@ -1320,6 +1379,25 @@ export interface BulletinsSelect<T extends boolean = true> {
   isPublic?: T;
   file?: T;
   description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sermons_select".
+ */
+export interface SermonsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  preacher?: T;
+  scriptureRef?: T;
+  sermonDate?: T;
+  youtubeUrl?: T;
+  youtubeId?: T;
+  thumbnail?: T;
+  description?: T;
+  sermonSeries?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }

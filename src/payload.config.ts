@@ -13,6 +13,7 @@ import { Media } from './collections/Media'
 import { Newcomers } from './collections/Newcomers'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
+import { Sermons } from './collections/Sermons'
 import { Users } from './collections/Users'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
@@ -73,7 +74,7 @@ export default buildConfig({
       connectionString: process.env.POSTGRES_URL || '',
     },
   }),
-  collections: [Pages, Posts, Announcements, Bulletins, Newcomers, Media, Users],
+  collections: [Pages, Posts, Announcements, Bulletins, Sermons, Newcomers, Media, Users],
   cors: [getServerSideURL()].filter(Boolean),
   plugins: [
     ...plugins,
