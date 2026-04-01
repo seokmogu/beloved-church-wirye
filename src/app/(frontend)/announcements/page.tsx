@@ -40,13 +40,18 @@ export default async function AnnouncementsPage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-primary py-16">
-        <div className="container text-center">
-          <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">
+      <div className="relative bg-gradient-to-br from-primary via-primary to-primary-dark py-16 overflow-hidden">
+        {/* 배경 패턴 */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary rounded-full blur-3xl" />
+        </div>
+        <div className="container text-center relative z-10">
+          <p className="text-secondary text-base md:text-lg font-semibold tracking-[0.2em] uppercase mb-3">
             NOTICE
           </p>
           <h1 className="text-3xl md:text-4xl font-bold text-white">공지사항</h1>
-          <p className="text-white/60 mt-2">사랑하는교회의 새 소식을 전합니다</p>
+          <p className="text-white/80 font-medium mt-2">사랑하는교회의 새 소식을 전합니다</p>
         </div>
       </div>
 
