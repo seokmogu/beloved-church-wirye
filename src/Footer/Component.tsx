@@ -13,7 +13,7 @@ export async function Footer() {
               <h3 className="text-xl font-bold">사랑하는교회</h3>
               <p className="text-white/60 text-sm">Beloved Church Wirye</p>
             </Link>
-            <p className="text-white/50 text-xs mt-2">담임목사 차원석</p>
+
             <address className="not-italic text-white/70 text-sm leading-relaxed">
               위례서일로 3길 21-4
               <br />
@@ -24,15 +24,18 @@ export async function Footer() {
           {/* Worship schedule */}
           <div>
             <h4 className="font-semibold text-secondary mb-4">예배 안내</h4>
-            <div className="space-y-2 text-sm text-white/70">
-              <div className="flex justify-between max-w-[200px]">
-                <span>주일예배</span>
-                <span className="text-white">12:00</span>
-              </div>
-              <div className="flex justify-between max-w-[200px]">
-                <span>금요기도회</span>
-                <span className="text-white">20:00</span>
-              </div>
+            <div className="space-y-1.5 text-sm text-white/70">
+              {[
+                { label: '청·장년예배', time: '주일 낮 12시' },
+                { label: '어린이예배', time: '주일 낮 12시' },
+                { label: '금요기도회', time: '금요일 밤 8시' },
+                { label: '매일 큐티', time: '월–금 새벽 6시 (온라인)' },
+              ].map((item) => (
+                <div key={item.label} className="flex justify-between max-w-[220px]">
+                  <span>{item.label}</span>
+                  <span className="text-white ml-4">{item.time}</span>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -50,7 +53,7 @@ export async function Footer() {
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                 </svg>
-                @BelovedChurchWirye
+                @BelovedChurchWirye (유튜브)
               </a>
               <a
                 href="https://www.instagram.com/beloved_ch_/"

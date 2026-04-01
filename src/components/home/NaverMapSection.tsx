@@ -94,7 +94,7 @@ export function NaverMapSection({
             <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">
               Location
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">찾아오는 길</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">오시는 길</h2>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
@@ -163,9 +163,10 @@ export function NaverMapSection({
                   </svg>
                   교통편
                 </h3>
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                  {transitInfo}
-                </p>
+                <div className="text-muted-foreground text-sm space-y-1">
+                  <p><span className="font-medium text-foreground">자차 이용 시</span> — 네이버에서 &apos;비러브드라운지&apos; 검색</p>
+                  <p><span className="font-medium text-foreground">대중교통 이용 시</span> — 남위례역 3번 출구 도보 5분</p>
+                </div>
               </div>
 
               {/* Worship schedule */}
@@ -187,15 +188,18 @@ export function NaverMapSection({
                   </svg>
                   예배 시간
                 </h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center py-2 border-b border-border">
-                    <span className="text-foreground font-medium">주일예배</span>
-                    <span className="text-secondary font-semibold">{sundayServiceTime}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-foreground font-medium">금요기도회</span>
-                    <span className="text-secondary font-semibold">{fridayServiceTime}</span>
-                  </div>
+                <div className="space-y-1.5 text-sm">
+                  {[
+                    { label: '청·장년예배', time: '주일 낮 12시' },
+                    { label: '어린이예배', time: '주일 낮 12시' },
+                    { label: '금요기도회', time: '금요일 밤 8시' },
+                    { label: '매일 큐티', time: '월–금 새벽 6시 (온라인)' },
+                  ].map((item) => (
+                    <div key={item.label} className="flex justify-between items-center py-1.5 border-b border-border last:border-0">
+                      <span className="text-foreground font-medium">{item.label}</span>
+                      <span className="text-secondary font-semibold">{item.time}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
