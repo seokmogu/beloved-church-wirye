@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { authenticated } from '@/access/authenticated'
-import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
+import { authenticatedOrPublishedSermon } from '@/access/authenticatedOrPublishedSermon'
 
 export const Sermons: CollectionConfig = {
   slug: 'sermons',
@@ -17,7 +17,7 @@ export const Sermons: CollectionConfig = {
   access: {
     create: authenticated,
     delete: authenticated,
-    read: authenticatedOrPublished,
+    read: authenticatedOrPublishedSermon,
     update: authenticated,
   },
   admin: {

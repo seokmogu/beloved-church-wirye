@@ -30,6 +30,7 @@ const nextConfig: NextConfig = {
       }),
       { hostname: 'images.unsplash.com', protocol: 'https' },
       { hostname: '*.ytimg.com', protocol: 'https' },
+      { hostname: 'img.youtube.com', protocol: 'https' },
       { hostname: '*.public.blob.vercel-storage.com', protocol: 'https' },
     ],
   },
