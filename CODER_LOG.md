@@ -348,3 +348,48 @@
 **상태**: 완료 ✅
 
 ---
+
+---
+
+## 2026-04-01 04:23 UTC - 🚨 Hotfix: /about 페이지 서버 오류 수정
+
+**커밋**: `47ecb67`  
+**브랜치**: `hotfix/about-page-missing` → squash merge → PR #15  
+**배포 URL**: https://beloved-church-wirye.vercel.app
+
+**발견된 문제**:
+- **PLANNING.md 긴급 이슈**: 2026-04-01 04:18 UTC 스캔에서 발견
+- **증상**: /about 페이지 접속 시 "This page couldn't load - A server error occurred" (ERROR 865704925)
+- **원인**: /about 페이지가 Payload CMS의 `pages` 컬렉션에 존재하지 않아 동적 라우트에서 null 반환 → 서버 오류
+- **영향**: 메인 네비게이션 "교회 소개" 링크 클릭 시 오류, 첫 방문자가 교회 정보 확인 불가
+
+**해결 내용**:
+1. **전용 /about 페이지 생성** (`src/app/(frontend)/about/page.tsx`):
+   - PageHero 컴포넌트 사용 (브랜드 일관성)
+   - 정적 콘텐츠 구성:
+     - 비전: "Like Christ (그리스도를 본받아)"
+     - 교회 소개: 교단 (기독교대한감리회), 위치, 예배 시간
+     - 핵심 가치: 말씀 중심, 예배와 기도, 사랑과 섬김 (카드 UI)
+     - CTA: 새가족 등록 버튼 (/newcomer)
+   - CMS 독립 (서버 오류 재발 방지)
+
+2. **기술 세부사항**:
+   - TypeScript strict 모드 통과 (`pnpm tsc --noEmit`)
+   - 메타데이터 최적화 (SEO)
+   - 반응형 디자인 (Tailwind CSS)
+   - Vercel 빌드 성공 (빌드 시간: 2m)
+
+**검증 결과**:
+- ✅ /about 페이지 정상 렌더링
+- ✅ PageHero 히어로 섹션 표시
+- ✅ 교회 소개 콘텐츠 완벽 표시
+- ✅ 새가족 등록 CTA 버튼 작동
+- ✅ 서버 오류 완전 해결 (ERROR 865704925 소멸)
+
+**상태**: ✅ 완료 (긴급 수정 성공)
+
+**다음 단계**:
+- PLANNING.md에서 해당 긴급 이슈 제거
+- 향후 CMS에 about 페이지 데이터 추가 고려 (현재는 정적 페이지로 충분)
+
+---
