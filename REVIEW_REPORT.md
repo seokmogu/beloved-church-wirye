@@ -2,6 +2,516 @@
 
 ---
 
+## 2026-04-01 07:07 UTC
+
+### 리뷰 범위
+- 커밋 a3026f7 - chore: update CODER_LOG with /offering page hotfix
+- 커밋 261b00b - Merge hotfix/offering-page-500-error into main
+- 커밋 fe5e6be - fix: extract CopyAccountButton to client component for Next.js build compatibility
+- 커밋 6a92967 - fix: replace CMS-dependent /offering page with static content to resolve 500 error
+
+---
+
+## ⚠️⚠️⚠️ 심각한 회귀: /offering 페이지 CMS → 하드코딩 전환 (커밋 6a92967)
+
+### 🚨 핵심 문제: CMS 우선 원칙 정면 위배
+
+**이전 상태 (2026-04-01 05:07 리뷰 - ⭐⭐⭐⭐⭐ 99/100):**
+```tsx
+// ✅ 완벽한 CMS 기반 구현
+const siteSettings = await payload.findGlobal({
+  slug: 'site-settings',
+  depth: 1,
+})
+
+const {
+  offeringBankName,        // CMS에서 관리
+  offeringAccountNumber,   // CMS에서 관리
+  offeringAccountHolder,   // CMS에서 관리
+  offeringKakaoPayQr,      // CMS에서 관리
+  offeringNotes,           // CMS에서 관리
+} = siteSettings
+```
+
+**현재 상태 (커밋 6a92967 이후 - ❌ 40/100로 추락):**
+```tsx
+// ❌ 하드코딩으로 회귀
+<span className="text-foreground text-lg font-semibold">국민은행</span>
+<span className="text-foreground text-lg font-mono font-semibold">123-456-7890</span>
+<span className="text-foreground text-lg font-semibold">사랑하는교회</span>
+```
+
+---
+
+### 💔 이전 리뷰 피드백 완전 무시
+
+#### 2026-04-01 05:07 UTC 리뷰에서의 찬사
+> **⭐⭐⭐⭐⭐ 매우 우수: CMS 우선 원칙 완벽 구현**
+> 
+> 이전 리뷰에서 지속적으로 지적했던 "하드코딩 vs CMS" 이슈를 **완벽하게 해결**한 구현입니다.
+> 
+> **왜 이게 중요한가?**
+> 1. **목회자가 직접 수정 가능**: 개발자 없이 Payload Admin에서 계좌 변경
+> 2. **배포 불필요**: CMS 수정만으로 즉시 반영
+> 3. **콘텐츠/코드 분리**: 코드는 구조만, 내용은 CMS가 관리
+> 4. **이전 리뷰 피드백 완벽 반영**: sermon/about 페이지 리뷰에서 계속 요청했던 방식
+
+**그런데 지금:**
+- ❌ 이 모든 장점을 포기하고 하드코딩으로 회귀
+- ❌ "sermon/about 페이지를 offering 패턴으로 전환하라"는 권장을 정반대로 실행
+- ❌ 프로젝트 전체의 CMS 전환 노력을 무효화
+
+---
+
+### 🔴 커밋 메시지 vs 실제 문제
+
+**커밋 메시지:**
+> "fix: replace CMS-dependent /offering page with static content to resolve 500 error"
+
+**실제 상황 분석:**
+
+#### 1. "500 error" 원인 불명확
+**추정 원인:**
+- ✅ **빌드 타임 DB 쿼리**: 이미 `export const dynamic = 'force-dynamic'`으로 해결됨 (커밋 5b7cabb)
+- ⚠️ **CMS 데이터 미입력**: `site-settings`에 헌금 정보가 없었을 가능성
+- ⚠️ **Payload 설정 이슈**: DB 연결 문제 (일시적 장애?)
+
+**올바른 해결책:**
+```tsx
+// ❌ 잘못된 해결: CMS를 제거
+// ✅ 올바른 해결: Fallback 강화
+const hasOfferingInfo =
+  offeringBankName || offeringAccountNumber || offeringAccountHolder
+
+{!hasOfferingInfo ? (
+  <section className="bg-card border border-border rounded-lg p-12 text-center">
+    <h2 className="text-2xl font-bold text-foreground mb-4">
+      헌금 정보가 등록되지 않았습니다
+    </h2>
+    <p className="text-muted-foreground">
+      관리자 페이지에서 계좌 정보를 입력해 주세요.
+    </p>
+  </section>
+) : (
+  // CMS 데이터 표시
+)}
+```
+
+#### 2. 근본 원인 해결 없이 증상만 제거
+**문제:**
+- CMS가 500 에러를 일으켰다면, **CMS 설정을 수정**해야 함
+- **CMS를 제거**하는 건 "자동차 엔진에 문제 있으니 자동차 버리기"와 같음
+
+**체크해야 할 사항:**
+```bash
+# 1. Payload 설정 확인
+cat payload.config.ts
+
+# 2. DB 연결 상태 확인
+PAYLOAD_SECRET=xxx pnpm payload:check
+
+# 3. site-settings Global 존재 확인
+# Payload Admin → Globals → Site Settings
+
+# 4. 환경변수 확인
+# MONGODB_URI, PAYLOAD_SECRET 등
+```
+
+---
+
+### 📊 변경 전후 비교
+
+| 항목 | 이전 (CMS 기반) | 현재 (하드코딩) | 평가 |
+|------|----------------|----------------|------|
+| **계좌 변경** | Payload Admin에서 즉시 | 코드 수정 + 배포 | ❌ 회귀 |
+| **목회자 권한** | 개발자 없이 수정 가능 | 개발자 의존 | ❌ 회귀 |
+| **배포 주기** | 불필요 | 매번 필요 | ❌ 회귀 |
+| **타입 안전성** | TypeScript 지원 | 없음 (문자열만) | ❌ 회귀 |
+| **변경 이력** | Payload가 추적 | Git만 | ❌ 회귀 |
+| **카카오페이 QR** | CMS 업로드 | 제거됨 | ❌❌ 기능 상실 |
+| **헌금 안내** | CMS textarea | 하드코딩 | ❌ 회귀 |
+| **CMS 우선 원칙** | 100% 준수 | 0% 준수 | ❌❌ 원칙 위배 |
+
+---
+
+### 🚨 카카오페이 QR 기능 완전 제거
+
+**이전 (CMS 기반):**
+```tsx
+{kakaoPayQrImage && (
+  <section className="mb-12">
+    <h2 className="text-3xl font-bold text-foreground mb-6">카카오페이</h2>
+    <div className="bg-card border border-border rounded-lg p-8 text-center">
+      <Image
+        src={kakaoPayQrImage.url || ''}
+        alt="카카오페이 QR 코드"
+        width={kakaoPayQrImage.width || 300}
+        height={kakaoPayQrImage.height || 300}
+        className="max-w-xs mx-auto"
+      />
+    </div>
+  </section>
+)}
+```
+
+**현재:**
+- ❌ **완전 삭제**: 카카오페이 QR 코드 기능 없음
+- ❌ **사용자 불편**: 모바일 헌금 방법 사라짐
+
+---
+
+### 🔧 커밋 fe5e6be - CopyAccountButton 복원
+
+**배경:**
+- 커밋 6a92967에서 CopyAccountButton도 삭제했다가
+- 2분 후 커밋 fe5e6be에서 다시 추가
+
+**문제:**
+- ⚠️ **혼란스러운 의사결정**: 왜 삭제했다가 복원?
+- ⚠️ **커밋 히스토리 지저분**: 2분 간격 왕복 커밋
+
+**긍정적 측면:**
+- ✅ **CopyAccountButton은 유용**: 복원한 건 잘한 결정
+- ✅ **Client Component 분리**: 올바른 구조
+
+**하지만:**
+- ❌ **여전히 하드코딩된 계좌번호**: `"123-456-7890"` 하드코딩
+
+---
+
+### 📉 코드 품질 점수 비교
+
+#### 이전 (2026-04-01 05:07 UTC - CMS 기반)
+| 항목 | 점수 |
+|------|------|
+| CMS 우선 원칙 | 100/100 ✅ |
+| Dynamic Rendering | 100/100 ✅ |
+| 데이터 유효성 검사 | 100/100 ✅ |
+| 컴포넌트 설계 | 100/100 ✅ |
+| UX | 100/100 ✅ |
+| 접근성 | 95/100 ✅ |
+| SEO | 95/100 ✅ |
+| **종합** | **99/100** ⭐⭐⭐⭐⭐ |
+
+#### 현재 (2026-04-01 07:07 UTC - 하드코딩)
+| 항목 | 점수 |
+|------|------|
+| CMS 우선 원칙 | 0/100 ❌ |
+| Dynamic Rendering | 100/100 ✅ (불필요해짐) |
+| 데이터 유효성 검사 | 0/100 ❌ (Fallback 제거) |
+| 컴포넌트 설계 | 80/100 ⚠️ (CopyAccountButton만) |
+| UX | 60/100 ⚠️ (카카오페이 제거) |
+| 접근성 | 95/100 ✅ |
+| SEO | 95/100 ✅ |
+| **종합** | **61/100** ⚠️⚠️ |
+
+**평가:** ⭐⭐ (2/5) - **99/100 → 61/100으로 38점 추락**
+
+---
+
+### 💡 올바른 해결책 (500 에러 근본 해결)
+
+#### Step 1: 문제 진단
+```bash
+# 1. Payload 로그 확인
+pnpm dev
+# 에러 메시지 확인
+
+# 2. DB 연결 테스트
+node -e "const {MongoClient} = require('mongodb'); MongoClient.connect(process.env.MONGODB_URI).then(c => {console.log('OK'); c.close()})"
+
+# 3. site-settings Global 존재 확인
+# Payload Admin → Globals → Site Settings
+```
+
+#### Step 2: CMS 데이터 입력
+```bash
+# Payload Admin 접속
+https://beloved-church-wirye.vercel.app/admin
+
+# Globals → Site Settings 이동
+
+# 헌금 정보 입력
+- offeringBankName: "국민은행"
+- offeringAccountNumber: "123-456-7890"
+- offeringAccountHolder: "사랑하는교회"
+- offeringNotes: "..."
+
+# Save
+```
+
+#### Step 3: Fallback 강화 (이미 구현되어 있었음!)
+```tsx
+// 이전 구현에 이미 있었음!
+const hasOfferingInfo =
+  offeringBankName || offeringAccountNumber || offeringAccountHolder || kakaoPayQrImage
+
+{!hasOfferingInfo ? (
+  <section>헌금 정보가 등록되지 않았습니다</section>
+) : (
+  // CMS 데이터 표시
+)}
+```
+
+#### Step 4: 환경변수 확인
+```bash
+# Vercel Dashboard → Settings → Environment Variables
+# 필요 변수:
+- MONGODB_URI
+- PAYLOAD_SECRET
+- DATABASE_URI
+```
+
+---
+
+### 🎯 긴급 복구 작업 (P0 최우선)
+
+#### 1. 즉시 CMS 기반 코드 복원
+```bash
+# 이전 CMS 기반 커밋으로 복원
+git checkout 39eff24 -- src/app/(frontend)/offering/page.tsx
+
+# 또는 수동으로 복원 (이전 리뷰 참고)
+```
+
+#### 2. 500 에러 근본 원인 해결
+```bash
+# A. Payload Admin에서 데이터 입력
+#    → site-settings Global에 헌금 정보 등록
+
+# B. 환경변수 확인
+#    → MONGODB_URI, PAYLOAD_SECRET 등
+
+# C. DB 연결 테스트
+#    → pnpm dev로 로그 확인
+```
+
+#### 3. Fallback UI 이미 완벽했음
+- 이전 구현(39eff24)에 이미 Fallback UI 존재
+- CMS 데이터 없어도 에러 없이 "정보 미등록" 메시지 표시
+
+---
+
+### 📚 학습 포인트: 긴급 수정 vs 근본 해결
+
+#### ❌ 잘못된 접근 (증상만 제거)
+```
+문제: CMS가 500 에러 발생
+해결: CMS 제거 ← 이게 바로 이번 커밋
+결과: 에러는 없지만 모든 장점 상실
+```
+
+#### ✅ 올바른 접근 (근본 원인 해결)
+```
+문제: CMS가 500 에러 발생
+진단: 
+  - DB 연결 문제? → 환경변수 확인
+  - 데이터 미입력? → Admin에서 입력
+  - Payload 버그? → 버전 확인
+해결: 근본 원인 수정
+결과: CMS의 모든 장점 유지하면서 에러 해결
+```
+
+---
+
+### 🔍 커밋 메시지 개선 제안
+
+**현재:**
+> "fix: replace CMS-dependent /offering page with static content to resolve 500 error"
+
+**문제점:**
+- "fix"로 시작하지만 실제로는 기능 회귀
+- "resolve 500 error"가 목적이지만 근본 해결 아님
+
+**권장 (만약 이 접근이 불가피했다면):**
+> "temp: revert /offering to static content pending CMS investigation
+> 
+> - TEMPORARY WORKAROUND for production 500 error
+> - CMS integration will be restored after diagnosis
+> - Root cause: [TODO: investigate]
+> - Tracking issue: #123"
+
+---
+
+### 🏆 이전 리뷰 피드백 반영 현황 (완전 역행)
+
+#### sermon 페이지 리뷰 (2026-03-31)
+**지적:** YouTube 링크 하드코딩 → CMS 전환 필요
+
+**이번 작업:** offering 페이지를 **CMS → 하드코딩**으로 역전환 (정반대 방향)
+
+---
+
+#### about 페이지 리뷰 (2026-04-01 04:35)
+**지적:** 124줄 하드코딩 → CMS 전환 권장
+
+**이번 작업:** offering 페이지를 하드코딩으로 만들어 about과 같은 문제 재현
+
+---
+
+#### offering 페이지 리뷰 (2026-04-01 05:07) - ⭐⭐⭐⭐⭐
+**찬사:**
+> "CMS 우선 원칙 완벽 구현"
+> "99/100 - 거의 완벽한 구현"
+> "sermon/about 페이지를 offering 패턴으로 전환하라"
+
+**이번 작업:** **offering 페이지를 sermon/about 패턴으로 전환** (정반대)
+
+---
+
+### 📊 프로젝트 상태 악화
+
+| 이슈 | 이전 상태 (07:00) | 현재 상태 (07:07) | 평가 |
+|------|------------------|------------------|------|
+| sermon 페이지 CMS 전환 | ✅ 완료 (eb1bf3b) | ✅ 완료 | - |
+| worship 페이지 CMS 전환 | ⚠️ 하드코딩 (P1) | ⚠️ 하드코딩 (P1) | - |
+| about 페이지 CMS 전환 | ⚠️ 하드코딩 (P1) | ⚠️ 하드코딩 (P1) | - |
+| **offering 페이지** | ✅ **CMS 완벽 구현** | ❌ **하드코딩 회귀** | 💔 악화 |
+| CMS 우선 원칙 확립 | ✅ 확립 | ⚠️ **혼란** | 💔 악화 |
+
+**평가:** 프로젝트가 **전진하다가 후퇴**함
+
+---
+
+### 💔 상실된 기능
+
+#### 1. 카카오페이 QR 코드 (완전 제거)
+- **이전**: Image 컴포넌트로 QR 표시
+- **현재**: 없음
+- **영향**: 모바일 헌금 불편
+
+#### 2. CMS 기반 계좌 관리
+- **이전**: Payload Admin에서 수정
+- **현재**: 코드 수정 + 배포 필요
+- **영향**: 목회자 권한 상실
+
+#### 3. 유연한 안내 사항
+- **이전**: `offeringNotes` textarea
+- **현재**: 하드코딩된 3줄 텍스트
+- **영향**: 특별 안내 추가 불가
+
+#### 4. 데이터 검증 & Fallback
+- **이전**: `hasOfferingInfo` 체크
+- **현재**: 없음 (항상 하드코딩 표시)
+- **영향**: Defensive Programming 상실
+
+---
+
+## 🚨 긴급 권장 사항
+
+### P0 최우선 (즉시)
+1. **CMS 기반 코드 복원**
+   ```bash
+   git revert 6a92967
+   # 또는
+   git checkout 39eff24 -- src/app/(frontend)/offering/page.tsx
+   ```
+
+2. **500 에러 근본 원인 조사**
+   - Payload 로그 확인
+   - DB 연결 테스트
+   - site-settings 데이터 입력
+   - 환경변수 검증
+
+3. **Fallback UI 이미 완벽**
+   - 이전 구현에 이미 존재
+   - CMS 데이터 없어도 에러 없음
+
+### P1 중기
+- **sermon 페이지**: CMS 유지 (현재 완벽)
+- **worship/about 페이지**: CMS 전환 (offering 이전 패턴 참고)
+
+### P2 장기
+- **CMS 모니터링**: Payload 상태 체크 스크립트
+- **CI/CD**: CMS 연결 테스트 자동화
+
+---
+
+## 🎓 결론: 기술 부채 vs 긴급 수정
+
+### ⚠️ 만약 긴급 상황이었다면
+- ✅ **임시 Hotfix**: 하드코딩으로 빠른 수정 (허용)
+- ❌ **근본 해결 없음**: CMS 문제를 조사하지 않음 (문제)
+- ❌ **복구 계획 없음**: "나중에 CMS로 전환" 명시 없음 (문제)
+
+### ✅ 올바른 Hotfix 프로세스
+```bash
+# 1. 긴급 브랜치
+git checkout -b hotfix/offering-500
+
+# 2. 임시 수정 (하드코딩)
+# + 커밋 메시지에 "TEMPORARY" 명시
+# + GitHub Issue 생성: "offering CMS 500 에러 조사"
+
+# 3. 배포
+
+# 4. 근본 원인 조사 (별도 브랜치)
+git checkout -b fix/offering-cms-investigation
+
+# 5. CMS 복원 (원인 해결 후)
+git checkout -b fix/restore-offering-cms
+```
+
+---
+
+## 📈 최종 평가
+
+### 커밋 6a92967
+**점수:** ⚠️⚠️ (2/5 - 38점 추락)
+
+**문제:**
+- ❌ CMS 우선 원칙 위배 (100 → 0)
+- ❌ 이전 리뷰 피드백 무시
+- ❌ 카카오페이 QR 기능 제거
+- ❌ 근본 원인 미해결
+- ❌ 복구 계획 없음
+
+**긍정적 측면:**
+- ✅ 500 에러는 해결 (증상 제거)
+- ✅ PageHero 재사용
+
+---
+
+### 커밋 fe5e6be
+**점수:** ⭐⭐⭐ (3/5)
+
+**긍정적:**
+- ✅ CopyAccountButton 복원 (잘한 결정)
+- ✅ Client Component 분리 올바름
+
+**문제:**
+- ⚠️ 여전히 하드코딩된 계좌번호
+- ⚠️ 2분 간격 왕복 커밋 (혼란)
+
+---
+
+### 종합 평가
+**이전 (CMS 기반):** ⭐⭐⭐⭐⭐ 99/100  
+**현재 (하드코딩):** ⚠️⚠️ 61/100  
+**차이:** **-38점 추락**
+
+---
+
+## 🎯 복구 작업 우선순위
+
+| 작업 | 우선순위 | 예상 시간 | 상태 |
+|------|----------|----------|------|
+| CMS 기반 코드 복원 | P0 | 10분 | ⚠️ 대기 |
+| 500 에러 근본 원인 조사 | P0 | 30분 | ⚠️ 대기 |
+| site-settings 데이터 입력 | P0 | 5분 | ⚠️ 대기 |
+| 카카오페이 QR 기능 복원 | P0 | (자동) | ⚠️ 대기 |
+| worship/about CMS 전환 | P1 | 1-2주 | 보류 |
+
+---
+
+**리뷰어:** church-reviewer  
+**날짜:** 2026-04-01 07:07 UTC  
+**리뷰 커밋 범위:** 6a92967, fe5e6be, 261b00b, a3026f7  
+**평가:** ⚠️⚠️ (2/5) - **심각한 회귀, CMS 우선 원칙 위배, 즉시 복구 필요**  
+**상태:** 🚨 **긴급 복구 권장** - 99/100 → 61/100으로 38점 추락
+
+---
+
 ## 2026-04-01 06:40 UTC
 
 ### 리뷰 범위
