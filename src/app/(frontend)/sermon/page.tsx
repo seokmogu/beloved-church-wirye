@@ -24,19 +24,24 @@ function formatDate(dateString: string): string {
 export default async function SermonPage() {
   const payload = await getPayload({ config })
 
-  // Fetch published sermons from CMS, sorted by date (latest first)
-  const sermonsData = await payload.find({
-    collection: 'sermons',
-    where: {
-      status: {
-        equals: 'published',
+  let sermons: any[] = []
+  try {
+    // Fetch published sermons from CMS, sorted by date (latest first)
+    const sermonsData = await payload.find({
+      collection: 'sermons',
+      where: {
+        status: {
+          equals: 'published',
+        },
       },
-    },
-    limit: 12,
-    sort: '-sermonDate',
-  })
-
-  const sermons = sermonsData.docs
+      limit: 12,
+      sort: '-sermonDate',
+    })
+    sermons = sermonsData.docs
+  } catch (error) {
+    console.error('Failed to fetch sermons:', error)
+    // Fall through with empty sermons array to show empty state
+  }
 
   return (
     <article className="pt-16 pb-24">
