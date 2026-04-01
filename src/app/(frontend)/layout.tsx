@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 import { AdminBar } from '@/components/AdminBar'
 import { ChatWidget } from '@/components/ChatWidget'
+import EasterBanner from '@/components/EasterBanner'
 import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
 import { Providers } from '@/providers'
@@ -31,6 +32,7 @@ export default async function RootLayout({ children }: { children: import('react
           />
 
           <Header />
+          <EasterBanner />
           {children}
           <Footer />
           <ChatWidget />
