@@ -71,6 +71,7 @@ export interface Config {
     posts: Post;
     announcements: Announcement;
     bulletins: Bulletin;
+    newcomers: Newcomer;
     media: Media;
     users: User;
     redirects: Redirect;
@@ -94,6 +95,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     bulletins: BulletinsSelect<false> | BulletinsSelect<true>;
+    newcomers: NewcomersSelect<false> | NewcomersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -621,6 +623,53 @@ export interface Bulletin {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newcomers".
+ */
+export interface Newcomer {
+  id: number;
+  name: string;
+  /**
+   * 예: 010-1234-5678
+   */
+  phone: string;
+  /**
+   * 선택 사항
+   */
+  email?: string | null;
+  /**
+   * 주일 예배 또는 금요 예배일을 선택해 주세요
+   */
+  visitDate: string;
+  source: 'referral' | 'search' | 'sns' | 'youtube' | 'passingBy' | 'other';
+  /**
+   * 예: 친구 이름, 검색 키워드, SNS 계정 등 (선택 사항)
+   */
+  sourceDetail?: string | null;
+  /**
+   * 여러 개 선택 가능 (선택 사항)
+   */
+  interests?: ('youngAdults' | 'worship' | 'bibleStudy' | 'service' | 'prayer' | 'smallGroup' | 'notSure')[] | null;
+  /**
+   * 궁금한 점이나 기도 요청이 있으시면 자유롭게 작성해 주세요 (선택 사항)
+   */
+  message?: string | null;
+  /**
+   * 입력하신 정보는 새가족 환영 및 교회 안내 목적으로만 사용되며, 본인의 동의 없이 제3자에게 제공되지 않습니다.
+   */
+  privacyConsent: boolean;
+  /**
+   * 관리자만 수정 가능
+   */
+  status?: ('pending' | 'contacted' | 'visited' | 'registered') | null;
+  /**
+   * 내부 기록용 (새가족에게 노출되지 않음)
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1000,6 +1049,10 @@ export interface PayloadLockedDocument {
         value: number | Bulletin;
       } | null)
     | ({
+        relationTo: 'newcomers';
+        value: number | Newcomer;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
@@ -1267,6 +1320,25 @@ export interface BulletinsSelect<T extends boolean = true> {
   isPublic?: T;
   file?: T;
   description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newcomers_select".
+ */
+export interface NewcomersSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  email?: T;
+  visitDate?: T;
+  source?: T;
+  sourceDetail?: T;
+  interests?: T;
+  message?: T;
+  privacyConsent?: T;
+  status?: T;
+  notes?: T;
   updatedAt?: T;
   createdAt?: T;
 }

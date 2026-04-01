@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 import { Announcements } from './collections/Announcements'
 import { Bulletins } from './collections/Bulletins'
 import { Media } from './collections/Media'
+import { Newcomers } from './collections/Newcomers'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
@@ -72,7 +73,7 @@ export default buildConfig({
       connectionString: process.env.POSTGRES_URL || '',
     },
   }),
-  collections: [Pages, Posts, Announcements, Bulletins, Media, Users],
+  collections: [Pages, Posts, Announcements, Bulletins, Newcomers, Media, Users],
   cors: [getServerSideURL()].filter(Boolean),
   plugins: [
     ...plugins,

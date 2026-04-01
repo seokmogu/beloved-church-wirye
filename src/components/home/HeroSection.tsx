@@ -59,14 +59,23 @@ export async function HeroSection() {
           </span>
         </div>
 
-        {/* CTA */}
-        <a
-          href="#map"
-          className="inline-flex items-center gap-2 bg-[#C9A84C] hover:bg-[#b8963f] text-[#1B3A2D] font-semibold rounded-full px-8 py-3.5 text-base transition-colors"
-        >
-          예배 안내
-          <span aria-hidden="true">&rarr;</span>
-        </a>
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+          <a
+            href="/newcomer"
+            className="inline-flex items-center gap-2 bg-[#C9A84C] hover:bg-[#b8963f] text-[#1B3A2D] font-semibold rounded-full px-8 py-3.5 text-base transition-colors"
+          >
+            새가족 등록
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+          <a
+            href="#map"
+            className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border-2 border-white/30 hover:bg-white/25 text-white font-semibold rounded-full px-8 py-3.5 text-base transition-colors"
+          >
+            예배 안내
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
       </div>
 
       {/* Scroll indicator */}
