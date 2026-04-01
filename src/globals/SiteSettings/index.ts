@@ -113,5 +113,48 @@ export const SiteSettings: GlobalConfig = {
       label: '교단',
       defaultValue: '기독교대한감리회',
     },
+
+    // ─── 헌금 안내 ────────────────────────────────────────────
+    {
+      name: 'offeringBankName',
+      type: 'text',
+      label: '헌금 은행명',
+      admin: {
+        description: '헌금 계좌 은행 이름 (예: 국민은행)',
+      },
+    },
+    {
+      name: 'offeringAccountNumber',
+      type: 'text',
+      label: '헌금 계좌번호',
+      admin: {
+        description: '헌금 계좌번호 (예: 123-456-789012)',
+      },
+    },
+    {
+      name: 'offeringAccountHolder',
+      type: 'text',
+      label: '헌금 예금주',
+      admin: {
+        description: '헌금 계좌 예금주 이름 (예: 사랑하는교회)',
+      },
+    },
+    {
+      name: 'offeringKakaoPayQr',
+      type: 'upload',
+      relationTo: 'media',
+      label: '카카오페이 QR 코드 (선택)',
+      admin: {
+        description: '카카오페이 송금용 QR 코드 이미지 (선택 사항)',
+      },
+    },
+    {
+      name: 'offeringNotes',
+      type: 'textarea',
+      label: '헌금 안내 메시지 (선택)',
+      admin: {
+        description: '헌금 관련 추가 안내 사항 (예: 입금 시 성명을 남겨주세요)',
+      },
+    },
   ],
 }

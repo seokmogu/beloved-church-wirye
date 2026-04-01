@@ -8,6 +8,7 @@ import { YouTubeBlockComponent } from '@/blocks/YouTubeBlock/Component'
 import { InstagramBlockComponent } from '@/blocks/InstagramBlock/Component'
 import { ScheduleBlockComponent } from '@/blocks/ScheduleBlock/Component'
 import { GoogleDriveBlockComponent } from '@/blocks/GoogleDriveBlock/Component'
+import { OfferingBlockComponent } from '@/blocks/OfferingBlock/Component'
 // BulletinsBlockComponent and AnnouncementsBlockComponent excluded until DB migration
 // import { BulletinsBlockComponent } from '@/blocks/BulletinsBlock/Component'
 // import { AnnouncementsBlockComponent } from '@/blocks/AnnouncementsBlock/Component'
@@ -20,6 +21,7 @@ const blockComponents: Record<string, React.FC<any>> = {
   instagramBlock: InstagramBlockComponent,
   scheduleBlock: ScheduleBlockComponent,
   googleDriveBlock: GoogleDriveBlockComponent,
+  offeringBlock: OfferingBlockComponent,
   // bulletinsBlock: BulletinsBlockComponent,
   // announcementsBlock: AnnouncementsBlockComponent,
 }
