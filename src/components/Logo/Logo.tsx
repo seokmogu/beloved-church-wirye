@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import Image from 'next/image'
 
 interface Props {
   className?: string
@@ -7,12 +8,19 @@ interface Props {
 }
 
 export const Logo = (props: Props) => {
-  const { className } = props
+  const { className, loading = 'lazy', priority = 'auto' } = props
 
   return (
-    <div className={clsx('flex flex-col leading-none', className)}>
-      <span className="text-lg font-bold text-foreground">사랑하는교회</span>
-      <span className="text-[10px] text-muted-foreground tracking-wider">BELOVED CHURCH WIRYE</span>
+    <div className={clsx('flex items-center', className)}>
+      <Image
+        src="/logo-beloved.png"
+        alt="사랑하는교회 BELOVED"
+        width={120}
+        height={40}
+        loading={loading === 'eager' ? 'eager' : 'lazy'}
+        priority={priority === 'high'}
+        className="h-8 w-auto object-contain"
+      />
     </div>
   )
 }
