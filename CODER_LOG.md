@@ -190,3 +190,50 @@
 **상태**: 완료 ✅
 
 ---
+
+## 2026-04-01 02:49 UTC
+
+### 작업: 브랜드 컬러 중앙화 (Tailwind 설정) ✅
+
+**우선순위**: REVIEW_REPORT.md P1 이슈  
+**브랜치**: `feature/brand-color-centralization`  
+**커밋**: `bc2f200` → PR #12 → squash merge `5e00bd9`  
+**배포 URL**: https://beloved-church-wirye.vercel.app
+
+**문제점**:
+- 하드코딩된 hex 색상 코드가 19개 컴포넌트에 산재 (#1B3A2D, #C9A84C, #F5F0E8)
+- 유지보수 어려움 (색상 변경 시 전체 수정 필요)
+- 일관성 관리 위험
+
+**구현 내용**:
+1. `tailwind.config.mjs`에 브랜드 컬러 정의:
+   - `primary` (다크 그린): #1B3A2D / -dark / -light
+   - `secondary` (골드): #C9A84C / -dark / -light
+   - `neutral-cream` (베이지): #F5F0E8
+
+2. 19개 컴포넌트 파일에서 하드코딩된 색상 교체:
+   - `text-[#C9A84C]` → `text-secondary`
+   - `bg-[#1B3A2D]` → `bg-primary`
+   - `bg-[#F5F0E8]` → `bg-neutral-cream`
+   - opacity, hover, border 등 모든 변형 포함
+
+**수정 파일**:
+- 컴포넌트: Header, Footer, EmptyState, Hero, Church Intro, Announcements, Instagram, YouTube, Naver Map
+- 페이지: newcomer, sermon, bulletins, announcements
+- 블록: AnnouncementsBlock, BulletinsBlock
+- 히어로: PageBanner
+
+**기술 세부사항**:
+- TypeScript strict 모드 통과 (`pnpm tsc --noEmit`)
+- Vercel 빌드 성공 (빌드 시간: 2m)
+- 0개 하드코딩 색상 남음 (완전 제거)
+
+**효과**:
+- 유지보수성 향상: 한 곳에서 모든 브랜드 컬러 관리
+- 일관성 강화: 잘못된 색상 사용 원천 차단
+- 확장성: 다크모드, 테마 전환 등 향후 기능 준비
+- P1 리뷰 이슈 해결: 코드 품질 향상
+
+**상태**: 완료 ✅
+
+---
