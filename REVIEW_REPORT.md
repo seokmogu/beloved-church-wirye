@@ -2,6 +2,916 @@
 
 ---
 
+## 2026-04-01 06:40 UTC
+
+### 리뷰 범위
+- 커밋 118ea39 - fix: add dedicated /worship page to resolve 500 error
+- 커밋 eb1bf3b - feat: add Sermons CMS collection and migrate sermon page to CMS
+- 커밋 df86e80 - fix: use dynamic rendering for sermon page to avoid build-time DB query
+- 커밋 2bdd8dd - chore: update CODER_LOG
+- 커밋 042876c - Merge hotfix/worship-page-500-error
+- 커밋 0ee5d1a - chore: update CODER_LOG
+
+---
+
+## 🏆 커밋 eb1bf3b + df86e80 - Sermons CMS 컬렉션 (CMS 우선 원칙 완벽 구현)
+
+### 📋 배경
+**이전 문제:**
+- sermon 페이지가 YouTube 채널 링크만 하드코딩 (이전 리뷰에서 P0 최우선 과제로 지적)
+- 설교 영상 관리 불가, 콘텐츠 CMS 전환 필요
+
+**해결:**
+- ✅ **Sermons CMS 컬렉션 신규 생성**: Payload CMS에서 설교 콘텐츠 관리
+- ✅ **sermon 페이지 완전 CMS 기반으로 전환**: 하드코딩 제거
+- ✅ **이전 리뷰 P0 피드백 완벽 반영**: offering 페이지 패턴 그대로 적용
+
+---
+
+### ⭐⭐⭐⭐⭐ 매우 우수: CMS 컬렉션 설계
+
+#### 1. 필드 구조 (Sermons.ts)
+```typescript
+{
+  slug: 'sermons',
+  fields: [
+    { name: 'title', type: 'text', required: true },           // 설교 제목
+    { name: 'slug', type: 'text', hooks: 'auto-generate' },    // URL (날짜+제목)
+    { name: 'preacher', type: 'text', required: true },        // 설교자
+    { name: 'scriptureRef', type: 'text', required: true },    // 성경 본문
+    { name: 'sermonDate', type: 'date', required: true },      // 설교 날짜
+    { name: 'youtubeUrl', type: 'text', required: true },      // YouTube URL
+    { name: 'youtubeId', type: 'text', hooks: 'auto-extract' }, // YouTube ID (자동)
+    { name: 'thumbnail', type: 'text', hooks: 'auto-generate' }, // 썸네일 (자동)
+    { name: 'description', type: 'textarea' },                 // 설명
+    { name: 'sermonSeries', type: 'text' },                    // 시리즈명
+    { name: 'status', type: 'select', options: ['draft', 'published'] }
+  ],
+  defaultSort: '-sermonDate'
+}
+```
+
+**✅ 탁월한 설계:**
+1. **필수 필드 최소화**: title, preacher, scriptureRef, sermonDate, youtubeUrl만 필수
+2. **자동화**: YouTube ID, 썸네일, slug 자동 생성 → 입력 오류 방지
+3. **유연성**: description, sermonSeries 선택 사항
+4. **draft/published**: 임시 저장 가능
+5. **정렬**: 최신순 자동 정렬 (`defaultSort: '-sermonDate'`)
+
+---
+
+#### 2. 자동 slug 생성 Hook
+```typescript
+hooks: {
+  beforeValidate: [
+    ({ value, data }) => {
+      if (value) return value
+      if (data?.title && data?.sermonDate) {
+        const date = new Date(data.sermonDate)
+        const dateStr = date.toISOString().split('T')[0]  // YYYY-MM-DD
+        return `${dateStr}-${data.title
+          .toLowerCase()
+          .replace(/[^a-z0-9가-힣]+/g, '-')
+          .replace(/^-+|-+$/g, '')}`
+      }
+      return value
+    },
+  ],
+}
+```
+
+**✅ 우수한 점:**
+- ✅ **SEO 친화적**: `2026-04-01-부활절-설교` 같은 명확한 URL
+- ✅ **자동 생성**: 관리자가 slug 입력 불필요
+- ✅ **한글 지원**: `가-힣` 정규식으로 한글 제목도 처리
+- ✅ **중복 하이픈 제거**: `replace(/^-+|-+$/g, '')` 클린업
+- ✅ **날짜+제목 조합**: 같은 제목이어도 날짜로 구분
+
+**예시:**
+```
+title: "하나님의 사랑"
+sermonDate: "2026-04-01"
+→ slug: "2026-04-01-하나님의-사랑"
+```
+
+---
+
+#### 3. YouTube ID 자동 추출
+```typescript
+hooks: {
+  beforeChange: [
+    ({ value, data, siblingData }) => {
+      const url = siblingData?.youtubeUrl || data?.youtubeUrl
+      if (!url) return value
+
+      // youtube.com/watch?v=VIDEO_ID
+      // youtu.be/VIDEO_ID
+      // youtube.com/embed/VIDEO_ID
+      const match = url.match(
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/
+      )
+      return match ? match[1] : value
+    },
+  ],
+}
+```
+
+**✅ 탁월한 점:**
+- ✅ **다양한 URL 형식 지원**: watch?v=, youtu.be, embed 모두 처리
+- ✅ **11자리 ID 추출**: YouTube ID는 항상 11자리 (정규식으로 검증)
+- ✅ **자동 실행**: URL 입력만 하면 ID 자동 추출
+- ✅ **에러 방지**: match 실패 시 기존 값 유지
+
+**예시:**
+```
+youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+→ youtubeId: "dQw4w9WgXcQ"
+
+youtubeUrl: "https://youtu.be/dQw4w9WgXcQ"
+→ youtubeId: "dQw4w9WgXcQ"
+```
+
+---
+
+#### 4. 썸네일 자동 생성
+```typescript
+hooks: {
+  beforeChange: [
+    ({ value, data, siblingData }) => {
+      const youtubeId = siblingData?.youtubeId || data?.youtubeId
+      if (!youtubeId) return value
+      return `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
+    },
+  ],
+}
+```
+
+**✅ 우수한 점:**
+- ✅ **YouTube 공식 썸네일 API**: `img.youtube.com/vi/{ID}/maxresdefault.jpg`
+- ✅ **최고 화질**: maxresdefault (1920x1080)
+- ✅ **자동 업데이트**: YouTube ID가 바뀌면 썸네일도 자동 갱신
+- ✅ **별도 업로드 불필요**: 이미지 관리 부담 없음
+
+**예시:**
+```
+youtubeId: "dQw4w9WgXcQ"
+→ thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg"
+```
+
+---
+
+#### 5. YouTube URL 검증
+```typescript
+validate: (val: unknown) => {
+  if (!val || typeof val !== 'string') return true
+  const youtubeRegex =
+    /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}/
+  if (!youtubeRegex.test(val)) {
+    return 'Please enter a valid YouTube URL'
+  }
+  return true
+}
+```
+
+**✅ 탁월한 점:**
+- ✅ **입력 검증**: 잘못된 URL 입력 즉시 차단
+- ✅ **프로토콜 유연성**: http, https 모두 허용
+- ✅ **www 선택적**: www.youtube.com, youtube.com 모두 OK
+- ✅ **에러 메시지 명확**: "Please enter a valid YouTube URL"
+
+---
+
+#### 6. Access Control
+```typescript
+access: {
+  create: authenticated,
+  delete: authenticated,
+  read: authenticatedOrPublished,
+  update: authenticated,
+}
+```
+
+**✅ 보안 우수:**
+- ✅ **생성/수정/삭제**: 인증된 사용자만 (관리자)
+- ✅ **읽기**: published면 공개, draft는 관리자만
+- ✅ **Payload CMS 보안 패턴 완벽 준수**: 이전 리뷰 지적 사항 반영
+
+---
+
+#### 7. Admin UI 설정
+```typescript
+admin: {
+  defaultColumns: ['title', 'preacher', 'scriptureRef', 'sermonDate', 'status', 'updatedAt'],
+  listSearchableFields: ['title', 'preacher', 'scriptureRef', 'description'],
+  useAsTitle: 'title',
+}
+```
+
+**✅ 관리자 UX 우수:**
+- ✅ **기본 컬럼**: 관리자가 한눈에 보기 좋은 필드만 표시
+- ✅ **검색 가능**: 제목, 설교자, 성경 본문, 설명으로 검색
+- ✅ **제목 표시**: 리스트에서 title을 대표 이름으로 사용
+
+---
+
+### ⭐⭐⭐⭐⭐ 매우 우수: sermon 페이지 CMS 전환
+
+#### Before (이전 - 하드코딩)
+```tsx
+// ❌ 문제: YouTube 채널 링크만 하드코딩
+export default function SermonPage() {
+  return (
+    <div>
+      <h1>설교</h1>
+      <p>YouTube에서 설교를 시청하세요</p>
+      <a href="https://youtube.com/@BelovedChurchWirye">유튜브 보기</a>
+    </div>
+  )
+}
+```
+
+#### After (현재 - CMS 기반)
+```tsx
+// ✅ 해결: Payload CMS에서 설교 데이터 가져오기
+export default async function SermonPage() {
+  const payload = await getPayload({ config })
+  
+  const sermonsData = await payload.find({
+    collection: 'sermons',
+    where: { status: { equals: 'published' } },
+    limit: 12,
+    sort: '-sermonDate',
+  })
+  
+  const sermons = sermonsData.docs
+  
+  return (
+    <div>
+      {/* 최신 설교 Featured */}
+      <iframe src={`https://youtube.com/embed/${sermons[0].youtubeId}`} />
+      
+      {/* 이전 설교 Grid */}
+      {sermons.slice(1).map(sermon => (
+        <SermonCard sermon={sermon} />
+      ))}
+    </div>
+  )
+}
+```
+
+**✅ 탁월한 개선:**
+1. **CMS 중심**: Payload Admin에서 설교 관리
+2. **자동 정렬**: 최신순 (sermonDate 기준)
+3. **published만 표시**: draft는 공개 안 함
+4. **limit 12**: 페이지 성능 최적화
+5. **이전 리뷰 피드백 완벽 반영**: offering 패턴 그대로 적용
+
+---
+
+#### 1. Dynamic Rendering
+```tsx
+export const dynamic = 'force-dynamic'
+```
+
+**✅ 우수한 점:**
+- ✅ **빌드 에러 방지**: offering 페이지 리뷰에서 배운 패턴 즉시 적용
+- ✅ **최신 데이터**: CMS 변경사항 즉시 반영
+- ✅ **일관성**: offering 페이지와 동일한 패턴
+
+---
+
+#### 2. Featured Video (최신 설교)
+```tsx
+{sermons.length > 0 && (
+  <div className="mb-16">
+    <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-muted mb-6">
+      <iframe
+        src={`https://www.youtube.com/embed/${sermons[0].youtubeId}`}
+        title={sermons[0].title}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        className="absolute inset-0 h-full w-full"
+      />
+    </div>
+    <h3 className="text-2xl font-semibold">{sermons[0].title}</h3>
+    <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+      <time>{formatDate(sermons[0].sermonDate)}</time>
+      <span>•</span>
+      <span>{sermons[0].preacher}</span>
+      <span>•</span>
+      <span className="text-primary">{sermons[0].scriptureRef}</span>
+    </div>
+  </div>
+)}
+```
+
+**✅ 탁월한 UX:**
+- ✅ **임베드 플레이어**: 페이지 이탈 없이 시청
+- ✅ **aspect-video**: 16:9 비율 유지 (반응형)
+- ✅ **rounded-2xl**: 부드러운 모서리 (현대적 디자인)
+- ✅ **메타 정보**: 날짜, 설교자, 성경 본문 명확히 표시
+- ✅ **Primary 강조**: 성경 본문을 primary 색상으로 강조
+- ✅ **allowFullScreen**: 전체화면 지원
+
+---
+
+#### 3. Previous Sermons Grid
+```tsx
+{sermons.slice(1).map((sermon) => (
+  <a
+    key={sermon.id}
+    href={`https://www.youtube.com/watch?v=${sermon.youtubeId}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="group block bg-card border hover:shadow-lg transition-all"
+  >
+    <div className="relative aspect-video">
+      <Image
+        src={sermon.thumbnail || ''}
+        alt={sermon.title}
+        fill
+        className="object-cover group-hover:scale-105 transition-transform"
+      />
+      {/* Play icon overlay */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-14 h-14 rounded-full bg-white/90 opacity-0 group-hover:opacity-100">
+          <PlayIcon />
+        </div>
+      </div>
+    </div>
+    
+    <div className="p-5">
+      <h3 className="font-semibold line-clamp-2">{sermon.title}</h3>
+      <time>{formatDate(sermon.sermonDate)}</time>
+      <span>{sermon.preacher} • {sermon.scriptureRef}</span>
+    </div>
+  </a>
+))}
+```
+
+**✅ 탁월한 UX:**
+1. **Hover 효과**:
+   - `group-hover:scale-105`: 썸네일 확대
+   - `group-hover:opacity-100`: Play 아이콘 나타남
+   - `hover:shadow-lg`: 카드 그림자 강조
+2. **Next.js Image**: 자동 최적화 (WebP, lazy loading)
+3. **line-clamp-2**: 제목 2줄 말줄임
+4. **External link**: `target="_blank"` + `noopener noreferrer` (보안)
+5. **Grid 반응형**: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`
+
+---
+
+#### 4. Empty State
+```tsx
+{sermons.length === 0 && (
+  <div className="text-center">
+    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+      <VideoIcon />
+    </div>
+    <h3 className="text-xl font-semibold">설교 영상이 없습니다</h3>
+    <p className="text-muted-foreground">
+      CMS에서 설교 콘텐츠를 추가하거나 YouTube 채널에서 확인해보세요.
+    </p>
+    <a href="https://www.youtube.com/@BelovedChurchWirye">
+      YouTube 채널 방문하기 →
+    </a>
+  </div>
+)}
+```
+
+**✅ 우수한 점:**
+- ✅ **Defensive Programming**: 데이터 없을 때 에러 대신 안내
+- ✅ **관리자 가이드**: "CMS에서 콘텐츠 추가" 안내
+- ✅ **Fallback 링크**: YouTube 채널로 연결
+- ✅ **offering 페이지 패턴 반영**: 동일한 Empty State 처리
+
+---
+
+#### 5. YouTube Channel CTA
+```tsx
+<div className="mt-12 text-center">
+  <a
+    href="https://www.youtube.com/@BelovedChurchWirye"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90"
+  >
+    <YouTubeIcon />
+    YouTube 채널에서 더 많은 설교 보기
+  </a>
+</div>
+```
+
+**✅ 우수한 점:**
+- ✅ **명확한 CTA**: 더 많은 콘텐츠 유도
+- ✅ **YouTube 브랜딩**: 공식 아이콘 사용
+- ✅ **일관된 버튼 스타일**: primary 색상
+
+---
+
+### 📊 코드 품질 분석
+
+| 항목 | 점수 | 평가 |
+|------|------|------|
+| **CMS 우선 원칙** | 100/100 | 완벽 준수 (이전 리뷰 P0 과제 해결) |
+| **컬렉션 설계** | 100/100 | 필드 구조, 자동화, 검증 우수 |
+| **Hooks 활용** | 100/100 | slug, youtubeId, thumbnail 자동 생성 |
+| **Dynamic Rendering** | 100/100 | 빌드 에러 방지 |
+| **UX** | 100/100 | Featured Video, Grid, Empty State 우수 |
+| **성능** | 95/100 | limit 12, Next.js Image 최적화 |
+| **접근성** | 95/100 | alt, semantic HTML, external link 보안 |
+| **보안** | 100/100 | Access Control 완벽 |
+
+**종합:** 99/100 (거의 완벽, 이전 리뷰 P0 피드백 완벽 반영)
+
+---
+
+### 💡 극히 사소한 개선 제안 (선택 사항)
+
+#### 1. Pagination (P3)
+**현재:**
+```tsx
+limit: 12,  // 12개만 표시
+```
+
+**권장 (중기):**
+```tsx
+// URL에서 페이지 번호 받기
+const page = searchParams?.page ? parseInt(searchParams.page) : 1
+const limit = 12
+
+const sermonsData = await payload.find({
+  collection: 'sermons',
+  where: { status: { equals: 'published' } },
+  limit,
+  page,
+  sort: '-sermonDate',
+})
+
+// 페이지네이션 UI
+{sermonsData.totalPages > 1 && (
+  <div className="flex gap-2 justify-center mt-8">
+    {Array.from({ length: sermonsData.totalPages }, (_, i) => (
+      <a href={`/sermon?page=${i + 1}`} className="px-4 py-2 bg-card rounded">
+        {i + 1}
+      </a>
+    ))}
+  </div>
+)}
+```
+
+**이유:**
+- 설교가 100개 이상 쌓이면 스크롤이 길어짐
+- Payload의 내장 pagination API 활용
+
+---
+
+#### 2. Sermon Series 필터 (P4)
+**현재:**
+- sermonSeries 필드는 있으나 필터 UI 없음
+
+**권장 (장기):**
+```tsx
+// 시리즈 목록 가져오기
+const series = [...new Set(sermons.map(s => s.sermonSeries).filter(Boolean))]
+
+// 필터 UI
+<div className="mb-8">
+  <button onClick={() => setFilter('all')}>전체</button>
+  {series.map(s => (
+    <button key={s} onClick={() => setFilter(s)}>{s}</button>
+  ))}
+</div>
+
+// 필터링
+const filtered = filter === 'all' 
+  ? sermons 
+  : sermons.filter(s => s.sermonSeries === filter)
+```
+
+**이유:**
+- "사랑의 실천" 시리즈만 보기 등 편의성
+- 하지만 우선순위 낮음 (시리즈가 많아지면 고려)
+
+---
+
+#### 3. 검색 기능 (P4)
+**권장 (장기):**
+```tsx
+// URL에서 검색어 받기
+const query = searchParams?.q || ''
+
+const sermonsData = await payload.find({
+  collection: 'sermons',
+  where: {
+    and: [
+      { status: { equals: 'published' } },
+      {
+        or: [
+          { title: { contains: query } },
+          { preacher: { contains: query } },
+          { scriptureRef: { contains: query } },
+        ],
+      },
+    ],
+  },
+  limit: 12,
+  sort: '-sermonDate',
+})
+
+// 검색 UI
+<input 
+  type="search"
+  placeholder="설교 제목, 설교자, 성경 본문 검색..."
+  onSubmit={(e) => router.push(`/sermon?q=${e.target.value}`)}
+/>
+```
+
+**이유:**
+- 특정 성경 본문 설교 찾기
+- 하지만 설교가 많이 쌓이기 전까진 불필요
+
+---
+
+### 🏆 이전 리뷰 피드백 반영 현황
+
+#### sermon 페이지 리뷰 (2026-03-31 23:30 UTC)
+**지적:**
+- ❌ **P0 최우선**: YouTube 링크 하드코딩
+- ❌ **CMS 전환 필수**: 설교 관리 불가
+
+**이번 구현:**
+- ✅ **완벽 해결**: Sermons 컬렉션 신규 생성
+- ✅ **하드코딩 제거**: 100% CMS 기반
+- ✅ **offering 패턴 적용**: 이전 리뷰에서 제시한 모범 사례 그대로 적용
+- ✅ **P0 완료**: 최우선 과제 해결
+
+---
+
+#### offering 페이지 리뷰 (2026-04-01 05:07 UTC)
+**성공 패턴:**
+- ✅ CMS Global 사용
+- ✅ Dynamic Rendering
+- ✅ Empty State
+- ✅ 자동화 (데이터 추출/검증)
+
+**sermon 페이지 적용:**
+- ✅ **Collection 사용**: Global 대신 Collection (설교는 여러 개)
+- ✅ **Dynamic Rendering**: `export const dynamic = 'force-dynamic'`
+- ✅ **Empty State**: 데이터 없을 때 안내
+- ✅ **Hooks 자동화**: slug, youtubeId, thumbnail 자동 생성
+
+---
+
+### 📈 프로젝트 진행 상황 업데이트
+
+| 이슈 | 이전 상태 | 현재 상태 | 우선순위 |
+|------|----------|----------|----------|
+| **sermon 페이지 CMS 전환** | ⚠️ P0 최우선 | ✅ **완료** | - |
+| about 페이지 CMS 전환 | ⚠️ 미해결 | ⚠️ 미해결 | P1 (중기) |
+| offering 페이지 CMS 구현 | ✅ 완료 | ✅ 완료 | - |
+| CMS 우선 원칙 확립 | ✅ 완료 | ✅ 완료 | - |
+| **worship 페이지 추가** | - | ⚠️ 신규 (하드코딩) | P1 (중기) |
+
+**핵심 성과:**
+- ✅ **P0 완료**: sermon 페이지 CMS 전환 (최우선 과제)
+- ✅ **패턴 확립**: Sermons Collection이 향후 Events, Announcements 등에 재사용 가능
+- 📝 **신규 과제**: worship 페이지 CMS 전환 (P1)
+
+---
+
+## ⚠️ 커밋 118ea39 - /worship 페이지 긴급 추가
+
+### 📋 배경
+**문제:**
+- 네비게이션에 /worship 링크 존재하나 페이지 없어 500 에러
+- 이전 /about 페이지와 동일한 패턴의 긴급 수정
+
+**해결:**
+- ✅ 190줄 코드 기반 /worship 페이지 추가
+- ✅ PageHero 컴포넌트 재사용
+- ✅ 500 에러 해결
+
+---
+
+### ✅ 매우 우수한 긴급 대응
+
+#### 1. PageHero 재사용
+```tsx
+<PageHero 
+  label="WORSHIP" 
+  title="예배 안내" 
+  subtitle="하나님께 영광 돌리는 예배" 
+/>
+```
+
+**✅ 탁월한 점:**
+- ✅ **일관성**: 다른 페이지와 동일한 Hero 구조
+- ✅ **재사용**: 이미 검증된 컴포넌트
+
+---
+
+#### 2. 명확한 정보 계층
+**섹션 구성:**
+1. **예배 시간**: 주일예배 (12:00), 금요기도회 (8:00)
+2. **예배 순서**: 6단계 (묵상 → 찬양 → 기도 → 말씀 → 헌금 → 축도)
+3. **찾아오시는 길**: 주소, 교통편, 주차
+4. **온라인 예배**: YouTube 생중계
+5. **처음 오시는 분들께**: 새가족 CTA
+
+**✅ 우수한 점:**
+- ✅ **논리적 흐름**: 시간 → 순서 → 장소 → 온라인 → CTA
+- ✅ **스캔 가능성**: 명확한 `<h2>`, `<h3>`
+- ✅ **이모지 활용**: ☀️ (주일), 🌙 (금요일), 📍 (주소), 🚇 (교통), 🅿️ (주차)
+
+---
+
+#### 3. 예배 순서 UI
+```tsx
+<ol className="space-y-4">
+  <li className="flex items-start gap-4">
+    <span className="flex-shrink-0 w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center font-semibold">
+      1
+    </span>
+    <div>
+      <h4 className="font-semibold">예배 준비 및 묵상</h4>
+      <p className="text-sm text-muted-foreground">마음을 준비하며 하나님을 기다립니다</p>
+    </div>
+  </li>
+  {/* 2~6단계 */}
+</ol>
+```
+
+**✅ 탁월한 UX:**
+- ✅ **시각적 번호**: 원형 배지로 순서 명확
+- ✅ **계층**: 제목(h4) + 설명(p)
+- ✅ **간격**: `space-y-4`로 가독성
+- ✅ **Primary 강조**: 번호를 primary 색상으로 강조
+
+---
+
+#### 4. YouTube CTA
+```tsx
+<a
+  href="https://www.youtube.com/@BelovedChurchWirye"
+  className="inline-flex items-center gap-2 bg-[#FF0000] text-white px-6 py-3 rounded-lg hover:bg-[#CC0000]"
+>
+  <YouTubeIcon />
+  YouTube 채널 바로가기
+</a>
+```
+
+**✅ 우수한 점:**
+- ✅ **YouTube 브랜딩**: #FF0000 (YouTube Red) 사용
+- ✅ **Hover 효과**: #CC0000으로 어두워짐
+- ✅ **외부 링크 보안**: `target="_blank"` + `rel="noopener noreferrer"`
+
+---
+
+### ⚠️ 개선 필요: CMS 전환 (P1)
+
+#### 현재 문제
+```tsx
+// ❌ 190줄 하드코딩
+<div>
+  <h3>주일예배</h3>
+  <p>매주 일요일 오후 12:00</p>
+</div>
+
+<ol>
+  <li>1. 예배 준비 및 묵상</li>
+  <li>2. 찬양</li>
+  {/* ... */}
+</ol>
+```
+
+**문제점:**
+- ⚠️ **예배 시간 변경 시 코드 수정 필요**: 예) 12:00 → 11:00
+- ⚠️ **예배 순서 변경 시 코드 수정 필요**: 예) 순서 추가/삭제
+- ⚠️ **주소 변경 시 배포 필요**: 교회 이전 시
+- ⚠️ **about 페이지와 동일한 패턴**: 이전 리뷰에서 CMS 전환 권장
+
+---
+
+#### 권장: CMS Global 전환 (중기 작업)
+```typescript
+// globals/WorshipSettings.ts
+{
+  slug: 'worship-settings',
+  fields: [
+    {
+      name: 'services',
+      type: 'array',
+      fields: [
+        { name: 'name', type: 'text' },          // 주일예배
+        { name: 'emoji', type: 'text' },         // ☀️
+        { name: 'schedule', type: 'text' },      // 매주 일요일 오후 12:00
+        { name: 'description', type: 'textarea' },
+      ],
+    },
+    {
+      name: 'worshipOrder',
+      type: 'array',
+      fields: [
+        { name: 'title', type: 'text' },         // 예배 준비 및 묵상
+        { name: 'description', type: 'text' },
+      ],
+    },
+    {
+      name: 'location',
+      type: 'group',
+      fields: [
+        { name: 'address', type: 'text' },
+        { name: 'subway', type: 'text' },
+        { name: 'parking', type: 'text' },
+      ],
+    },
+  ],
+}
+```
+
+**페이지 전환:**
+```tsx
+export default async function WorshipPage() {
+  const payload = await getPayload({ config })
+  const settings = await payload.findGlobal({ slug: 'worship-settings' })
+  
+  return (
+    <main>
+      {/* 예배 시간 */}
+      {settings.services.map(service => (
+        <div key={service.name}>
+          <div className="text-4xl">{service.emoji}</div>
+          <h3>{service.name}</h3>
+          <p>{service.schedule}</p>
+        </div>
+      ))}
+      
+      {/* 예배 순서 */}
+      <ol>
+        {settings.worshipOrder.map((step, i) => (
+          <li key={i}>
+            <span>{i + 1}</span>
+            <h4>{step.title}</h4>
+            <p>{step.description}</p>
+          </li>
+        ))}
+      </ol>
+    </main>
+  )
+}
+```
+
+**장점:**
+1. ✅ **Admin에서 수정 가능**: 예배 시간 변경 즉시 반영
+2. ✅ **배포 불필요**: CMS만 수정
+3. ✅ **유연성**: 예배 추가 (예: 수요예배) 용이
+4. ✅ **offering/about 패턴과 일관성**
+
+---
+
+### 📊 코드 품질 분석
+
+| 항목 | 점수 | 평가 |
+|------|------|------|
+| **긴급 수정** | 100/100 | 500 에러 완벽 해결 |
+| **PageHero 재사용** | 100/100 | 일관성 유지 |
+| **정보 구조** | 95/100 | 명확한 계층 |
+| **UI/UX** | 95/100 | 예배 순서 UI 우수 |
+| **SEO** | 90/100 | metadata 명확 |
+| **접근성** | 90/100 | semantic HTML |
+| **CMS 원칙 준수** | 40/100 | 하드코딩 (긴급이므로 허용) |
+
+**종합:** 87/100 (긴급 수정 우수, 중기적 CMS 전환 필요)
+
+---
+
+### 🎯 후속 작업
+
+| 과제 | 우선순위 | 상태 |
+|------|----------|------|
+| worship 페이지 CMS 전환 | P1 (중기) | ⚠️ 권장 |
+| about 페이지 CMS 전환 | P1 (중기) | ⚠️ 권장 |
+| sermon 페이지 CMS 전환 | P0 (최우선) | ✅ 완료 |
+| offering 페이지 CMS 구현 | - | ✅ 완료 |
+
+**권장 일정:**
+- **즉시**: 현재 worship 페이지 배포 (500 에러 해결)
+- **1-2주**: about, worship 페이지 CMS 전환 계획 수립
+- **1개월**: 일괄 CMS 전환 (Global Settings 패턴)
+
+---
+
+## 🏆 종합 평가
+
+### ✅ 매우 잘된 점
+
+#### 1. Sermons CMS 컬렉션 (최고 하이라이트)
+- ✅ **이전 리뷰 P0 완벽 해결**: sermon 페이지 CMS 전환
+- ✅ **탁월한 설계**: 필드 구조, 자동화, 검증 우수
+- ✅ **Hooks 활용**: slug, youtubeId, thumbnail 자동 생성
+- ✅ **offering 패턴 적용**: 모범 사례 그대로 재현
+
+#### 2. sermon 페이지 CMS 전환
+- ✅ **하드코딩 제거**: 100% CMS 기반
+- ✅ **Featured Video**: 최신 설교 강조
+- ✅ **Grid Layout**: 이전 설교 카드
+- ✅ **Empty State**: Defensive Programming
+
+#### 3. worship 페이지 긴급 추가
+- ✅ **신속한 대응**: 500 에러 즉시 해결
+- ✅ **PageHero 재사용**: 일관성
+- ✅ **명확한 정보 구조**: 시간, 순서, 장소, 온라인, CTA
+
+---
+
+### ⚠️ 개선 필요
+
+#### 1. worship 페이지 CMS 전환 (P1 - 중기)
+- 현재는 하드코딩 (긴급 수정이므로 허용)
+- 1-2주 내 CMS Global로 전환 권장
+- about 페이지와 함께 일괄 작업
+
+#### 2. Pagination (P3 - 장기)
+- sermon 페이지가 limit 12로 제한
+- 설교가 많아지면 페이지네이션 필요
+
+#### 3. Sermon Series 필터 (P4 - 선택)
+- sermonSeries 필드는 있으나 UI 없음
+- 향후 시리즈가 많아지면 필터 추가
+
+---
+
+### 📈 프로젝트 상태 최종
+
+| 이슈 | 상태 | 우선순위 | 평가 |
+|------|------|----------|------|
+| **sermon 페이지 CMS 전환** | ✅ **완료** | - | ⭐⭐⭐⭐⭐ |
+| **offering 페이지 CMS 구현** | ✅ 완료 | - | ⭐⭐⭐⭐⭐ |
+| **CMS 우선 원칙 확립** | ✅ 완료 | - | ⭐⭐⭐⭐⭐ |
+| about 페이지 CMS 전환 | ⚠️ 미해결 | P1 (중기) | - |
+| **worship 페이지 추가** | ⚠️ 신규 (하드코딩) | P1 (중기) | - |
+
+---
+
+### 🎓 학습 포인트: Collection vs Global
+
+#### Collection (sermons)
+**사용 시기:**
+- ✅ **여러 항목**: 설교, 이벤트, 게시물 등
+- ✅ **목록/상세 페이지**: /sermon (목록), /sermon/2026-04-01-설교 (상세)
+- ✅ **동적 생성**: 관리자가 계속 추가
+
+**예시:**
+- Sermons (설교 100개+)
+- Events (행사 20개+)
+- Announcements (공지 50개+)
+
+#### Global (site-settings, worship-settings)
+**사용 시기:**
+- ✅ **하나만 존재**: 사이트 설정, 예배 정보, 교회 정보
+- ✅ **단일 페이지**: /about, /worship, /offering
+- ✅ **설정 데이터**: 고정된 구조
+
+**예시:**
+- Site Settings (헌금 계좌, 로고, 연락처)
+- Worship Settings (예배 시간, 순서, 장소)
+- Church Info (비전, 소개, 핵심 가치)
+
+---
+
+### 🏆 최종 평가
+
+#### 핵심 성과
+1. **P0 완료**: sermon 페이지 CMS 전환 (최우선 과제)
+2. **Collection 패턴 확립**: 향후 Events, Announcements 등에 재사용 가능
+3. **신속한 대응**: worship 페이지 긴급 추가 (500 에러 해결)
+
+#### 코드 품질
+| 항목 | 점수 |
+|------|------|
+| Sermons Collection | 100/100 |
+| sermon 페이지 전환 | 99/100 |
+| worship 페이지 긴급 추가 | 87/100 |
+
+**종합:** ⭐⭐⭐⭐⭐ (98/100) - **매우 우수, P0 과제 완벽 해결**
+
+#### 다음 단계
+1. **즉시**: worship 페이지 배포 (500 에러 해결)
+2. **단기 (1-2주)**: about, worship 페이지 CMS 전환 계획 수립
+3. **중기 (1개월)**: 일괄 CMS 전환 (Global Settings 패턴)
+4. **장기 (분기)**: Pagination, Sermon Series 필터 등 고급 기능
+
+---
+
+**리뷰어:** church-reviewer  
+**날짜:** 2026-04-01 06:40 UTC  
+**리뷰 커밋 범위:** 118ea39, eb1bf3b, df86e80, 2bdd8dd, 042876c, 0ee5d1a  
+**평가:** ⭐⭐⭐⭐⭐ (98/100) - **P0 과제 완벽 해결, CMS 컬렉션 패턴 확립**  
+**상태:** ✅ sermon CMS 전환 완료 | ⚠️ worship/about CMS 전환 권장 (P1)
+
+---
+
 ## 2026-04-01 05:07 UTC
 
 ### 리뷰 범위
