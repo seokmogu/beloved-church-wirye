@@ -237,3 +237,58 @@
 **상태**: 완료 ✅
 
 ---
+
+## 2026-04-01 03:19 UTC
+
+### 작업: 히어로 섹션 타이포그래피 및 배경 개선 ✅
+
+**우선순위**: DESIGN_REPORT.md 중간 우선순위 항목  
+**브랜치**: `feature/hero-typography-enhancement`  
+**커밋**: `86fcf09` → PR #13 → squash merge `0cdddbe`  
+**배포 URL**: https://beloved-church-wirye.vercel.app
+
+**문제점**:
+- 히어로 섹션 (주보, 공지사항) 영문 타이틀 폰트 크기 너무 작음 (text-sm)
+- 서브타이틀 폰트 웨이트 부족 (투명도만 조정)
+- 단색 배경으로 깊이감 부족
+- 시각적 임팩트 약함
+
+**구현 내용**:
+
+1. **타이포그래피 개선**:
+   - 영문 타이틀: `text-sm` → `text-base md:text-lg` (크기 확대)
+   - 영문 타이틀: `font-medium` → `font-semibold` (웨이트 강화)
+   - Letter-spacing: `tracking-wider` → `tracking-[0.2em]` (가독성 향상)
+   - 서브타이틀: `text-white/60` → `text-white/80 font-medium` (명확성 향상)
+   - 영문/한글 타이틀 간격: `mb-2` → `mb-3` (시각적 계층 강화)
+
+2. **배경 디자인 개선**:
+   - 단색 배경 → 그라디언트 배경 (`from-primary via-primary to-primary-dark`)
+   - 미세한 배경 패턴 추가 (두 개의 blur 원형 그라디언트)
+   - 깊이감 향상을 위한 opacity 조정 (0.05)
+   - z-index 계층 구조로 콘텐츠와 배경 분리
+
+**수정 파일**:
+- `/src/app/(frontend)/bulletins/page.tsx`
+- `/src/app/(frontend)/announcements/page.tsx`
+
+**기술 세부사항**:
+- TypeScript strict 모드 통과 (`pnpm tsc --noEmit`)
+- Vercel 빌드 성공 (빌드 시간: 2m)
+- Tailwind `primary-dark` 색상 활용 (이미 정의됨)
+
+**효과**:
+- 시각적 임팩트 향상: 그라디언트와 패턴으로 전문성 증가
+- 가독성 개선: 영문 타이틀 크기 확대로 시각적 계층 명확화
+- 브랜드 일관성: 브랜드 컬러 팔레트 활용
+- UX 향상: 서브타이틀 명확도 개선으로 페이지 목적 명확화
+
+**DESIGN_REPORT.md 반영**:
+- ✅ 영문 타이틀 폰트 크기 확대
+- ✅ 서브타이틀 폰트 웨이트 조정
+- ✅ 배경 그라디언트 및 패턴 추가
+- ✅ 깊이감 부여 완료
+
+**상태**: 완료 ✅
+
+---
