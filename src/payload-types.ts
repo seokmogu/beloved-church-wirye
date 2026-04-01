@@ -251,6 +251,7 @@ export interface Page {
             blockName?: string | null;
             blockType: 'googleDriveBlock';
           }
+        | OfferingBlock
       )[]
     | null;
   meta?: {
@@ -536,6 +537,28 @@ export interface MediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "OfferingBlock".
+ */
+export interface OfferingBlock {
+  title?: string | null;
+  /**
+   * 헌금 관련 안내 문구 (선택 사항)
+   */
+  description?: string | null;
+  /**
+   * SiteSettings의 헌금 계좌 정보를 표시합니다
+   */
+  showBankInfo?: boolean | null;
+  /**
+   * SiteSettings의 카카오페이 QR 코드를 표시합니다 (등록된 경우)
+   */
+  showKakaoPay?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'offeringBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1119,6 +1142,7 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        offeringBlock?: T | OfferingBlockSelect<T>;
       };
   meta?:
     | T
@@ -1175,6 +1199,18 @@ export interface ContentBlockSelect<T extends boolean = true> {
  */
 export interface MediaBlockSelect<T extends boolean = true> {
   media?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "OfferingBlock_select".
+ */
+export interface OfferingBlockSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  showBankInfo?: T;
+  showKakaoPay?: T;
   id?: T;
   blockName?: T;
 }
@@ -1716,6 +1752,26 @@ export interface SiteSetting {
   churchVision?: string | null;
   churchQuote?: string | null;
   denomination?: string | null;
+  /**
+   * 헌금 계좌 은행 이름 (예: 국민은행)
+   */
+  offeringBankName?: string | null;
+  /**
+   * 헌금 계좌번호 (예: 123-456-789012)
+   */
+  offeringAccountNumber?: string | null;
+  /**
+   * 헌금 계좌 예금주 이름 (예: 사랑하는교회)
+   */
+  offeringAccountHolder?: string | null;
+  /**
+   * 카카오페이 송금용 QR 코드 이미지 (선택 사항)
+   */
+  offeringKakaoPayQr?: (number | null) | Media;
+  /**
+   * 헌금 관련 추가 안내 사항 (예: 입금 시 성명을 남겨주세요)
+   */
+  offeringNotes?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1787,6 +1843,11 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   churchVision?: T;
   churchQuote?: T;
   denomination?: T;
+  offeringBankName?: T;
+  offeringAccountNumber?: T;
+  offeringAccountHolder?: T;
+  offeringKakaoPayQr?: T;
+  offeringNotes?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
