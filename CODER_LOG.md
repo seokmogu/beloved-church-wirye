@@ -1,5 +1,52 @@
 # CODER_LOG.md
 
+## 2026-04-01 05:35 UTC
+
+### 작업: Sermons CMS 컬렉션 생성 및 sermon 페이지 CMS 전환 ✅
+
+**우선순위**: REVIEW_REPORT.md P0 최우선 (sermon 페이지 CMS 전환)  
+**브랜치**: `feature/sermons-cms-collection`, `fix/sermon-page-dynamic-rendering`  
+**커밋**: `b3c90e7` → merge `eb1bf3b`, `5f6be4d` → merge `df86e80`  
+**PR**: #16, #17  
+**배포 URL**: https://beloved-church-wirye.vercel.app/sermon
+
+**구현 내용**:
+1. **Sermons 컬렉션 생성** (`src/collections/Sermons.ts`):
+   - 필드: title, preacher, scriptureRef, sermonDate
+   - youtubeUrl → 자동 추출: youtubeId, thumbnail
+   - description, sermonSeries (선택 필드)
+   - slug 자동 생성 (날짜 + 제목)
+   - YouTube URL 유효성 검증
+   - published/draft 상태 관리
+   - 한/영 이중 언어 레이블
+
+2. **sermon 페이지 CMS 전환** (`src/app/(frontend)/sermon/page.tsx`):
+   - YouTube API 의존성 완전 제거
+   - Payload Local API로 sermon 데이터 조회
+   - 메타데이터 강화: 설교자, 성경 본문, 설교 시리즈 표시
+   - 카드 UI 개선: 메타데이터 레이아웃 최적화
+   - 빈 상태 처리 개선
+   - `export const dynamic = 'force-dynamic'` 추가 (빌드 시점 DB 조회 방지)
+
+3. **payload.config.ts 업데이트**:
+   - Sermons 컬렉션 등록
+   - 타입 생성 완료 (`pnpm generate:types`)
+
+**기술 세부사항**:
+- TypeScript strict 모드 통과 (`pnpm tsc --noEmit`)
+- Dynamic rendering으로 빌드 성공
+- DB migration은 CMS 어드민 최초 접근 시 자동 실행 예정
+- Vercel 배포 성공 (빌드 시간: 2m)
+
+**다음 단계**:
+1. CMS 어드민 접속하여 자동 migration 트리거
+2. 기존 YouTube 영상 데이터를 Sermons 컬렉션에 입력
+3. 설교 제목, 설교자, 성경 본문, 날짜, YouTube URL 입력
+
+**상태**: ✅ 완료 (CMS 전환 성공, 콘텐츠 입력 대기)
+
+---
+
 ## 2026-04-01 04:59 UTC
 
 ### 작업: `/offering` 헌금 안내 페이지 개발 ✅
