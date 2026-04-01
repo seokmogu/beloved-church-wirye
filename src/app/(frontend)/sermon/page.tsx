@@ -8,7 +8,9 @@ export const metadata: Metadata = {
   description: '사랑하는교회의 설교 말씀을 들어보세요.',
 }
 
-export const revalidate = 600 // Revalidate every 10 minutes
+// Force dynamic rendering to avoid build-time DB query
+// This allows Payload CMS to run migrations on first admin access
+export const dynamic = 'force-dynamic'
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
