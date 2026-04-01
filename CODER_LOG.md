@@ -1,5 +1,46 @@
 # CODER_LOG.md
 
+## 2026-04-01 06:35 UTC
+
+### 작업: /worship 페이지 500 에러 수정 ✅
+
+**우선순위**: PLANNING.md 최긴급 🚨 (ERROR 384430754)  
+**브랜치**: `hotfix/worship-page-500-error`  
+**커밋**: `118ea39` → merge `042876c`  
+**배포 URL**: https://beloved-church-wirye.vercel.app/worship
+
+**문제**:
+- `/worship` 페이지 접속 시 "This page couldn't load - A server error occurred" (ERROR 384430754)
+- 원인: CMS `pages` 컬렉션에 "worship" 페이지 미존재 → 동적 라우트에서 null 반환 → 서버 오류
+
+**해결**:
+- 전용 `/worship` 페이지 생성 (`src/app/(frontend)/worship/page.tsx`)
+- `/about` 페이지 패턴 적용 (정적 콘텐츠 기반, CMS 독립)
+- 포함 내용:
+  - 예배 시간: 주일예배 (12:00), 금요기도회 (20:00)
+  - 예배 순서: 6단계 (준비, 찬양, 기도, 말씀, 헌금, 축도)
+  - 찾아오는 길: 주소, 교통편, 주차 안내
+  - 온라인 예배: YouTube 채널 링크
+  - 처음 오시는 분들 안내 + 새가족 등록 CTA
+- TypeScript strict 모드 통과
+- Vercel 프로덕션 배포 성공 (빌드 2분)
+
+**검증**:
+- ✅ /worship 페이지 정상 렌더링
+- ✅ 서버 오류 완전 해결 (ERROR 384430754 소멸)
+- ✅ 모든 섹션 완벽 표시 (예배 시간, 순서, 위치, 온라인 예배)
+- ✅ 새가족 등록 CTA 버튼 작동
+- ✅ PageHero 컴포넌트 일관성 유지
+
+**기술 세부사항**:
+- export const metadata (SEO 최적화)
+- 반응형 디자인 (Tailwind CSS)
+- 접근성: 시맨틱 HTML, 이모지 장식
+
+**상태**: ✅ 완료 (긴급 수정 성공)
+
+---
+
 ## 2026-04-01 05:35 UTC
 
 ### 작업: Sermons CMS 컬렉션 생성 및 sermon 페이지 CMS 전환 ✅
