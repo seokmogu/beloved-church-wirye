@@ -292,3 +292,59 @@
 **상태**: 완료 ✅
 
 ---
+
+## 2026-04-01 03:52 UTC
+
+### 작업: PageHero 컴포넌트 추출 (리팩토링) ✅
+
+**우선순위**: REVIEW_REPORT.md P2 항목 (코드 중복 제거)  
+**브랜치**: `feature/page-hero-component`  
+**커밋**: `bb6c4ef` → PR #14 → squash merge `54c08fe`  
+**배포 URL**: https://beloved-church-wirye.vercel.app
+
+**문제점**:
+- `bulletins/page.tsx`와 `announcements/page.tsx`에 히어로 섹션 코드 중복
+- 동일한 구조를 두 곳에서 유지해야 하는 유지보수 부담
+- 향후 다른 페이지에 히어로 추가 시 또 다른 중복 발생 가능성
+
+**구현 내용**:
+
+1. **PageHero 컴포넌트 생성** (`src/components/PageHero.tsx`):
+   - Props: `label`, `title`, `subtitle`, `className`, `children`
+   - 그라디언트 배경 + 장식 패턴 (blur circle)
+   - TypeScript 인터페이스 완비
+   - JSDoc 문서화
+
+2. **bulletins/page.tsx 리팩토링**:
+   - 15줄의 히어로 코드 → 1줄 컴포넌트 호출
+   - `<PageHero label="WEEKLY BULLETIN" title="주보" subtitle="..." />`
+
+3. **announcements/page.tsx 리팩토링**:
+   - 15줄의 히어로 코드 → 1줄 컴포넌트 호출
+   - `<PageHero label="NOTICE" title="공지사항" subtitle="..." />`
+
+**제거된 중복 코드**:
+- 그라디언트 배경 정의 (2회 → 1회)
+- blur 패턴 구조 (2회 → 1회)
+- 타이포그래피 스타일 (2회 → 1회)
+- 총 ~30줄 감소
+
+**기술 세부사항**:
+- TypeScript strict 모드 통과 (`pnpm tsc --noEmit`)
+- 시각적 변화 없음 (순수 리팩토링)
+- Vercel 빌드 성공 (빌드 시간: 2m)
+
+**효과**:
+- 유지보수성 향상: 히어로 디자인 변경 시 한 곳만 수정
+- 재사용성: 향후 `/about`, `/worship` 등 다른 페이지에도 활용 가능
+- 일관성 강화: 모든 페이지 히어로가 동일한 구조 보장
+- 코드 가독성: 페이지 파일에서 컨텐츠 로직에 집중 가능
+
+**REVIEW_REPORT.md 반영**:
+- ✅ PageHero 컴포넌트화 완료 (P2 이슈 해결)
+- ✅ DRY 원칙 준수
+- ✅ 확장성 확보
+
+**상태**: 완료 ✅
+
+---
