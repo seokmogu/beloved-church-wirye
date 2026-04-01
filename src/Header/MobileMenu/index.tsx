@@ -25,7 +25,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ data, open, onClose }) =
       aria-hidden={!open}
       onKeyDown={handleKeyDown}
     >
-      <nav className="flex flex-col border-t border-white/20 pb-4 bg-[#1B3A2D]">
+      <nav className="flex flex-col border-t border-white/20 pb-4 bg-primary">
         {navItems.map((item, i) => {
           const link = item.link as { url?: string; label?: string }
           return (
@@ -42,7 +42,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ data, open, onClose }) =
         <div className="px-4 py-3 border-b border-white/10">
           <Link
             href="/bulletins"
-            className="text-sm font-medium text-white/80 hover:text-[#C9A84C] transition-colors"
+            className="text-sm font-medium text-white/80 hover:text-secondary transition-colors"
             onClick={onClose}
           >
             주보
@@ -51,7 +51,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ data, open, onClose }) =
         <div className="px-4 py-3">
           <Link
             href="/search"
-            className="flex items-center gap-2 text-sm font-medium text-white/80 hover:text-[#C9A84C] transition-colors"
+            className="flex items-center gap-2 text-sm font-medium text-white/80 hover:text-secondary transition-colors"
             onClick={onClose}
           >
             <SearchIcon className="w-4 h-4 text-white/60" />

@@ -23,7 +23,7 @@ export function YouTubeSection({ videos }: Props) {
         {/* Section header */}
         <div className="flex items-end justify-between mb-10">
           <div>
-            <p className="text-[#C9A84C] text-sm font-medium tracking-wider uppercase mb-2">
+            <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">
               Sermon
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
@@ -63,7 +63,7 @@ export function YouTubeSection({ videos }: Props) {
                 <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors">
                   <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
                     <svg
-                      className="w-6 h-6 text-[#1B3A2D] ml-1"
+                      className="w-6 h-6 text-primary ml-1"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                       aria-hidden="true"

@@ -28,7 +28,7 @@ export async function ChurchIntroSection() {
       <div className="container">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
-            <p className="text-[#C9A84C] text-sm font-medium tracking-wider uppercase mb-3">
+            <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-3">
               ABOUT US
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6 leading-tight">
@@ -46,22 +46,22 @@ export async function ChurchIntroSection() {
             </div>
             <div className="mt-8 flex flex-wrap gap-4">
               <div className="flex items-center gap-2 text-sm">
-                <span className="w-2 h-2 rounded-full bg-[#1B3A2D]" />
+                <span className="w-2 h-2 rounded-full bg-primary" />
                 <span className="text-foreground font-medium">{denomination}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <span className="w-2 h-2 rounded-full bg-[#C9A84C]" />
+                <span className="w-2 h-2 rounded-full bg-secondary" />
                 <span className="text-foreground font-medium">위례 신도시</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <span className="w-2 h-2 rounded-full bg-[#1B3A2D]" />
+                <span className="w-2 h-2 rounded-full bg-primary" />
                 <span className="text-foreground font-medium">Like Christ</span>
               </div>
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-[#1B3A2D] rounded-2xl p-6 text-white">
-              <div className="text-3xl font-bold text-[#C9A84C] mb-1">예배</div>
+            <div className="bg-primary rounded-2xl p-6 text-white">
+              <div className="text-3xl font-bold text-secondary mb-1">예배</div>
               <div className="text-sm text-white/70 mb-3">Worship</div>
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
@@ -74,17 +74,17 @@ export async function ChurchIntroSection() {
                 </div>
               </div>
             </div>
-            <div className="bg-[#F5F0E8] rounded-2xl p-6">
-              <div className="text-3xl font-bold text-[#1B3A2D] mb-1">위치</div>
-              <div className="text-sm text-[#1B3A2D]/60 mb-3">Location</div>
-              <div className="text-sm text-[#1B3A2D]/80 leading-relaxed">
+            <div className="bg-neutral-cream rounded-2xl p-6">
+              <div className="text-3xl font-bold text-primary mb-1">위치</div>
+              <div className="text-sm text-primary/60 mb-3">Location</div>
+              <div className="text-sm text-primary/80 leading-relaxed">
                 {address}<br />
                 ({addressDetail})<br />
                 남위례역 근처
               </div>
             </div>
-            <div className="col-span-2 bg-[#C9A84C]/10 border border-[#C9A84C]/30 rounded-2xl p-6">
-              <p className="text-[#1B3A2D] font-medium text-sm leading-relaxed text-center">
+            <div className="col-span-2 bg-secondary/10 border border-secondary/30 rounded-2xl p-6">
+              <p className="text-primary font-medium text-sm leading-relaxed text-center">
                 &ldquo;{quote}&rdquo;
               </p>
             </div>

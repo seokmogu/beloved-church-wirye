@@ -40,9 +40,9 @@ export default async function AnnouncementsPage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-[#1B3A2D] py-16">
+      <div className="bg-primary py-16">
         <div className="container text-center">
-          <p className="text-[#C9A84C] text-sm font-medium tracking-wider uppercase mb-2">
+          <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">
             NOTICE
           </p>
           <h1 className="text-3xl md:text-4xl font-bold text-white">공지사항</h1>
@@ -77,7 +77,7 @@ export default async function AnnouncementsPage() {
               >
                 <div className="flex items-start gap-3 min-w-0">
                   {item.isPinned && (
-                    <span className="shrink-0 mt-0.5 inline-flex items-center bg-[#C9A84C]/15 text-[#C9A84C] text-xs font-semibold px-2 py-0.5 rounded-full">
+                    <span className="shrink-0 mt-0.5 inline-flex items-center bg-secondary/15 text-secondary text-xs font-semibold px-2 py-0.5 rounded-full">
                       고정
                     </span>
                   )}

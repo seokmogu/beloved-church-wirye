@@ -111,7 +111,7 @@ export async function BulletinsBlockComponent({
                       target="_blank"
                       rel="noopener noreferrer"
                       download={isPdf}
-                      className="inline-flex items-center gap-1.5 text-xs font-medium text-[#1B3A2D] hover:text-[#C9A84C] transition-colors"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-secondary transition-colors"
                     >
                       <svg
                         className="w-3.5 h-3.5"

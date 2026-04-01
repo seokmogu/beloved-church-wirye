@@ -10,11 +10,11 @@ const POSTS: { id: string; type: 'p' | 'reel' }[] = [
 
 export function InstagramSection() {
   return (
-    <section className="py-20 bg-[#1B3A2D]">
+    <section className="py-20 bg-primary">
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 gap-4">
           <div>
-            <p className="text-[#C9A84C] text-sm font-medium tracking-wider uppercase mb-2">
+            <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">
               Instagram
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-white">

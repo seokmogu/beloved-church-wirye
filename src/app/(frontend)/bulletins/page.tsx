@@ -35,9 +35,9 @@ export default async function BulletinsPage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-[#1B3A2D] py-16">
+      <div className="bg-primary py-16">
         <div className="container text-center">
-          <p className="text-[#C9A84C] text-sm font-medium tracking-wider uppercase mb-2">
+          <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">
             WEEKLY BULLETIN
           </p>
           <h1 className="text-3xl md:text-4xl font-bold text-white">주보</h1>
@@ -108,7 +108,7 @@ export default async function BulletinsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         download={isPdf}
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-[#1B3A2D] hover:text-[#C9A84C] transition-colors"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-secondary transition-colors"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

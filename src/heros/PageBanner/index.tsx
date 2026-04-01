@@ -4,7 +4,7 @@ import RichText from '@/components/RichText'
 
 export const PageBannerHero: React.FC<Page['hero']> = ({ richText }) => {
   return (
-    <div className="bg-[#1B3A2D] py-16">
+    <div className="bg-primary py-16">
       <div className="container text-center">
         {richText && (
           <RichText

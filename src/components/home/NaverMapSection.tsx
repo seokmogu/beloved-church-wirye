@@ -91,7 +91,7 @@ export function NaverMapSection({
         <div className="container">
           {/* Section header */}
           <div className="mb-10">
-            <p className="text-[#C9A84C] text-sm font-medium tracking-wider uppercase mb-2">
+            <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">
               Location
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">찾아오는 길</h2>
@@ -113,7 +113,7 @@ export function NaverMapSection({
               <div>
                 <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
                   <svg
-                    className="w-5 h-5 text-[#C9A84C]"
+                    className="w-5 h-5 text-secondary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -148,7 +148,7 @@ export function NaverMapSection({
               <div>
                 <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
                   <svg
-                    className="w-5 h-5 text-[#C9A84C]"
+                    className="w-5 h-5 text-secondary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -172,7 +172,7 @@ export function NaverMapSection({
               <div>
                 <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
                   <svg
-                    className="w-5 h-5 text-[#C9A84C]"
+                    className="w-5 h-5 text-secondary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -190,11 +190,11 @@ export function NaverMapSection({
                 <div className="space-y-2">
                   <div className="flex justify-between items-center py-2 border-b border-border">
                     <span className="text-foreground font-medium">주일예배</span>
-                    <span className="text-[#C9A84C] font-semibold">{sundayServiceTime}</span>
+                    <span className="text-secondary font-semibold">{sundayServiceTime}</span>
                   </div>
                   <div className="flex justify-between items-center py-2">
                     <span className="text-foreground font-medium">금요기도회</span>
-                    <span className="text-[#C9A84C] font-semibold">{fridayServiceTime}</span>
+                    <span className="text-secondary font-semibold">{fridayServiceTime}</span>
                   </div>
                 </div>
               </div>

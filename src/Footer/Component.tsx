@@ -4,7 +4,7 @@ import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
 
 export async function Footer() {
   return (
-    <footer className="mt-auto border-t border-border bg-[#1B3A2D] text-white">
+    <footer className="mt-auto border-t border-border bg-primary text-white">
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Church info */}
@@ -23,7 +23,7 @@ export async function Footer() {
 
           {/* Worship schedule */}
           <div>
-            <h4 className="font-semibold text-[#C9A84C] mb-4">예배 안내</h4>
+            <h4 className="font-semibold text-secondary mb-4">예배 안내</h4>
             <div className="space-y-2 text-sm text-white/70">
               <div className="flex justify-between max-w-[200px]">
                 <span>주일예배</span>
@@ -38,7 +38,7 @@ export async function Footer() {
 
           {/* Social links */}
           <div>
-            <h4 className="font-semibold text-[#C9A84C] mb-4">소셜 미디어</h4>
+            <h4 className="font-semibold text-secondary mb-4">소셜 미디어</h4>
             <div className="flex flex-col gap-3 text-sm">
               <a
                 href="https://www.youtube.com/@BelovedChurchWirye"
