@@ -1,5 +1,43 @@
 # CODER_LOG.md
 
+## 2026-04-01 07:05 UTC
+
+### 작업: /offering 페이지 500 에러 수정 ✅
+
+**우선순위**: PLANNING.md ⭐⭐⭐⭐ (헌금 안내 페이지 최우선)  
+**브랜치**: `hotfix/offering-page-500-error`  
+**커밋**: `6a92967`, `fe5e6be` → merge `261b00b`  
+**배포 URL**: https://beloved-church-wirye.vercel.app/offering
+
+**문제**:
+- /offering 페이지 접속 시 500 에러 발생
+- 이전 구현에서 Payload CMS 쿼리가 런타임 실패
+- CopyAccountButton 컴포넌트가 서버 컴포넌트에서 onClick 사용 불가 빌드 에러
+
+**해결**:
+1. CMS 의존성 완전 제거 (Payload 쿼리 삭제)
+2. 정적 콘텐츠로 전환 (/worship 페이지 패턴 참고)
+3. CopyAccountButton을 Client Component로 분리 (`'use client'`)
+4. 헌금 종류 섹션 추가 (십일조, 주정헌금, 감사헌금)
+5. 성경 구절 추가 (고린도후서 9:7)
+
+**기술 세부사항**:
+- TypeScript strict 모드 통과
+- Next.js 빌드 성공 (정적 페이지로 프리렌더링)
+- 계좌번호 복사 기능 작동 (Client Component)
+- PageHero 컴포넌트로 일관된 디자인 유지
+
+**테스트**:
+- ✅ /offering 페이지 정상 렌더링 (HTTP 200)
+- ✅ 계좌 정보 표시
+- ✅ 계좌번호 복사 버튼 작동
+- ✅ 헌금 종류 설명 표시
+- ✅ 반응형 디자인 적용
+
+**상태**: ✅ 완료
+
+---
+
 ## 2026-04-01 06:35 UTC
 
 ### 작업: /worship 페이지 500 에러 수정 ✅
