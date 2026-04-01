@@ -1922,28 +1922,6 @@ export interface SiteSetting {
    * 헌금 관련 추가 안내 사항 (예: 입금 시 성명을 남겨주세요)
    */
   offeringNotes?: string | null;
-  /**
-   * 부활절, 성탄절 등 특별 기간에 상단에 표시할 배너
-   */
-  specialBanner?: {
-    /**
-     * 체크하면 홈페이지 상단에 배너가 표시됩니다
-     */
-    enabled?: boolean | null;
-    /**
-     * 예: 🌟 부활절 특별예배
-     */
-    title?: string | null;
-    /**
-     * 예: 4월 5일 오전 10:30
-     */
-    message?: string | null;
-    backgroundColor?: ('primary' | 'gold' | 'dark') | null;
-    /**
-     * 예: /about 또는 외부 링크
-     */
-    link?: string | null;
-  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2020,15 +1998,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   offeringAccountHolder?: T;
   offeringKakaoPayQr?: T;
   offeringNotes?: T;
-  specialBanner?:
-    | T
-    | {
-        enabled?: T;
-        title?: T;
-        message?: T;
-        backgroundColor?: T;
-        link?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
