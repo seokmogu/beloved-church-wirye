@@ -2,18 +2,23 @@ import type { Metadata } from 'next'
 
 import { AdminBar } from '@/components/AdminBar'
 import { ChatWidget } from '@/components/ChatWidget'
+import SpecialBanner from '@/components/SpecialBanner'
 import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { draftMode } from 'next/headers'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
 
 export default async function RootLayout({ children }: { children: import('react').ReactNode }) {
   const { isEnabled } = await draftMode()
+  const payload = await getPayload({ config })
+  const siteSettings = await payload.findGlobal({ slug: 'site-settings' })
 
   return (
     <html lang="ko" suppressHydrationWarning>
@@ -31,6 +36,7 @@ export default async function RootLayout({ children }: { children: import('react
           />
 
           <Header />
+          {siteSettings.specialBanner && <SpecialBanner banner={siteSettings.specialBanner} />}
           {children}
           <Footer />
           <ChatWidget />
