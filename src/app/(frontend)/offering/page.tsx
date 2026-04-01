@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { PageHero } from '@/components/PageHero'
+import { CopyAccountButton } from '@/components/CopyAccountButton'
 
 export const metadata: Metadata = {
   title: '헌금 안내 | 사랑하는교회',
@@ -50,15 +51,7 @@ export default function OfferingPage() {
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText('123-456-7890')
-                alert('계좌번호가 복사되었습니다!')
-              }}
-              className="mt-6 w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
-            >
-              📋 계좌번호 복사하기
-            </button>
+            <CopyAccountButton accountNumber="123-456-7890" />
           </div>
         </section>
 
