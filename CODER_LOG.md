@@ -38,3 +38,36 @@
 **상태**: 완료 (CMS 데이터 입력만 남음)
 
 ---
+
+## 2026-04-01 00:46 UTC
+
+### 작업: 404 라우팅 문제 해결 ✅
+
+**우선순위**: DESIGN_REPORT.md 최우선 항목  
+**브랜치**: `fix/404-routing-redirects`  
+**커밋**: `6235c15` → PR #8 → squash merge `462efd2`  
+**배포 URL**: https://beloved-church-wirye.vercel.app
+
+**문제점**:
+- `/ministry`, `/sermons`, `/news` 라우트에서 404 발생
+- 레거시 URL 또는 외부 링크로 인한 접근성 문제
+
+**구현 내용**:
+1. `redirects.ts`에 영구 리다이렉트 규칙 추가:
+   - `/ministry` → `/about` (교회 소개/사역)
+   - `/sermons` → `/sermon` (설교 페이지)
+   - `/news` → `/announcements` (공지사항)
+
+**기술 세부사항**:
+- Next.js redirects API 사용 (permanent: true)
+- TypeScript strict 모드 통과
+- Vercel 빌드 성공 (빌드 시간: 1m)
+
+**효과**:
+- SEO 개선 (404 → 301 리다이렉트)
+- 사용자 경험 향상 (에러 페이지 대신 적절한 페이지로 안내)
+- 외부 링크 유효성 유지
+
+**상태**: 완료 ✅
+
+---
