@@ -21,7 +21,7 @@ export async function HeroSection() {
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1B3A2D] via-[#243d30] to-[#0f2318]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-light to-primary-dark" />
       {heroImageUrl && (
         <Image
           src={heroImageUrl}
@@ -33,11 +33,11 @@ export async function HeroSection() {
         />
       )}
       {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1B3A2D]/60 via-[#1B3A2D]/40 to-[#1B3A2D]/75" />
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/75" />
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
-        <p className="text-[#C9A84C] text-sm md:text-base tracking-[0.3em] uppercase mb-4 font-medium">
+        <p className="text-secondary text-sm md:text-base tracking-[0.3em] uppercase mb-4 font-medium">
           Beloved Church Wirye
         </p>
         <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
@@ -50,11 +50,11 @@ export async function HeroSection() {
         {/* Worship time badges */}
         <div className="flex flex-wrap justify-center gap-3 mb-10">
           <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white rounded-full px-5 py-2.5 text-sm">
-            <span className="w-2 h-2 rounded-full bg-[#C9A84C]" />
+            <span className="w-2 h-2 rounded-full bg-secondary" />
             주일예배 {settings?.sundayServiceTime ?? '12:00'}
           </span>
           <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white rounded-full px-5 py-2.5 text-sm">
-            <span className="w-2 h-2 rounded-full bg-[#C9A84C]" />
+            <span className="w-2 h-2 rounded-full bg-secondary" />
             금요기도회 {settings?.fridayServiceTime ?? '20:00'}
           </span>
         </div>
@@ -63,7 +63,7 @@ export async function HeroSection() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
           <a
             href="/newcomer"
-            className="inline-flex items-center gap-2 bg-[#C9A84C] hover:bg-[#b8963f] text-[#1B3A2D] font-semibold rounded-full px-8 py-3.5 text-base transition-colors"
+            className="inline-flex items-center gap-2 bg-secondary hover:bg-secondary-dark text-primary font-semibold rounded-full px-8 py-3.5 text-base transition-colors"
           >
             새가족 등록
             <span aria-hidden="true">&rarr;</span>

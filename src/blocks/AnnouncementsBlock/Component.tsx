@@ -61,7 +61,7 @@ export async function AnnouncementsBlockComponent({
         >
           <div className="flex items-start gap-3 min-w-0">
             {item.isPinned && (
-              <span className="shrink-0 mt-0.5 inline-flex items-center bg-[#C9A84C]/15 text-[#C9A84C] text-xs font-semibold px-2 py-0.5 rounded-full">
+              <span className="shrink-0 mt-0.5 inline-flex items-center bg-secondary/15 text-secondary text-xs font-semibold px-2 py-0.5 rounded-full">
                 고정
               </span>
             )}

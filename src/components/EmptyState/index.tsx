@@ -98,7 +98,7 @@ export function EmptyState({
               href={ctaLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1B3A2D] text-white rounded-lg font-medium text-sm hover:bg-[#C9A84C] transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg font-medium text-sm hover:bg-secondary transition-colors"
             >
               {ctaText}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,7 +113,7 @@ export function EmptyState({
           ) : (
             <Link
               href={ctaLink}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1B3A2D] text-white rounded-lg font-medium text-sm hover:bg-[#C9A84C] transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg font-medium text-sm hover:bg-secondary transition-colors"
             >
               {ctaText}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

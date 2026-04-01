@@ -40,10 +40,10 @@ export default function ThankYouPage() {
         </p>
 
         {/* 안내 카드 */}
-        <div className="bg-[#1B3A2D]/5 border border-[#1B3A2D]/10 rounded-xl p-6 mb-8 text-left">
+        <div className="bg-primary/5 border border-primary/10 rounded-xl p-6 mb-8 text-left">
           <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
             <svg
-              className="w-5 h-5 text-[#C9A84C]"
+              className="w-5 h-5 text-secondary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -59,19 +59,19 @@ export default function ThankYouPage() {
           </h2>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
-              <span className="text-[#C9A84C] mt-0.5">•</span>
+              <span className="text-secondary mt-0.5">•</span>
               <span>
                 <strong className="text-foreground">주일 예배:</strong> 매주 일요일 오후 12시
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-[#C9A84C] mt-0.5">•</span>
+              <span className="text-secondary mt-0.5">•</span>
               <span>
                 <strong className="text-foreground">금요 예배:</strong> 매주 금요일 오후 8시
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-[#C9A84C] mt-0.5">•</span>
+              <span className="text-secondary mt-0.5">•</span>
               <span>
                 <strong className="text-foreground">위치:</strong> 서울 송파구 위례성대로 6길
                 19 2층
@@ -84,13 +84,13 @@ export default function ThankYouPage() {
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
             href="/"
-            className="flex-1 bg-[#1B3A2D] text-white font-medium py-3 px-6 rounded-lg hover:bg-[#1B3A2D]/90 transition-colors text-center"
+            className="flex-1 bg-primary text-white font-medium py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors text-center"
           >
             홈으로 돌아가기
           </Link>
           <Link
             href="/worship"
-            className="flex-1 bg-white border-2 border-[#1B3A2D] text-[#1B3A2D] font-medium py-3 px-6 rounded-lg hover:bg-[#1B3A2D]/5 transition-colors text-center"
+            className="flex-1 bg-white border-2 border-primary text-primary font-medium py-3 px-6 rounded-lg hover:bg-primary/5 transition-colors text-center"
           >
             예배 안내 보기
           </Link>

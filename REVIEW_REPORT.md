@@ -1824,3 +1824,497 @@ test('should submit newcomer form successfully', async ({ page }) => {
 **리뷰어:** church-reviewer  
 **날짜:** 2026-03-31 12:47 UTC  
 **리뷰 커밋 범위:** e4b7ee4 ~ a283fd3
+
+---
+
+## 2026-04-01 02:35 UTC
+
+### 리뷰 범위
+- 커밋 1ef2273 - feat: add EmptyState component for better UX on empty pages (#9)
+- 커밋 77d9f2f - fix: redirect /ministry to home page instead of non-existent /about (#11)
+
+---
+
+## ✅ 커밋 1ef2273 - EmptyState 컴포넌트
+
+### 📋 기능 개요
+재사용 가능한 Empty State UI 컴포넌트:
+- 4가지 아이콘 타입 (document, announcement, search, error)
+- 타이틀 + 설명 + CTA 버튼
+- announcements, bulletins 페이지에 적용
+
+---
+
+### ✅ 매우 우수한 구현
+
+#### 1. 재사용 가능한 컴포넌트 설계
+**파일:** `src/components/EmptyState/index.tsx`
+
+**✅ 탁월한 점:**
+- **Props 인터페이스**: 명확한 TypeScript 타입 + JSDoc 주석
+- **유연한 아이콘 시스템**: 4가지 아이콘을 enum처럼 관리
+- **조건부 렌더링**: description, CTA가 선택적으로 표시
+- **내부/외부 링크 지원**: `ctaExternal` 플래그로 구분
+
+```typescript
+export interface EmptyStateProps {
+  icon?: 'document' | 'announcement' | 'search' | 'error'
+  title: string
+  description?: string
+  ctaText?: string
+  ctaLink?: string
+  ctaExternal?: boolean
+}
+```
+
+---
+
+#### 2. 일관된 디자인 시스템
+**장점:**
+- ✅ **Tailwind 유틸리티 클래스**: 일관된 스타일
+- ✅ **응답형 디자인**: `max-w-md`, `py-20` 등으로 적절한 여백
+- ✅ **시맨틱 HTML**: `<h3>`, `<p>`, `<a>` 적절히 사용
+- ✅ **SVG 아이콘**: 벡터 그래픽으로 모든 해상도에서 선명
+
+---
+
+#### 3. UX 개선
+**announcements/page.tsx:**
+```tsx
+{hasError ? (
+  <EmptyState
+    icon="error"
+    title="공지사항을 불러올 수 없습니다"
+    description="일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+    ctaText="홈으로 돌아가기"
+    ctaLink="/"
+  />
+) : announcements.length === 0 ? (
+  <EmptyState
+    icon="announcement"
+    title="등록된 공지사항이 없습니다"
+    description="사랑하는교회의 새 소식이 곧 전해질 예정입니다. 자주 방문해주세요!"
+    ctaText="예배 안내 보기"
+    ctaLink="/worship"
+  />
+) : ...
+```
+
+**✅ 매우 우수:**
+- **에러/빈 상태 구분**: 각 상황에 맞는 메시지와 아이콘
+- **사용자 안내**: 명확한 대체 행동 제안 (홈 또는 예배 안내)
+- **긍정적 톤**: "곧 전해질 예정입니다" → 부정적 느낌 최소화
+- **일관된 패턴**: bulletins 페이지도 동일한 구조
+
+---
+
+### ⚠️ 개선 권장 사항
+
+#### 1. 하드코딩된 브랜드 색상 (중요도: 중)
+**현재:**
+```tsx
+className="bg-[#1B3A2D] text-white ... hover:bg-[#C9A84C]"
+```
+
+**문제점:**
+- 동일한 브랜드 색상이 이전 리뷰에서도 지적됨 (반복됨)
+- 색상 변경 시 여러 파일 수정 필요
+
+**권장 (이전 리뷰 반복):**
+```js
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        'church-primary': '#1B3A2D',
+        'church-accent': '#C9A84C',
+      }
+    }
+  }
+}
+
+// 사용
+className="bg-church-primary text-white hover:bg-church-accent"
+```
+
+**우선순위:** P1 (모든 컴포넌트에서 반복되는 이슈)
+
+---
+
+#### 2. 접근성 개선 (중요도: 중)
+**현재:**
+```tsx
+<div className="text-muted-foreground/40 mb-4">
+  {ICONS[icon]}
+</div>
+```
+
+**권장:**
+```tsx
+{/* 1. 아이콘 컨테이너에 role 추가 */}
+<div 
+  className="text-muted-foreground/40 mb-4" 
+  role="img" 
+  aria-label={`${icon} 아이콘`}
+>
+  {ICONS[icon]}
+</div>
+
+{/* 2. SVG에 aria-hidden (중복 읽기 방지) */}
+const ICONS = {
+  document: (
+    <svg 
+      aria-hidden="true"
+      className="w-16 h-16" 
+      fill="none" 
+      stroke="currentColor" 
+      viewBox="0 0 24 24"
+    >
+      ...
+    </svg>
+  ),
+}
+
+{/* 3. 외부 링크 아이콘에 설명 추가 */}
+<svg 
+  className="w-4 h-4" 
+  aria-label="외부 링크 열기"
+  ...
+>
+```
+
+---
+
+#### 3. Props 검증 (중요도: 낮)
+**현재:**
+```tsx
+{ctaText && ctaLink && (
+  ...
+)}
+```
+
+**잠재 이슈:**
+- `ctaText`만 제공하고 `ctaLink`가 없으면 버튼이 표시 안 됨 (의도된 동작이지만 명시적이지 않음)
+
+**권장 (선택 사항):**
+```typescript
+// 런타임 검증 추가
+export function EmptyState({ ... }: EmptyStateProps) {
+  if (ctaText && !ctaLink) {
+    console.warn('EmptyState: ctaText가 제공되었지만 ctaLink가 없습니다.')
+  }
+  
+  // 또는 타입 레벨에서 강제
+  // type EmptyStateProps = 
+  //   | { ctaText: string; ctaLink: string; ... }
+  //   | { ctaText?: never; ctaLink?: never; ... }
+}
+```
+
+---
+
+#### 4. 아이콘 애니메이션 (중요도: 낮)
+**현재:**
+- 아이콘이 정적으로 표시됨
+
+**권장 (선택 사항, UX 개선):**
+```tsx
+<div className="text-muted-foreground/40 mb-4 animate-pulse">
+  {ICONS[icon]}
+</div>
+
+{/* 또는 페이드 인 애니메이션 */}
+<div className="text-muted-foreground/40 mb-4 animate-fade-in">
+  {ICONS[icon]}
+</div>
+```
+
+**이유:**
+- 페이지 로드 시 부드러운 등장 효과
+- 사용자 주의 집중
+
+---
+
+#### 5. i18n 준비 (중요도: 낮)
+**현재:**
+- 모든 텍스트가 한국어로 하드코딩
+
+**권장 (장기적 고려):**
+```tsx
+// lib/i18n/ko.ts
+export const ko = {
+  emptyState: {
+    error: {
+      title: '불러올 수 없습니다',
+      description: '일시적인 오류가 발생했습니다.',
+    },
+    announcements: {
+      title: '등록된 공지사항이 없습니다',
+      description: '새 소식이 곧 전해질 예정입니다.',
+    },
+  },
+}
+
+// 컴포넌트
+<EmptyState
+  icon="error"
+  title={t('emptyState.error.title')}
+  description={t('emptyState.error.description')}
+/>
+```
+
+**적용 시기:** 다국어 지원 요구사항 발생 시
+
+---
+
+### 📊 코드 품질 분석
+
+| 항목 | 점수 | 평가 |
+|------|------|------|
+| **재사용성** | 100/100 | 완벽한 컴포넌트 추상화 |
+| **타입 안전성** | 95/100 | Props 타입 명확, 런타임 검증 추가 가능 |
+| **UX** | 95/100 | 에러/빈 상태 명확히 구분, CTA 제공 |
+| **접근성** | 80/100 | semantic HTML 사용, ARIA 개선 가능 |
+| **유지보수성** | 85/100 | 하드코딩 제거 시 95점 |
+| **확장성** | 95/100 | 아이콘 추가 용이, props 확장 가능 |
+
+**종합:** 92/100 (매우 우수) 🎉
+
+---
+
+### 💡 적용 사례
+
+#### 다른 페이지에도 적용 가능
+```tsx
+{/* 검색 결과 없음 */}
+<EmptyState
+  icon="search"
+  title="검색 결과가 없습니다"
+  description="다른 검색어로 시도해보세요."
+  ctaText="전체 공지 보기"
+  ctaLink="/announcements"
+/>
+
+{/* 로그인 필요 */}
+<EmptyState
+  icon="error"
+  title="로그인이 필요합니다"
+  description="이 콘텐츠를 보려면 로그인해주세요."
+  ctaText="로그인하기"
+  ctaLink="/login"
+/>
+
+{/* 외부 링크 */}
+<EmptyState
+  icon="document"
+  title="YouTube에서 더 많은 설교 보기"
+  ctaText="YouTube 채널 바로가기"
+  ctaLink="https://youtube.com/@BelovedChurchWirye"
+  ctaExternal={true}
+/>
+```
+
+---
+
+## ✅ 커밋 77d9f2f - /ministry 리다이렉트 수정
+
+### 📋 변경 내용
+`/ministry` 리다이렉트 목적지 변경:
+- **이전:** `/about` (존재하지 않는 페이지 → 500 에러)
+- **이후:** `/` (홈페이지)
+
+```typescript
+{
+  source: '/ministry',
+  destination: '/',  // /about → / 로 변경
+  permanent: true,
+}
+```
+
+---
+
+### ✅ 올바른 수정
+
+#### 1. 긴급 버그 수정
+**문제:**
+- 이전 리뷰(462efd2)에서 `/ministry → /about` 리다이렉트가 승인됨
+- 그러나 `/about` 페이지가 CMS에 존재하지 않아 500 에러 발생
+
+**해결:**
+- 존재하는 페이지 (`/`)로 리다이렉트
+- 301 permanent 유지 (SEO 최적화)
+
+**평가:** ✅ **빠른 대응, 올바른 수정**
+
+---
+
+#### 2. 근본 원인 분석
+**왜 `/about` 페이지가 없었나?**
+- CMS Pages 컬렉션에 `/about` 슬러그 미생성
+- 또는 생성 후 삭제됨
+
+**예방책:**
+1. **리다이렉트 검증 스크립트** (이전 리뷰에서 제안)
+   ```typescript
+   // scripts/validate-redirects.ts
+   async function validateRedirects() {
+     const rules = await redirects()
+     for (const rule of rules) {
+       const exists = await checkRouteExists(rule.destination)
+       if (!exists) {
+         throw new Error(`리다이렉트 목적지가 존재하지 않음: ${rule.destination}`)
+       }
+     }
+   }
+   ```
+
+2. **CMS 페이지 시드 스크립트**
+   ```typescript
+   // 필수 페이지 목록
+   const REQUIRED_PAGES = ['home', 'about', 'worship', 'sermon', 'announcements']
+   
+   // 마이그레이션 시 자동 생성
+   for (const slug of REQUIRED_PAGES) {
+     await payload.create({
+       collection: 'pages',
+       data: { slug, title: '...' },
+     })
+   }
+   ```
+
+3. **CI/CD 빌드 체크**
+   ```yaml
+   # .github/workflows/ci.yml
+   - name: Validate redirects
+     run: pnpm validate:redirects
+   ```
+
+---
+
+#### 3. 대안 고려
+**현재:** `/ministry → /`  
+**다른 옵션:**
+- `/ministry → /worship` (예배 안내)
+- `/ministry → /announcements` (교회 소식)
+- CMS에 `/about` 페이지 생성 후 원래 리다이렉트 복원
+
+**권장:**
+- 현재 수정 유지 (홈페이지가 가장 안전한 폴백)
+- 추후 `/about` 페이지 생성 시 리다이렉트 변경 고려
+
+---
+
+### 📊 코드 품질 분석
+
+| 항목 | 점수 | 평가 |
+|------|------|------|
+| **버그 수정** | 100/100 | 500 에러 해결 |
+| **SEO** | 100/100 | permanent: true 유지 |
+| **사용자 경험** | 95/100 | 홈으로 안내 (약간 의미론적 불일치) |
+| **근본 원인 해결** | 70/100 | 증상 치료, 예방책 미비 |
+
+**종합:** 91/100 (우수, 예방책 추가 권장)
+
+---
+
+## 📝 종합 평가
+
+### ✅ 매우 잘된 점
+1. **EmptyState 컴포넌트**
+   - 재사용 가능한 우수한 설계
+   - 에러/빈 상태를 사용자 친화적으로 처리
+   - announcements, bulletins 페이지 UX 대폭 개선
+2. **/ministry 리다이렉트 수정**
+   - 500 에러 긴급 수정
+   - 빠른 대응
+
+### ⚠️ 개선 필요
+1. **하드코딩된 브랜드 색상** (P1)
+   - 여러 리뷰에서 반복 지적됨
+   - Tailwind config 또는 CMS 설정으로 이동 필요
+2. **리다이렉트 검증 시스템** (P2)
+   - 목적지 페이지 존재 여부 자동 체크
+   - CI/CD에 통합
+3. **접근성 개선** (P2)
+   - ARIA 속성 추가
+   - 스크린 리더 지원 강화
+4. **필수 페이지 시드 스크립트** (P3)
+   - 마이그레이션 시 자동 생성
+   - `/about`, `/worship` 등 필수 페이지 보장
+
+---
+
+## 🎯 권장 후속 작업
+
+### 즉시 적용 (P0)
+- ✅ 현재 수정 배포 (77d9f2f)
+
+### 단기 (1주 이내, P1)
+- [ ] 브랜드 색상을 Tailwind config로 이동 (모든 컴포넌트 일괄 적용)
+  ```bash
+  # 영향받는 파일들
+  - src/components/EmptyState/index.tsx
+  - src/components/home/HeroSection.tsx
+  - src/app/(frontend)/newcomer/NewcomerForm.tsx
+  ```
+
+### 중기 (1개월 이내, P2)
+- [ ] 리다이렉트 검증 스크립트 작성
+- [ ] EmptyState에 ARIA 속성 추가
+- [ ] `/about` 페이지 CMS에 생성 (필요 시)
+- [ ] CI/CD에 리다이렉트 검증 통합
+
+### 장기 (분기 단위, P3)
+- [ ] 필수 페이지 시드 스크립트
+- [ ] EmptyState 아이콘 애니메이션 추가
+- [ ] i18n 지원 준비
+
+---
+
+## 📚 학습 자료
+
+### EmptyState 컴포넌트 패턴
+1. **Empty State Best Practices**
+   - [Material Design: Empty States](https://material.io/design/communication/empty-states.html)
+   - 아이콘 + 메시지 + CTA 조합이 업계 표준
+
+2. **Tailwind UI Components**
+   - [Tailwind UI: Empty States](https://tailwindui.com/components/application-ui/feedback/empty-states)
+   - 다양한 Empty State 디자인 참고
+
+3. **접근성 가이드**
+   - [WebAIM: ARIA Labels](https://webaim.org/techniques/aria/)
+   - 아이콘에 적절한 role/aria-label 추가
+
+### 리다이렉트 관리
+1. **Next.js Redirects 공식 문서**
+   - https://nextjs.org/docs/app/api-reference/next-config-js/redirects
+   - 동적 리다이렉트, 와일드카드 패턴
+
+2. **SEO Best Practices**
+   - https://developers.google.com/search/docs/crawling-indexing/301-redirects
+   - permanent vs temporary 리다이렉트 선택
+
+---
+
+## 🏆 결론
+
+### EmptyState 컴포넌트
+- **평가:** ⭐⭐⭐⭐⭐ (5/5) - 모범 사례
+- **적용:** 다른 프로젝트에서도 재사용 가능한 우수한 패턴
+- **확장:** 검색, 로그인 등 다양한 상황에 적용 가능
+
+### /ministry 리다이렉트 수정
+- **평가:** ⭐⭐⭐⭐ (4/5) - 증상 해결 우수, 예방책 추가 권장
+- **즉시 배포:** 500 에러 해결을 위해 즉시 배포 권장
+- **후속 작업:** 리다이렉트 검증 시스템 구축
+
+---
+
+**리뷰어:** church-reviewer  
+**날짜:** 2026-04-01 02:35 UTC  
+**리뷰 커밋 범위:** 1ef2273, 77d9f2f  
+**이전 리뷰에서 반복된 이슈:** 하드코딩된 브랜드 색상 (P1 우선순위 상향)
+
+---

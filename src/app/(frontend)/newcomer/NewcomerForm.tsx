@@ -103,7 +103,7 @@ export function NewcomerForm() {
           required
           value={formData.name}
           onChange={handleChange}
-          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent"
+          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
           placeholder="홍길동"
         />
       </div>
@@ -120,7 +120,7 @@ export function NewcomerForm() {
           required
           value={formData.phone}
           onChange={handleChange}
-          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent"
+          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
           placeholder="010-1234-5678"
         />
       </div>
@@ -136,7 +136,7 @@ export function NewcomerForm() {
           name="email"
           value={formData.email}
           onChange={handleChange}
-          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent"
+          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
           placeholder="example@email.com"
         />
       </div>
@@ -153,7 +153,7 @@ export function NewcomerForm() {
           required
           value={formData.visitDate}
           onChange={handleChange}
-          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent"
+          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
         <p className="text-xs text-muted-foreground mt-1">
           주일 예배 또는 금요 예배일을 선택해 주세요
@@ -171,7 +171,7 @@ export function NewcomerForm() {
           required
           value={formData.source}
           onChange={handleChange}
-          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent"
+          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         >
           <option value="referral">지인 소개</option>
           <option value="search">인터넷 검색</option>
@@ -193,7 +193,7 @@ export function NewcomerForm() {
           value={formData.sourceDetail}
           onChange={handleChange}
           rows={2}
-          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent resize-none"
+          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent resize-none"
           placeholder="예: 친구 이름, 검색 키워드, SNS 계정 등"
         />
       </div>
@@ -220,7 +220,7 @@ export function NewcomerForm() {
                 value={option.value}
                 checked={formData.interests.includes(option.value)}
                 onChange={handleChange}
-                className="w-4 h-4 rounded border-border text-[#C9A84C] focus:ring-[#C9A84C] focus:ring-offset-0"
+                className="w-4 h-4 rounded border-border text-secondary focus:ring-secondary focus:ring-offset-0"
               />
               <span className="text-sm text-foreground">{option.label}</span>
             </label>
@@ -239,7 +239,7 @@ export function NewcomerForm() {
           value={formData.message}
           onChange={handleChange}
           rows={4}
-          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent resize-none"
+          className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent resize-none"
           placeholder="궁금한 점이나 기도 요청이 있으시면 자유롭게 작성해 주세요"
         />
       </div>
@@ -252,7 +252,7 @@ export function NewcomerForm() {
             name="privacyConsent"
             checked={formData.privacyConsent}
             onChange={handleChange}
-            className="w-4 h-4 mt-0.5 rounded border-border text-[#C9A84C] focus:ring-[#C9A84C] focus:ring-offset-0"
+            className="w-4 h-4 mt-0.5 rounded border-border text-secondary focus:ring-secondary focus:ring-offset-0"
           />
           <div className="flex-1">
             <span className="text-sm font-medium text-foreground">
@@ -277,7 +277,7 @@ export function NewcomerForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-[#1B3A2D] text-white font-medium py-3 px-6 rounded-lg hover:bg-[#1B3A2D]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full bg-primary text-white font-medium py-3 px-6 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {isSubmitting ? '제출 중...' : '등록하기'}
       </button>

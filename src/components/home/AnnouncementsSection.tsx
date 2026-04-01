@@ -29,7 +29,7 @@ export function AnnouncementsSection({ announcements }: Props) {
         {/* Section header */}
         <div className="flex items-end justify-between mb-10">
           <div>
-            <p className="text-[#C9A84C] text-sm font-medium tracking-wider uppercase mb-2">
+            <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">
               Notice
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
@@ -58,7 +58,7 @@ export function AnnouncementsSection({ announcements }: Props) {
                   {item.title}
                 </h3>
                 {item.isPinned && (
-                  <span className="shrink-0 inline-flex items-center bg-[#C9A84C]/10 text-[#C9A84C] text-xs font-medium px-2.5 py-1 rounded-full">
+                  <span className="shrink-0 inline-flex items-center bg-secondary/10 text-secondary text-xs font-medium px-2.5 py-1 rounded-full">
                     고정
                   </span>
                 )}

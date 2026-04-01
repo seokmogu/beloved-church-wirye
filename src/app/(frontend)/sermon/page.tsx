@@ -25,10 +25,10 @@ export default async function SermonPage() {
   return (
     <article className="pt-16 pb-24">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-[#1B3A2D]/5 to-background py-16">
+      <section className="bg-gradient-to-b from-primary/5 to-background py-16">
         <div className="container">
           <div className="max-w-3xl">
-            <p className="text-[#C9A84C] text-sm font-medium tracking-wider uppercase mb-3">
+            <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-3">
               Sermon
             </p>
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
@@ -109,7 +109,7 @@ export default async function SermonPage() {
                         <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors">
                           <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
                             <svg
-                              className="w-6 h-6 text-[#1B3A2D] ml-1"
+                              className="w-6 h-6 text-primary ml-1"
                               fill="currentColor"
                               viewBox="0 0 24 24"
                               aria-hidden="true"
@@ -144,7 +144,7 @@ export default async function SermonPage() {
                 href="https://www.youtube.com/@BelovedChurchWirye"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#1B3A2D] text-white rounded-lg hover:bg-[#1B3A2D]/90 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
               >
                 <svg
                   className="w-5 h-5"

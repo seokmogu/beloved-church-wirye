@@ -10,9 +10,9 @@ export default function NewcomerPage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-[#1B3A2D] py-16">
+      <div className="bg-primary py-16">
         <div className="container text-center">
-          <p className="text-[#C9A84C] text-sm font-medium tracking-wider uppercase mb-2">
+          <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">
             WELCOME
           </p>
           <h1 className="text-3xl md:text-4xl font-bold text-white">새가족 등록</h1>
