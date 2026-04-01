@@ -1,5 +1,44 @@
 # CODER_LOG.md
 
+## 2026-04-01 04:59 UTC
+
+### 작업: `/offering` 헌금 안내 페이지 개발 ✅
+
+**우선순위**: PLANNING.md 최우선 (⭐⭐⭐)  
+**브랜치**: `feature/offering-page`  
+**커밋**: `39eff24`, `5b7cabb` → merge `41583a0`  
+**배포 URL**: https://beloved-church-wirye.vercel.app/offering
+
+**구현 내용**:
+1. `/offering` 페이지 신규 생성:
+   - SiteSettings Global에서 헌금 정보 자동 fetch (동적 렌더링)
+   - 계좌 정보 표시 (은행명, 계좌번호, 예금주)
+   - 카카오페이 QR 코드 표시 (등록 시)
+   - 안내 메시지 표시
+   - 성경 구절 인용 (고린도후서 9:7)
+
+2. CopyAccountButton 클라이언트 컴포넌트 생성:
+   - 클립보드 API 활용 계좌번호 복사
+   - 복사 완료 시 피드백 UI
+   - 에러 핸들링
+
+3. 빈 상태 처리:
+   - 헌금 정보 미등록 시 안내 메시지 표시
+
+**기술 세부사항**:
+- TypeScript strict 모드 통과
+- SiteSetting 타입 정확히 사용
+- `export const dynamic = 'force-dynamic'` (빌드 타임 DB 쿼리 회피)
+- Vercel 빌드 성공 (빌드 시간: 2m)
+
+**다음 단계**:
+- ✅ CMS 어드민에서 헌금 계좌 정보 입력 필요 (웹 관리자)
+- ⚠️ Header 네비게이션에 "헌금 안내" 메뉴 추가 필요 (CMS 어드민 작업)
+
+**상태**: 완료 (CMS 데이터 입력 및 네비게이션 메뉴 추가만 남음)
+
+---
+
 ## 2026-04-01 00:19 UTC
 
 ### 작업: 헌금 안내 블록 추가 ✅
