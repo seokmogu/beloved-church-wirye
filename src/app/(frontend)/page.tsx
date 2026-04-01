@@ -12,7 +12,7 @@ import { fetchLatestVideos } from '@/lib/youtube'
 
 export const metadata = {
   title: '사랑하는교회 | Beloved Church Wirye',
-  description: '위례에서 하나님의 사랑을 나누는 공동체, 사랑하는교회입니다.',
+  description: '위례 신도시 사랑하는교회 | Like Christ — 우리는 사랑으로 교회를 세웁니다. 청·장년예배 주일 낮 12시, 금요기도회 금요일 밤 8시',
 }
 
 export const revalidate = 600 // Revalidate every 10 minutes
