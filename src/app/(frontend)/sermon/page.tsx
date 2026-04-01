@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import Image from 'next/image'
+import type { Sermon } from '@/payload-types'
 
 export const metadata: Metadata = {
   title: '설교 | 사랑하는교회',
@@ -24,19 +25,26 @@ function formatDate(dateString: string): string {
 export default async function SermonPage() {
   const payload = await getPayload({ config })
 
-  // Fetch published sermons from CMS, sorted by date (latest first)
-  const sermonsData = await payload.find({
-    collection: 'sermons',
-    where: {
-      status: {
-        equals: 'published',
-      },
-    },
-    limit: 12,
-    sort: '-sermonDate',
-  })
+  let sermons: Sermon[] = []
 
-  const sermons = sermonsData.docs
+  try {
+    // Fetch published sermons from CMS, sorted by date (latest first)
+    const sermonsData = await payload.find({
+      collection: 'sermons',
+      where: {
+        status: {
+          equals: 'published',
+        },
+      },
+      limit: 12,
+      sort: '-sermonDate',
+    })
+    sermons = sermonsData.docs
+  } catch (error) {
+    // Log the error but don't crash the page - show empty state instead
+    // This handles cases where the sermons table hasn't been migrated yet
+    console.error('Failed to fetch sermons:', error)
+  }
 
   return (
     <article className="pt-16 pb-24">
@@ -117,7 +125,7 @@ export default async function SermonPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sermons.slice(1).map((sermon) => (
+                  {sermons.slice(1).map((sermon: Sermon) => (
                     <a
                       key={sermon.id}
                       href={`https://www.youtube.com/watch?v=${sermon.youtubeId}`}
