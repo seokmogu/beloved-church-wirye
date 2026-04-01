@@ -2,6 +2,811 @@
 
 ---
 
+## 2026-04-01 07:55 UTC
+
+### 리뷰 범위
+- 커밋 8bdea54 - feat: replace text logo with BELOVED image logo
+- 커밋 b2739cc - feat: redesign /about page with 3-section scroll layout (intro, pastor, worship) (#18)
+
+---
+
+## ⭐⭐⭐⭐⭐ 커밋 8bdea54 - BELOVED 이미지 로고 전환
+
+### 📋 배경
+**변경 사항:**
+- 기존 텍스트 로고 → BELOVED 이미지 로고로 교체
+- `public/logo-beloved.png` (라이트 모드용)
+- `public/logo-beloved-dark.png` (다크 모드용)
+- `Logo.tsx` 컴포넌트 Next.js Image로 전환
+
+---
+
+### ✅ 매우 우수한 구현
+
+#### 1. Next.js Image 최적화
+```tsx
+<Image
+  src="/logo-beloved.png"
+  alt="사랑하는교회 BELOVED"
+  width={120}
+  height={40}
+  loading={loading === 'eager' ? 'eager' : 'lazy'}
+  priority={priority === 'high'}
+  className="h-8 w-auto object-contain"
+/>
+```
+
+**✅ 탁월한 점:**
+- ✅ **Next.js Image 컴포넌트**: 자동 WebP 변환, lazy loading
+- ✅ **명확한 Alt**: "사랑하는교회 BELOVED" (SEO + 접근성)
+- ✅ **width/height 명시**: CLS(Cumulative Layout Shift) 방지
+- ✅ **Loading 옵션**: props로 `eager`/`lazy` 제어 가능
+- ✅ **Priority 옵션**: 주요 페이지에서 우선 로딩 가능
+- ✅ **object-contain**: 비율 유지하면서 컨테이너에 맞춤
+
+---
+
+#### 2. Props 인터페이스
+```tsx
+interface Props {
+  className?: string
+  loading?: 'lazy' | 'eager'
+  priority?: 'auto' | 'high' | 'low'
+}
+```
+
+**✅ 우수한 점:**
+- ✅ **TypeScript 타입 안전성**: loading, priority 옵션 명확
+- ✅ **유연성**: 호출하는 곳에서 로딩 전략 제어 가능
+- ✅ **기본값 설정**: `loading = 'lazy'`, `priority = 'auto'`
+
+**사용 예시:**
+```tsx
+{/* 헤더 - 즉시 로딩 */}
+<Logo loading="eager" priority="high" />
+
+{/* 푸터 - 지연 로딩 */}
+<Logo loading="lazy" />
+```
+
+---
+
+#### 3. 다크 모드 준비
+**파일 구조:**
+```
+public/
+  logo-beloved.png       (라이트 모드용)
+  logo-beloved-dark.png  (다크 모드용)
+```
+
+**현재 상태:**
+- 라이트 모드 로고만 사용 중
+- 다크 모드용 이미지는 준비되어 있음
+
+**향후 구현 (선택 사항):**
+```tsx
+import { useTheme } from 'next-themes'
+
+export const Logo = (props: Props) => {
+  const { theme } = useTheme()
+  const logoSrc = theme === 'dark' ? '/logo-beloved-dark.png' : '/logo-beloved.png'
+
+  return (
+    <Image
+      src={logoSrc}
+      alt="사랑하는교회 BELOVED"
+      // ...
+    />
+  )
+}
+```
+
+**또는 CSS 접근:**
+```tsx
+<picture>
+  <source srcSet="/logo-beloved-dark.png" media="(prefers-color-scheme: dark)" />
+  <Image src="/logo-beloved.png" alt="..." />
+</picture>
+```
+
+---
+
+#### 4. 성능 최적화
+**파일 크기:**
+- `logo-beloved.png`: 39,991 bytes (~40KB)
+- `logo-beloved-dark.png`: 40,795 bytes (~41KB)
+
+**✅ 우수한 점:**
+- ✅ **적절한 크기**: 로고로는 충분히 작음
+- ✅ **Next.js 자동 최적화**: WebP로 자동 변환 (~20KB로 감소)
+- ✅ **CDN 캐싱**: Vercel 배포 시 Edge 캐싱
+
+**개선 가능 (선택 사항):**
+```bash
+# PNG → WebP 수동 변환 (더 작은 파일)
+npx @squoosh/cli --webp auto logo-beloved.png
+
+# 또는 SVG 변환 (무한 확대 가능)
+# SVG는 텍스트 기반이라 5KB 이하도 가능
+```
+
+---
+
+#### 5. clsx 활용
+```tsx
+return (
+  <div className={clsx('flex items-center', className)}>
+    {/* Image */}
+  </div>
+)
+```
+
+**✅ 우수한 점:**
+- ✅ **조건부 클래스 병합**: 호출하는 곳에서 추가 className 전달 가능
+- ✅ **기본 스타일**: `flex items-center` 항상 적용
+- ✅ **유연성**: 외부에서 `className="ml-4"` 같은 추가 스타일 가능
+
+---
+
+### 📊 코드 품질 분석
+
+| 항목 | 점수 | 평가 |
+|------|------|------|
+| **Next.js Image 사용** | 100/100 | 자동 최적화, lazy loading 우수 |
+| **TypeScript 타입** | 100/100 | Props 인터페이스 명확 |
+| **접근성** | 100/100 | Alt 텍스트 완벽 |
+| **성능** | 95/100 | 파일 크기 적절, WebP 자동 변환 |
+| **다크 모드 준비** | 90/100 | 이미지 준비됨, 코드 구현은 미래 작업 |
+| **유연성** | 100/100 | loading, priority props 우수 |
+
+**종합:** 98/100 (거의 완벽, 다크 모드 구현만 남음)
+
+---
+
+### 💡 극히 사소한 개선 제안 (선택 사항)
+
+#### 1. SVG 로고 전환 (P4 - 장기)
+**현재:** PNG (비트맵)  
+**권장:** SVG (벡터)
+
+**이유:**
+- ✅ **무한 확대**: 레티나/4K 디스플레이에서도 선명
+- ✅ **파일 크기**: 5KB 이하 (현재의 1/8)
+- ✅ **CSS 제어**: 색상, 애니메이션 CSS로 제어 가능
+- ✅ **다크 모드**: `fill: currentColor`로 자동 전환
+
+**예시:**
+```tsx
+// SVG 로고 (가상 예시)
+export const Logo = () => (
+  <svg className="h-8 w-auto text-primary dark:text-white">
+    <path d="M..." fill="currentColor" />
+  </svg>
+)
+```
+
+**반론:**
+- 현재 PNG 로고도 충분히 좋음 (40KB는 작은 크기)
+- SVG 전환은 디자인팀 작업 필요
+- 우선순위 낮음 (P4)
+
+---
+
+#### 2. Preload 태그 추가 (P3 - 선택)
+**현재:**
+- Logo는 lazy loading 기본
+- 헤더에서는 `loading="eager"` 사용
+
+**권장 (선택 사항):**
+```tsx
+// app/layout.tsx
+export default function RootLayout() {
+  return (
+    <html>
+      <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/logo-beloved.png"
+          type="image/png"
+        />
+      </head>
+      {/* ... */}
+    </html>
+  )
+}
+```
+
+**이유:**
+- 헤더 로고를 더 빨리 로드 (LCP 개선)
+
+**반론:**
+- `priority="high"` 이미 사용 중 (충분함)
+- preload는 과도한 최적화일 수 있음
+
+---
+
+#### 3. 다크 모드 로고 적용 (P2 - 중기)
+**현재:**
+- `logo-beloved-dark.png` 준비됨
+- 코드에서는 아직 사용 안 함
+
+**권장 (중기):**
+```tsx
+'use client'
+
+import { useTheme } from 'next-themes'
+
+export const Logo = (props: Props) => {
+  const { resolvedTheme } = useTheme()
+  const logoSrc = resolvedTheme === 'dark' 
+    ? '/logo-beloved-dark.png' 
+    : '/logo-beloved.png'
+
+  return <Image src={logoSrc} alt="..." />
+}
+```
+
+**또는 CSS 전용:**
+```tsx
+<Image
+  src="/logo-beloved.png"
+  alt="..."
+  className="dark:hidden"
+/>
+<Image
+  src="/logo-beloved-dark.png"
+  alt="..."
+  className="hidden dark:block"
+/>
+```
+
+**적용 시기:**
+- 사이트에 다크 모드 테마가 구현된 후
+- 현재는 우선순위 중간 (P2)
+
+---
+
+## 🎯 커밋 b2739cc - /about 페이지 재디자인 (3섹션 스크롤 레이아웃)
+
+### 📋 배경
+**변경 사항:**
+- 기존 단일 페이지 → 3섹션 스크롤 레이아웃으로 전환
+- ① 교회 소개 (비전, 교단, 핵심 가치)
+- ② 담임목사 소개
+- ③ 예배 안내
+
+**이전 리뷰 지적 사항:**
+- 2026-04-01 04:35 UTC 리뷰: 124줄 하드코딩, CMS 전환 권장 (P1)
+
+---
+
+### ✅ 매우 우수한 UI/UX 개선
+
+#### 1. Sticky 내비게이션
+```tsx
+<div className="sticky top-0 z-10 bg-background border-b border-border shadow-sm">
+  <div className="container">
+    <nav className="flex overflow-x-auto">
+      {sections.map((s) => (
+        <a
+          key={s.id}
+          href={`#${s.id}`}
+          className="shrink-0 px-6 py-4 text-sm font-medium text-muted-foreground hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors"
+        >
+          {s.label}
+        </a>
+      ))}
+    </nav>
+  </div>
+</div>
+```
+
+**✅ 탁월한 점:**
+- ✅ **Sticky 내비게이션**: 스크롤해도 상단에 고정 (`sticky top-0`)
+- ✅ **Z-index 관리**: `z-10`으로 콘텐츠 위에 표시
+- ✅ **모바일 대응**: `overflow-x-auto`로 좁은 화면에서 가로 스크롤
+- ✅ **Hover 효과**: `hover:text-primary`, `hover:border-primary` 시각적 피드백
+- ✅ **Scroll-to 링크**: `href="#intro"` 앵커로 부드러운 이동
+- ✅ **Shadow**: `shadow-sm`으로 내비게이션 강조
+
+---
+
+#### 2. Scroll Offset 처리
+```tsx
+<section id="intro" className="py-20 bg-background scroll-mt-16">
+```
+
+**✅ 우수한 점:**
+- ✅ **scroll-mt-16**: 앵커 클릭 시 상단 여백 확보 (sticky nav 아래로 표시)
+- ✅ **모든 섹션 일관성**: `scroll-mt-16` 모든 섹션에 적용
+- ✅ **UX 개선**: sticky nav에 가려지지 않고 제목이 보임
+
+**예시:**
+```
+클릭: href="#intro"
+→ 스크롤 이동
+→ scroll-mt-16 만큼 위로 오프셋
+→ sticky nav 아래에 제목 표시 (가려지지 않음)
+```
+
+---
+
+#### 3. 비전 카드 강조
+```tsx
+<div className="bg-primary text-white rounded-2xl p-8 mb-10">
+  <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">Vision</p>
+  <h3 className="text-2xl md:text-3xl font-bold mb-4">
+    Like Christ<br />
+    <span className="text-white/80 text-xl font-medium">그리스도를 본받아</span>
+  </h3>
+  <p className="text-white/80 leading-relaxed">
+    사랑하는교회는 예수 그리스도의 삶과 사랑을 본받아...
+  </p>
+</div>
+```
+
+**✅ 탁월한 점:**
+- ✅ **Primary 색상 배경**: 비전을 가장 강조 (시각적 계층 최상위)
+- ✅ **영문/한글 조합**: "Like Christ" + "그리스도를 본받아" 병기
+- ✅ **투명도 활용**: `text-white/80`으로 부드러운 느낌
+- ✅ **rounded-2xl**: 현대적이고 부드러운 디자인
+- ✅ **적절한 여백**: `p-8`, `mb-10`으로 가독성 확보
+
+---
+
+#### 4. 교단·위치 Grid
+```tsx
+<div className="grid md:grid-cols-2 gap-6 mb-10">
+  <div className="border border-border rounded-xl p-6">
+    <p className="text-xs text-secondary font-semibold tracking-widest uppercase mb-1">교단</p>
+    <p className="text-lg font-semibold text-foreground">기독교대한감리회</p>
+  </div>
+  <div className="border border-border rounded-xl p-6">
+    <p className="text-xs text-secondary font-semibold tracking-widest uppercase mb-1">위치</p>
+    <p className="text-lg font-semibold text-foreground">위례서일로 3길 21-4</p>
+    <p className="text-sm text-muted-foreground">BELOVED LOUNGE · 남위례역 근처</p>
+  </div>
+</div>
+```
+
+**✅ 우수한 점:**
+- ✅ **2열 그리드**: `md:grid-cols-2` 정보를 나란히 배치
+- ✅ **카드 스타일**: `border rounded-xl` 깔끔한 구분
+- ✅ **타이포그래피 계층**: 라벨(xs uppercase) → 값(lg semibold) → 보조(sm muted)
+- ✅ **반응형**: 모바일에서는 1열, 데스크톱에서는 2열
+
+---
+
+#### 5. 담임목사 섹션
+```tsx
+<section id="pastor" className="py-20 bg-neutral-cream/40 scroll-mt-16">
+  <div className="flex flex-col md:flex-row gap-10 items-start">
+    {/* 사진 자리 */}
+    <div className="shrink-0">
+      <div className="w-48 h-48 rounded-2xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center">
+        <span className="text-5xl">👨‍💼</span>
+      </div>
+    </div>
+
+    <div className="flex-1">
+      <h3 className="text-2xl font-bold text-foreground mb-1">차원석 목사</h3>
+      <p className="text-secondary font-medium mb-6">사랑하는교회 담임목사</p>
+
+      <div className="space-y-3 text-muted-foreground leading-relaxed mb-6">
+        <p>연세대학교 일반대학원 박사과정(Ph.D) 재학</p>
+        <p>감리교신학대학교 및 대학원(Th.M) 졸업</p>
+        <p>前 만나교회 부목사</p>
+      </div>
+
+      <blockquote className="border-l-4 border-secondary pl-4 italic text-muted-foreground">
+        "우리는 사랑으로 교회를 세웁니다."
+      </blockquote>
+    </div>
+  </div>
+</section>
+```
+
+**✅ 탁월한 점:**
+- ✅ **배경 색상**: `bg-neutral-cream/40` 섹션 구분 (미묘한 크림색)
+- ✅ **Flexbox 레이아웃**: `flex-col md:flex-row` 반응형 (모바일: 세로, 데스크톱: 가로)
+- ✅ **사진 플레이스홀더**: 이모지로 임시 표시 (실제 사진 전달 대기)
+- ✅ **경력 간격**: `space-y-3`으로 경력 항목 구분
+- ✅ **인용문 스타일**: `border-l-4 italic` 명언 강조
+- ✅ **shrink-0**: 사진이 줄어들지 않도록 고정
+
+---
+
+#### 6. 예배 시간 카드
+```tsx
+<div className="grid md:grid-cols-2 gap-6 mb-10">
+  <div className="bg-primary text-white rounded-2xl p-8">
+    <p className="text-secondary text-sm font-medium tracking-widest uppercase mb-3">Sunday Service</p>
+    <h3 className="text-2xl font-bold mb-1">주일예배</h3>
+    <p className="text-4xl font-bold text-secondary mb-3">12:00</p>
+    <p className="text-white/70 text-sm">매주 일요일 낮 12시</p>
+  </div>
+  <div className="bg-card border border-border rounded-2xl p-8">
+    <p className="text-secondary text-sm font-medium tracking-widest uppercase mb-3">Friday Prayer</p>
+    <h3 className="text-2xl font-bold text-foreground mb-1">금요기도회</h3>
+    <p className="text-4xl font-bold text-primary mb-3">20:00</p>
+    <p className="text-muted-foreground text-sm">매주 금요일 저녁 8시</p>
+  </div>
+</div>
+```
+
+**✅ 탁월한 점:**
+- ✅ **주일예배 강조**: `bg-primary text-white` (가장 중요한 예배)
+- ✅ **금요기도회**: `bg-card border` (보조 예배)
+- ✅ **시간 강조**: `text-4xl font-bold` 시간을 크게 표시
+- ✅ **Secondary 색상**: 시간 숫자를 secondary 색상으로 강조
+- ✅ **영문 라벨**: "Sunday Service", "Friday Prayer" (국제 방문자 고려)
+
+---
+
+#### 7. 구분선
+```tsx
+{/* 구분선 */}
+<div className="h-px bg-border" />
+```
+
+**✅ 우수한 점:**
+- ✅ **섹션 구분**: `h-px` (1px 높이) 구분선
+- ✅ **미묘한 색상**: `bg-border` (너무 강하지 않음)
+- ✅ **일관성**: 모든 섹션 사이에 동일한 패턴
+
+---
+
+#### 8. 새가족 CTA
+```tsx
+<Link
+  href="/newcomer"
+  className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-xl font-semibold hover:bg-primary/90 transition-colors text-lg"
+>
+  새가족 등록하기
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+  </svg>
+</Link>
+```
+
+**✅ 탁월한 점:**
+- ✅ **명확한 CTA**: "새가족 등록하기" (행동 유도)
+- ✅ **Primary 색상**: `bg-primary` 강조
+- ✅ **Hover 효과**: `hover:bg-primary/90` 시각적 피드백
+- ✅ **아이콘**: 화살표 → 로 행동 방향 제시
+- ✅ **적절한 크기**: `px-8 py-4 text-lg` 클릭하기 쉬운 크기
+- ✅ **Next.js Link**: 클라이언트 사이드 라우팅
+
+---
+
+### 📊 코드 품질 분석
+
+| 항목 | 점수 | 평가 |
+|------|------|------|
+| **UI/UX 개선** | 100/100 | Sticky nav, 3섹션 레이아웃 탁월 |
+| **반응형 디자인** | 100/100 | 모바일/데스크톱 완벽 대응 |
+| **접근성** | 95/100 | Semantic HTML, 앵커 링크 우수 |
+| **시각적 계층** | 100/100 | 색상, 크기, 간격 명확 |
+| **CMS 원칙 준수** | 40/100 | 여전히 하드코딩 (이전 리뷰 지적 사항) |
+| **성능** | 95/100 | 이미지 최적화 가능 (목사 사진 대기) |
+
+**종합:** 88/100 (UI/UX 탁월, CMS 전환 필요)
+
+---
+
+### ⚠️ 이전 리뷰 지적 사항 (여전히 유효)
+
+#### 1. CMS 전환 (P1 - 중기)
+**이전 리뷰 (2026-04-01 04:35 UTC):**
+- 124줄 하드코딩
+- CMS Pages 컬렉션으로 전환 권장
+
+**현재 상태 (b2739cc):**
+- 255줄로 증가 (더 많은 콘텐츠 추가)
+- 여전히 하드코딩
+
+**권장 (offering 패턴 참고):**
+```typescript
+// globals/ChurchInfo.ts
+{
+  slug: 'church-info',
+  fields: [
+    {
+      name: 'vision',
+      type: 'group',
+      fields: [
+        { name: 'title', type: 'text' },
+        { name: 'titleKo', type: 'text' },
+        { name: 'description', type: 'richText' },
+      ],
+    },
+    {
+      name: 'pastor',
+      type: 'group',
+      fields: [
+        { name: 'name', type: 'text' },
+        { name: 'title', type: 'text' },
+        { name: 'photo', type: 'upload', relationTo: 'media' },
+        { name: 'education', type: 'array', fields: [{ name: 'item', type: 'text' }] },
+        { name: 'quote', type: 'textarea' },
+      ],
+    },
+    {
+      name: 'worshipTimes',
+      type: 'array',
+      fields: [
+        { name: 'name', type: 'text' },
+        { name: 'nameEn', type: 'text' },
+        { name: 'time', type: 'text' },
+        { name: 'description', type: 'text' },
+      ],
+    },
+  ],
+}
+```
+
+**페이지 전환:**
+```tsx
+export default async function AboutPage() {
+  const churchInfo = await payload.findGlobal({ slug: 'church-info' })
+  
+  return (
+    <main>
+      {/* 비전 */}
+      <div className="bg-primary text-white rounded-2xl p-8">
+        <h3>{churchInfo.vision.title}<br />{churchInfo.vision.titleKo}</h3>
+        <div dangerouslySetInnerHTML={{ __html: churchInfo.vision.description }} />
+      </div>
+
+      {/* 목사 */}
+      {churchInfo.pastor.photo && (
+        <Image src={churchInfo.pastor.photo.url} alt={churchInfo.pastor.name} />
+      )}
+
+      {/* 예배 시간 */}
+      {churchInfo.worshipTimes.map((w) => (
+        <div key={w.name}>
+          <h3>{w.name}</h3>
+          <p>{w.time}</p>
+        </div>
+      ))}
+    </main>
+  )
+}
+```
+
+---
+
+#### 2. 목사 사진 추가 (P2 - 단기)
+**현재:**
+```tsx
+<div className="w-48 h-48 rounded-2xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center">
+  <span className="text-5xl">👨‍💼</span>
+</div>
+```
+
+**권장:**
+- 실제 사진 추가 시 Next.js Image로 교체
+- 또는 CMS Global의 pastor.photo 필드 활용
+
+---
+
+#### 3. 구글/카카오맵 임베드 (P3 - 장기)
+**현재:**
+```tsx
+<div>
+  <p>위례서일로 3길 21-4</p>
+  <p>BELOVED LOUNGE</p>
+</div>
+```
+
+**권장 (선택 사항):**
+```tsx
+<iframe
+  src="https://www.google.com/maps/embed?pb=..."
+  className="w-full h-64 rounded-lg"
+  loading="lazy"
+/>
+```
+
+---
+
+### 💡 새로운 개선 제안
+
+#### 1. Active 섹션 표시 (P3 - 중기)
+**현재:**
+- Sticky nav에 hover 효과만 있음
+- 현재 보고 있는 섹션 표시 없음
+
+**권장 (선택 사항):**
+```tsx
+'use client'
+
+import { useEffect, useState } from 'react'
+
+export default function AboutPage() {
+  const [activeSection, setActiveSection] = useState('intro')
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id)
+          }
+        })
+      },
+      { threshold: 0.5 }
+    )
+
+    sections.forEach((s) => {
+      const el = document.getElementById(s.id)
+      if (el) observer.observe(el)
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <nav>
+      {sections.map((s) => (
+        <a
+          href={`#${s.id}`}
+          className={clsx(
+            'px-6 py-4 ...',
+            activeSection === s.id && 'text-primary border-primary'
+          )}
+        >
+          {s.label}
+        </a>
+      ))}
+    </nav>
+  )
+}
+```
+
+**효과:**
+- 스크롤 시 현재 섹션의 내비게이션 항목 강조
+- 사용자가 현재 위치 파악 용이
+
+---
+
+#### 2. Smooth Scroll (P4 - 선택)
+**현재:**
+- 앵커 클릭 시 즉시 이동
+
+**권장 (선택 사항):**
+```css
+/* globals.css */
+html {
+  scroll-behavior: smooth;
+}
+```
+
+**또는 JavaScript:**
+```tsx
+<a
+  href="#intro"
+  onClick={(e) => {
+    e.preventDefault()
+    document.getElementById('intro')?.scrollIntoView({ behavior: 'smooth' })
+  }}
+>
+```
+
+---
+
+## 종합 평가
+
+### ✅ 매우 잘된 점
+
+#### 1. Logo 컴포넌트 (커밋 8bdea54)
+- ✅ **Next.js Image 최적화**: WebP 자동 변환, lazy loading
+- ✅ **TypeScript 타입 안전성**: Props 인터페이스 명확
+- ✅ **접근성**: Alt 텍스트 완벽
+- ✅ **다크 모드 준비**: 이미지 파일 준비됨
+- ✅ **유연한 Props**: loading, priority 옵션
+
+#### 2. /about 페이지 재디자인 (커밋 b2739cc)
+- ✅ **Sticky 내비게이션**: 스크롤 시 고정, 모바일 대응
+- ✅ **3섹션 레이아웃**: 명확한 정보 구조 (교회 소개 → 목사 → 예배)
+- ✅ **scroll-mt-16**: Sticky nav 아래로 섹션 표시 (UX 우수)
+- ✅ **시각적 계층**: Primary 색상 강조, 투명도 활용
+- ✅ **반응형 디자인**: Grid, Flexbox로 완벽 대응
+- ✅ **명확한 CTA**: 새가족 등록 버튼
+
+---
+
+### ⚠️ 개선 필요 (이전 리뷰 지적 사항 유지)
+
+#### 1. /about 페이지 CMS 전환 (P1 - 중기)
+**문제:**
+- 255줄 하드코딩 (이전 124줄 → 255줄로 증가)
+- 비전, 목사 정보, 예배 시간 모두 코드에 박혀 있음
+
+**권장:**
+- offering 페이지 패턴 참고
+- Global `church-info` 또는 Pages 컬렉션
+- 1-2주 내 계획 수립
+
+#### 2. 목사 사진 (P2 - 단기)
+- 현재 이모지 플레이스홀더
+- 실제 사진 추가 필요
+
+#### 3. 다크 모드 로고 (P2 - 중기)
+- `logo-beloved-dark.png` 준비됨
+- 코드 구현 필요
+
+---
+
+### 📊 최종 점수
+
+#### Logo 컴포넌트 (8bdea54)
+| 항목 | 점수 |
+|------|------|
+| Next.js Image 최적화 | 100/100 |
+| TypeScript 타입 | 100/100 |
+| 접근성 | 100/100 |
+| 성능 | 95/100 |
+| **종합** | **98/100** |
+
+#### /about 페이지 (b2739cc)
+| 항목 | 점수 |
+|------|------|
+| UI/UX 개선 | 100/100 |
+| 반응형 디자인 | 100/100 |
+| 접근성 | 95/100 |
+| CMS 원칙 준수 | 40/100 |
+| **종합** | **88/100** |
+
+---
+
+### 🎯 권장 후속 작업
+
+| 과제 | 우선순위 | 상태 |
+|------|----------|------|
+| sermon 페이지 CMS 전환 | P0 (최우선) | ⚠️ 미해결 |
+| **about 페이지 CMS 전환** | P1 (중기) | ⚠️ 미해결 (이번 리뷰) |
+| 목사 사진 추가 | P2 (단기) | ⚠️ 이모지 플레이스홀더 |
+| 다크 모드 로고 적용 | P2 (중기) | ⚠️ 파일만 준비됨 |
+| offering 페이지 CMS 복원 | P0 (긴급) | 🚨 **회귀 발생 (커밋 6a92967)** |
+
+---
+
+### 🏆 결론
+
+#### Logo 컴포넌트 개선
+- ✅ **완벽한 구현**: Next.js Image, TypeScript, 접근성 모두 우수
+- ✅ **다크 모드 준비**: 이미지 파일 준비됨 (코드 구현만 남음)
+- ✅ **유연한 Props**: loading, priority 옵션으로 성능 제어 가능
+
+#### /about 페이지 재디자인
+- ✅ **UI/UX 대폭 개선**: Sticky nav, 3섹션 레이아웃 탁월
+- ✅ **반응형 디자인**: 모바일/데스크톱 완벽 대응
+- ⚠️ **CMS 전환 필요**: 255줄 하드코딩 (이전 리뷰 지적 사항 유지)
+
+#### 프로젝트 상태
+| 이슈 | 상태 | 평가 |
+|------|------|------|
+| **offering 페이지 CMS 구현** | 🚨 **회귀** | ❌ (커밋 6a92967) |
+| **about 페이지 CMS 전환** | ⚠️ 미해결 | - |
+| sermon 페이지 CMS 전환 | ⚠️ 미해결 | P0 최우선 |
+| **Logo 컴포넌트 개선** | ✅ 완료 | ⭐⭐⭐⭐⭐ |
+| **/about 페이지 UX 개선** | ✅ 완료 | ⭐⭐⭐⭐⭐ |
+
+---
+
+**리뷰어:** church-reviewer  
+**날짜:** 2026-04-01 07:55 UTC  
+**리뷰 커밋 범위:** 8bdea54, b2739cc  
+**평가:**  
+- **Logo (8bdea54):** ⭐⭐⭐⭐⭐ (98/100) - 거의 완벽  
+- **/about (b2739cc):** ⭐⭐⭐⭐ (88/100) - UI 탁월, CMS 전환 필요  
+**긴급:** offering 페이지 CMS 회귀 복구 필요 (커밋 6a92967)
+
+---
+
 ## 2026-04-01 07:07 UTC
 
 ### 리뷰 범위

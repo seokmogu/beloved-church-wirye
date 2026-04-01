@@ -33,7 +33,7 @@ export function AnnouncementsSection({ announcements }: Props) {
               Notice
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              공지사항
+              교회 소식
             </h2>
           </div>
           <Link

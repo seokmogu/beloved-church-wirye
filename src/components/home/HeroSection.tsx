@@ -37,18 +37,26 @@ export async function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
-        <p className="text-secondary text-sm md:text-base tracking-[0.3em] uppercase mb-4 font-medium">
+        <p className="text-secondary text-sm md:text-base tracking-[0.3em] uppercase mb-6 font-medium">
           Beloved Church Wirye
         </p>
-        <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-          {settings?.heroTitle || '사랑하는교회'}
-        </h1>
-        <p className="text-white/80 text-lg md:text-xl mb-10 leading-relaxed">
-          {settings?.heroSubtitle || '위례에서 하나님의 사랑을 나누는 공동체'}
+        {/* 로고 이미지 */}
+        <div className="flex justify-center mb-6">
+          <img
+            src="/logo-beloved.png"
+            alt="사랑하는교회"
+            className="h-16 md:h-20 w-auto object-contain"
+          />
+        </div>
+        <p className="text-white/80 text-base md:text-lg mb-3 leading-relaxed">
+          우리는 사랑으로 교회를 세웁니다
+        </p>
+        <p className="text-white/60 text-sm md:text-base mb-10 leading-relaxed">
+          더불어 우리의 삶 속에 하나님 나라를 세웁니다
         </p>
 
         {/* Worship time badges */}
-        <div className="flex flex-wrap justify-center gap-3 mb-10">
+        <div className="flex flex-wrap justify-center gap-2 mb-3">
           <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white rounded-full px-5 py-2.5 text-sm">
             <span className="w-2 h-2 rounded-full bg-secondary" />
             주일예배 {settings?.sundayServiceTime ?? '12:00'}
@@ -58,21 +66,26 @@ export async function HeroSection() {
             금요기도회 {settings?.fridayServiceTime ?? '20:00'}
           </span>
         </div>
+        <p className="text-white/50 text-xs mb-10">
+          청·장년예배 주일 낮 12시 &nbsp;·&nbsp; 어린이예배 주일 낮 12시 &nbsp;·&nbsp; 금요기도회 금요일 밤 8시
+        </p>
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
           <a
-            href="/newcomer"
+            href="#map"
             className="inline-flex items-center gap-2 bg-secondary hover:bg-secondary-dark text-primary font-semibold rounded-full px-8 py-3.5 text-base transition-colors"
           >
-            새가족 등록
+            예배 안내
             <span aria-hidden="true">&rarr;</span>
           </a>
           <a
-            href="#map"
+            href="https://www.youtube.com/@BelovedChurchWirye"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border-2 border-white/30 hover:bg-white/25 text-white font-semibold rounded-full px-8 py-3.5 text-base transition-colors"
           >
-            예배 안내
+            최신 설교 바로가기
             <span aria-hidden="true">&rarr;</span>
           </a>
         </div>
