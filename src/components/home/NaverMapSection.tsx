@@ -34,8 +34,8 @@ export function NaverMapSection({
   transitInfo = '남위례역 근처, 도보 약 5분 거리',
   sundayServiceTime = '12:00',
   fridayServiceTime = '20:00',
-  lat = 37.4697,
-  lng = 127.1489,
+  lat = 37.4670,
+  lng = 127.1395,
 }: NaverMapSectionProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<unknown>(null)

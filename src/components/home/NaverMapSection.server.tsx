@@ -21,8 +21,8 @@ export async function NaverMapSectionServer() {
       transitInfo={settings?.transitInfo ?? '남위례역 근처, 도보 약 5분 거리'}
       sundayServiceTime={settings?.sundayServiceTime ?? '12:00'}
       fridayServiceTime={settings?.fridayServiceTime ?? '20:00'}
-      lat={settings?.mapLat ?? 37.4697}
-      lng={settings?.mapLng ?? 127.1489}
+      lat={settings?.mapLat ?? 37.4670}
+      lng={settings?.mapLng ?? 127.1395}
     />
   )
 }

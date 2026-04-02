@@ -78,13 +78,13 @@ export const SiteSettings: GlobalConfig = {
       name: 'mapLat',
       type: 'number',
       label: '지도 위도',
-      defaultValue: 37.4697,
+      defaultValue: 37.4670,
     },
     {
       name: 'mapLng',
       type: 'number',
       label: '지도 경도',
-      defaultValue: 127.1489,
+      defaultValue: 127.1395,
     },
 
     // ─── 교회 소개 ────────────────────────────────────────────
