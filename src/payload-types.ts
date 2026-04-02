@@ -119,11 +119,15 @@ export interface Config {
     header: Header;
     footer: Footer;
     'site-settings': SiteSetting;
+    'offering-page': OfferingPage;
+    'special-banner': SpecialBanner;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'offering-page': OfferingPageSelect<false> | OfferingPageSelect<true>;
+    'special-banner': SpecialBannerSelect<false> | SpecialBannerSelect<true>;
   };
   locale: null;
   widgets: {
@@ -1927,6 +1931,77 @@ export interface SiteSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "offering-page".
+ */
+export interface OfferingPage {
+  id: number;
+  /**
+   * 헌금 안내 페이지 상단에 표시되는 소개 문구
+   */
+  introText?: string | null;
+  bankAccounts?:
+    | {
+        bankName: string;
+        accountNumber: string;
+        accountHolder: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * 헌금 관련 안내 사항 (줄바꿈으로 항목 구분)
+   */
+  notes?: string | null;
+  bibleVerse?: string | null;
+  bibleReference?: string | null;
+  offeringTypes?:
+    | {
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "special-banner".
+ */
+export interface SpecialBanner {
+  id: number;
+  /**
+   * 체크하면 배너가 표시됩니다
+   */
+  enabled?: boolean | null;
+  /**
+   * 배너에 표시될 주요 문구 (예: 🌟 부활절 특별예배)
+   */
+  text: string;
+  /**
+   * 추가 안내 문구 (예: 4월 5일 (토) 오전 10:30)
+   */
+  subtext?: string | null;
+  /**
+   * CSS 색상값 (예: #1B3A2D, rgb(27,58,45))
+   */
+  backgroundColor?: string | null;
+  /**
+   * CSS 색상값 (예: white, #FFFFFF)
+   */
+  textColor?: string | null;
+  /**
+   * 배너 표시 시작일 (비워두면 즉시 표시)
+   */
+  startDate?: string | null;
+  /**
+   * 배너 표시 종료일 (이 날짜가 지나면 자동으로 숨겨집니다)
+   */
+  endDate: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -1998,6 +2073,50 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   offeringAccountHolder?: T;
   offeringKakaoPayQr?: T;
   offeringNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "offering-page_select".
+ */
+export interface OfferingPageSelect<T extends boolean = true> {
+  introText?: T;
+  bankAccounts?:
+    | T
+    | {
+        bankName?: T;
+        accountNumber?: T;
+        accountHolder?: T;
+        id?: T;
+      };
+  notes?: T;
+  bibleVerse?: T;
+  bibleReference?: T;
+  offeringTypes?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "special-banner_select".
+ */
+export interface SpecialBannerSelect<T extends boolean = true> {
+  enabled?: T;
+  text?: T;
+  subtext?: T;
+  backgroundColor?: T;
+  textColor?: T;
+  startDate?: T;
+  endDate?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

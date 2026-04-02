@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import { AdminBar } from '@/components/AdminBar'
+import { SpecialBanner } from '@/components/SpecialBanner'
 import { ChatWidget } from '@/components/ChatWidget'
 import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
@@ -30,6 +31,7 @@ export default async function RootLayout({ children }: { children: import('react
             }}
           />
 
+          <SpecialBanner />
           <Header />
           {children}
           <Footer />
