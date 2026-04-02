@@ -17,6 +17,8 @@ import { Sermons } from './collections/Sermons'
 import { Users } from './collections/Users'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
+import { OfferingPage } from './globals/OfferingPage'
+import { SpecialBanner } from './globals/SpecialBanner'
 import { SiteSettings } from './globals/SiteSettings'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
@@ -89,7 +91,7 @@ export default buildConfig({
         ]
       : []),
   ],
-  globals: [Header, Footer, SiteSettings],
+  globals: [Header, Footer, SiteSettings, OfferingPage, SpecialBanner],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {
