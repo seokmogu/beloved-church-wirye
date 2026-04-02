@@ -146,10 +146,10 @@ export default function WorshipPage() {
 
         {/* Online Worship */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold text-foreground mb-6">온라인 예배</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-6">설교 영상</h2>
           <div className="bg-card border border-border rounded-lg p-8">
             <p className="text-muted-foreground mb-6">
-              현장에 참석하기 어려운 분들을 위해 YouTube를 통해 실시간으로 예배를 생중계합니다.
+              지난 주일 설교 영상을 YouTube에서 보실 수 있습니다.
             </p>
             <a
               href="https://www.youtube.com/@BelovedChurchWirye"
