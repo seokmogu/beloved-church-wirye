@@ -25,3 +25,4 @@ node_modules/
 .omc/
 .omx/
 .env*.local
+.env.vercel
