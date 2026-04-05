@@ -77,6 +77,7 @@ export default buildConfig({
     },
   }),
   collections: [Pages, Posts, Announcements, Bulletins, Sermons, Newcomers, Media, Users],
+  serverURL: getServerSideURL(),
   cors: [getServerSideURL()].filter(Boolean),
   plugins: [
     ...plugins,
