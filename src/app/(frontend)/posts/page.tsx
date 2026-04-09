@@ -57,6 +57,6 @@ export default async function Page() {
 
 export function generateMetadata(): Metadata {
   return {
-    title: `Payload Website Template Posts`,
+    title: `게시글 | 사랑하는교회`,
   }
 }

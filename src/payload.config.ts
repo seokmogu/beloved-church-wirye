@@ -75,6 +75,7 @@ export default buildConfig({
     pool: {
       connectionString: process.env.POSTGRES_URL || '',
     },
+    push: false,
   }),
   collections: [Pages, Posts, Announcements, Bulletins, Sermons, Newcomers, Media, Users],
   serverURL: getServerSideURL(),
