@@ -8,7 +8,7 @@ import type { AnnouncementItem } from '@/components/home/AnnouncementsSection'
 import { YouTubeSection } from '@/components/home/YouTubeSection'
 import { InstagramSection } from '@/components/home/InstagramSection'
 import { NaverMapSectionServer } from '@/components/home/NaverMapSection.server'
-import { fetchLatestVideos } from '@/lib/youtube'
+import type { YouTubeVideo } from '@/lib/youtube'
 
 export const metadata = {
   title: '사랑하는교회 | Beloved Church Wirye',
@@ -20,19 +20,33 @@ export const revalidate = 600 // Revalidate every 10 minutes
 export default async function HomePage() {
   // Fetch announcements and YouTube videos in parallel
   let announcements: AnnouncementItem[] = []
-  const [announcementsResult, videos] = await Promise.all([
-    getPayload({ config: configPromise }).then((payload) =>
-      payload.find({
-        collection: 'announcements',
-        limit: 3,
-        sort: '-publishedAt',
-      }),
-    ).catch((error) => {
+  const payload = await getPayload({ config: configPromise })
+  const [announcementsResult, sermonsResult] = await Promise.all([
+    payload.find({
+      collection: 'announcements',
+      limit: 3,
+      sort: '-publishedAt',
+    }).catch((error) => {
       console.error('Failed to fetch announcements:', error)
       return null
     }),
-    fetchLatestVideos(4),
+    payload.find({
+      collection: 'sermons',
+      where: { status: { equals: 'published' } },
+      limit: 4,
+      sort: '-sermonDate',
+    }).catch((error) => {
+      console.error('Failed to fetch sermons:', error)
+      return null
+    }),
   ])
+
+  const videos: YouTubeVideo[] = (sermonsResult?.docs ?? []).map((sermon) => ({
+    id: (sermon.youtubeId as string) ?? '',
+    title: sermon.title,
+    thumbnail: (sermon.thumbnail as string) ?? `https://i.ytimg.com/vi/${sermon.youtubeId}/hqdefault.jpg`,
+    publishedAt: sermon.sermonDate,
+  }))
 
   if (announcementsResult) {
     announcements = announcementsResult.docs.map((doc) => ({
