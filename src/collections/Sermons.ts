@@ -5,14 +5,8 @@ import { authenticatedOrPublishedSermon } from '@/access/authenticatedOrPublishe
 export const Sermons: CollectionConfig = {
   slug: 'sermons',
   labels: {
-    singular: {
-      ko: '설교',
-      en: 'Sermon',
-    },
-    plural: {
-      ko: '설교',
-      en: 'Sermons',
-    },
+    singular: '설교',
+    plural: '설교',
   },
   access: {
     create: authenticated,
