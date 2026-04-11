@@ -8,6 +8,7 @@ import type { AnnouncementItem } from '@/components/home/AnnouncementsSection'
 import { YouTubeSection } from '@/components/home/YouTubeSection'
 import { InstagramSection } from '@/components/home/InstagramSection'
 import { NaverMapSectionServer } from '@/components/home/NaverMapSection.server'
+import { fetchLatestVideos } from '@/lib/youtube'
 import type { YouTubeVideo } from '@/lib/youtube'
 
 export const metadata = {
@@ -21,7 +22,7 @@ export default async function HomePage() {
   // Fetch announcements and YouTube videos in parallel
   let announcements: AnnouncementItem[] = []
   const payload = await getPayload({ config: configPromise })
-  const [announcementsResult, sermonsResult] = await Promise.all([
+  const [announcementsResult, sermonsResult, rssVideos] = await Promise.all([
     payload.find({
       collection: 'announcements',
       limit: 3,
@@ -33,20 +34,30 @@ export default async function HomePage() {
     payload.find({
       collection: 'sermons',
       where: { status: { equals: 'published' } },
-      limit: 4,
+      limit: 8,
       sort: '-sermonDate',
     }).catch((error) => {
       console.error('Failed to fetch sermons:', error)
       return null
     }),
+    fetchLatestVideos(8),
   ])
 
-  const videos: YouTubeVideo[] = (sermonsResult?.docs ?? []).map((sermon) => ({
+  // Merge RSS + CMS: CMS entries take priority (richer metadata)
+  const cmsVideos: YouTubeVideo[] = (sermonsResult?.docs ?? []).map((sermon) => ({
     id: (sermon.youtubeId as string) ?? '',
     title: sermon.title,
     thumbnail: (sermon.thumbnail as string) ?? `https://i.ytimg.com/vi/${sermon.youtubeId}/hqdefault.jpg`,
     publishedAt: sermon.sermonDate,
   }))
+  const cmsIds = new Set(cmsVideos.map((v) => v.id))
+  const mergedVideos = [
+    ...cmsVideos,
+    ...rssVideos.filter((v) => !cmsIds.has(v.id)),
+  ]
+  const videos = mergedVideos
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    .slice(0, 4)
 
   if (announcementsResult) {
     announcements = announcementsResult.docs.map((doc) => ({
