@@ -1,6 +1,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { EmptyState } from '@/components/EmptyState'
 import { PageHero } from '@/components/PageHero'
 
@@ -11,6 +12,26 @@ export const metadata: Metadata = {
 
 export const revalidate = 300
 export const dynamic = 'force-dynamic'
+
+function extractPlainText(children: any[]): string {
+  return children
+    .map((node: any) => {
+      if (node.text) return node.text
+      if (node.children) return extractPlainText(node.children)
+      return ''
+    })
+    .join(' ')
+    .trim()
+}
+
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'Asia/Seoul',
+  })
+}
 
 export default async function AnnouncementsPage() {
   let announcements: any[] = []
@@ -29,20 +50,10 @@ export default async function AnnouncementsPage() {
     hasError = true
   }
 
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'Asia/Seoul',
-    })
-  }
-
   return (
     <main className="min-h-screen bg-background">
       <PageHero label="NOTICE" title="공지사항" subtitle="사랑하는교회의 새 소식을 전합니다" />
 
-      {/* Content */}
       <div className="container py-12 max-w-3xl">
         {hasError ? (
           <EmptyState
@@ -63,22 +74,30 @@ export default async function AnnouncementsPage() {
         ) : (
           <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
             {announcements.map((item) => (
-              <div
+              <Link
                 key={item.id}
+                href={`/announcements/${item.id}`}
                 className="flex items-start justify-between gap-4 px-6 py-4 bg-card hover:bg-muted/30 transition-colors"
               >
-                <div className="flex items-start gap-3 min-w-0">
-                  {item.isPinned && (
-                    <span className="shrink-0 mt-0.5 inline-flex items-center bg-secondary/15 text-secondary text-xs font-semibold px-2 py-0.5 rounded-full">
-                      고정
-                    </span>
+                <div className="flex flex-col gap-1 min-w-0">
+                  <div className="flex items-start gap-3">
+                    {item.isPinned && (
+                      <span className="shrink-0 mt-0.5 inline-flex items-center bg-secondary/15 text-secondary text-xs font-semibold px-2 py-0.5 rounded-full">
+                        고정
+                      </span>
+                    )}
+                    <h3 className="text-sm font-medium text-foreground line-clamp-2">{item.title}</h3>
+                  </div>
+                  {item.content?.root?.children && (
+                    <p className="text-xs text-muted-foreground line-clamp-1 pl-0">
+                      {extractPlainText(item.content.root.children).slice(0, 100)}
+                    </p>
                   )}
-                  <h3 className="text-sm font-medium text-foreground line-clamp-2">{item.title}</h3>
                 </div>
                 <time className="shrink-0 text-xs text-muted-foreground mt-0.5" dateTime={item.publishedAt}>
                   {formatDate(item.publishedAt)}
                 </time>
-              </div>
+              </Link>
             ))}
           </div>
         )}

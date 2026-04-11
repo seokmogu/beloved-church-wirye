@@ -49,7 +49,7 @@ export function AnnouncementsSection({ announcements }: Props) {
           {announcements.map((item) => (
             <Link
               key={item.id}
-              href="/announcements"
+              href={`/announcements/${item.id}`}
               className="group bg-card border border-border rounded-xl p-6 hover:shadow-lg hover:border-primary/20 transition-all duration-300 block"
             >
               <article>
