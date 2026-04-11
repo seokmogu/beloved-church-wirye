@@ -16,7 +16,7 @@ export const Logo = (props: Props) => {
         src="/logo-beloved.png"
         alt="사랑하는교회 BELOVED"
         loading={loading}
-        className="h-8 w-auto object-contain brightness-0 invert"
+        className="h-12 w-auto object-contain brightness-0 invert"
       />
     </div>
   )
