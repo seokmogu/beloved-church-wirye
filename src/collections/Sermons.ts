@@ -195,7 +195,7 @@ export const Sermons: CollectionConfig = {
             // Auto-generate thumbnail URL from YouTube ID
             const youtubeId = siblingData?.youtubeId || data?.youtubeId
             if (!youtubeId) return value
-            return `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
+            return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
           },
         ],
       },
