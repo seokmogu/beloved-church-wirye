@@ -22,17 +22,21 @@ export async function SpecialBanner() {
   if (endDate && now > endDate) return null
   if (startDate && now < startDate) return null
 
-  const bgColor = data.backgroundColor || '#1B3A2D'
-  const txtColor = data.textColor || 'white'
-
   return (
-    <div className="py-3 px-4 text-center" style={{ backgroundColor: bgColor, color: txtColor }}>
+    <div
+      className="py-2.5 px-4 text-center border-b border-amber-300/30"
+      style={{
+        background: 'linear-gradient(90deg, #F59E0B 0%, #D97706 50%, #B45309 100%)',
+        color: '#FFFBEB',
+      }}
+    >
       <div className="container mx-auto flex flex-col sm:flex-row items-center justify-center gap-2">
-        <span className="font-bold text-base sm:text-lg">{data.text}</span>
+        <span className="text-base sm:text-lg" aria-hidden="true">
+          📢
+        </span>
+        <span className="font-bold text-base sm:text-lg tracking-tight">{data.text}</span>
         {data.subtext && (
-          <span className="text-sm sm:text-base" style={{ color: txtColor, opacity: 0.85 }}>
-            {data.subtext}
-          </span>
+          <span className="text-sm sm:text-base opacity-90">{data.subtext}</span>
         )}
       </div>
     </div>
