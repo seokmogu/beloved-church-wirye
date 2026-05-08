@@ -10,13 +10,14 @@ type CMSLinkType = {
   children?: React.ReactNode
   className?: string
   label?: string | null
+  internalPath?: string | null
   newTab?: boolean | null
   reference?: {
     relationTo: 'pages' | 'posts'
     value: Page | Post | string | number
   } | null
   size?: ButtonProps['size'] | null
-  type?: 'custom' | 'reference' | null
+  type?: 'custom' | 'internal' | 'reference' | null
   url?: string | null
 }
 
@@ -26,6 +27,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
     appearance = 'inline',
     children,
     className,
+    internalPath,
     label,
     newTab,
     reference,
@@ -34,11 +36,13 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
   } = props
 
   const href =
-    type === 'reference' && typeof reference?.value === 'object' && reference.value.slug
-      ? `${reference?.relationTo !== 'pages' ? `/${reference?.relationTo}` : ''}/${
-          reference.value.slug
-        }`
-      : url
+    type === 'internal'
+      ? internalPath || url
+      : type === 'reference' && typeof reference?.value === 'object' && reference.value.slug
+        ? `${reference?.relationTo !== 'pages' ? `/${reference?.relationTo}` : ''}/${
+            reference.value.slug
+          }`
+        : url
 
   if (!href) return null
 

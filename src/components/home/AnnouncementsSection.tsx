@@ -9,6 +9,9 @@ export interface AnnouncementItem {
 
 interface Props {
   announcements: AnnouncementItem[]
+  description?: string | null
+  eyebrow?: string | null
+  title?: string | null
 }
 
 function formatDate(dateString: string): string {
@@ -20,62 +23,64 @@ function formatDate(dateString: string): string {
   })
 }
 
-export function AnnouncementsSection({ announcements }: Props) {
+export function AnnouncementsSection({ announcements, description, eyebrow, title }: Props) {
   if (announcements.length === 0) return null
 
   return (
-    <section className="py-20 bg-background">
+    <section className="church-section-surface py-20 md:py-24">
       <div className="container">
-        {/* Section header */}
-        <div className="flex items-end justify-between mb-10">
+        <div className="mb-10 flex items-end justify-between gap-6">
           <div>
-            <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">
-              Notice
+            <p className="mb-2 text-sm font-semibold uppercase text-secondary">
+              {eyebrow ?? 'Notice'}
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              교회 소식
+            <h2 className="text-3xl font-bold text-foreground md:text-5xl">
+              {title ?? '교회 소식'}
             </h2>
+            {description && (
+              <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
+                {description}
+              </p>
+            )}
           </div>
           <Link
             href="/announcements"
-            className="text-sm text-muted-foreground hover:text-primary transition-colors hidden md:block"
+            className="hidden rounded-md border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary/30 hover:bg-primary/5 md:block"
           >
             전체보기 &rarr;
           </Link>
         </div>
 
-        {/* Cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {announcements.map((item) => (
             <Link
               key={item.id}
-              href="/announcements"
-              className="group bg-card border border-border rounded-xl p-6 hover:shadow-lg hover:border-primary/20 transition-all duration-300 block"
+              href={`/announcements/${item.id}`}
+              className="group block rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-[0_18px_60px_rgba(20,42,33,0.08)]"
             >
               <article>
-              <div className="flex items-start justify-between gap-3 mb-3">
-                <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                  {item.title}
-                </h3>
-                {item.isPinned && (
-                  <span className="shrink-0 inline-flex items-center bg-secondary/10 text-secondary text-xs font-medium px-2.5 py-1 rounded-full">
-                    고정
-                  </span>
-                )}
-              </div>
-              <time className="text-sm text-muted-foreground" dateTime={item.publishedAt}>
-                {formatDate(item.publishedAt)}
-              </time>
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <h3 className="line-clamp-2 text-lg font-semibold text-foreground transition-colors group-hover:text-primary">
+                    {item.title}
+                  </h3>
+                  {item.isPinned && (
+                    <span className="inline-flex shrink-0 items-center rounded-md bg-secondary/10 px-2.5 py-1 text-xs font-medium text-secondary">
+                      고정
+                    </span>
+                  )}
+                </div>
+                <time className="text-sm text-muted-foreground" dateTime={item.publishedAt}>
+                  {formatDate(item.publishedAt)}
+                </time>
               </article>
             </Link>
           ))}
         </div>
 
-        {/* Mobile link */}
         <div className="mt-8 text-center md:hidden">
           <Link
             href="/announcements"
-            className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            className="text-sm font-semibold text-primary transition-colors hover:text-primary-light"
           >
             전체보기 &rarr;
           </Link>

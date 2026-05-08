@@ -1,54 +1,79 @@
 'use client'
 
-// Updated with latest posts from @beloved_ch_ (as of 2026-03-29)
-const POSTS: { id: string; type: 'p' | 'reel' }[] = [
-  { id: 'DWbIfyUEd8c', type: 'reel' },
-  { id: 'DWaDbrdET7G', type: 'p' },
-  { id: 'DWVRcsAkbEr', type: 'reel' },
-  { id: 'DWK2nuZER5k', type: 'reel' },
-]
+type InstagramPost = {
+  postId?: string | null
+  type?: 'p' | 'reel' | null
+}
 
-export function InstagramSection() {
+type Props = {
+  description?: string | null
+  eyebrow?: string | null
+  handle?: string | null
+  posts?: InstagramPost[] | null
+  title?: string | null
+  url?: string | null
+}
+
+export function InstagramSection({ description, eyebrow, handle, posts, title, url }: Props) {
+  const visiblePosts = (posts ?? []).filter((post) => post?.postId)
+  if (visiblePosts.length === 0) return null
+  const accountUrl = url ?? 'https://www.instagram.com/'
+
   return (
-    <section className="py-20 bg-primary">
+    <section className="church-dark-section py-20 text-white md:py-24">
       <div className="container">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 gap-4">
+        <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">
-              Instagram
-            </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white">
-              인스타그램
-            </h2>
-            <p className="text-white/60 mt-2">
-              사랑하는교회의 일상과 소식을 만나보세요
+            <p className="mb-2 text-sm font-semibold uppercase text-secondary">{eyebrow ?? 'Instagram'}</p>
+            <h2 className="text-3xl font-bold md:text-5xl">{title ?? '인스타그램'}</h2>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/64">
+              {description ?? '사랑하는교회의 일상과 소식을 만나보세요'}
             </p>
           </div>
-          <a
-            href="https://www.instagram.com/beloved_ch_/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm transition-colors shrink-0"
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-            </svg>
-            @beloved_ch_ →
-          </a>
+          {accountUrl && (
+            <a
+              href={accountUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 rounded-md border border-white/18 px-4 py-2 text-sm font-semibold text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              {handle ?? 'Instagram'} &rarr;
+            </a>
+          )}
         </div>
 
-        <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-4 md:overflow-visible md:pb-0">
-          {POSTS.map(({ id, type }) => (
-            <div key={id} className="relative shrink-0 w-[260px] md:w-auto overflow-hidden rounded-lg bg-black/20 snap-start" style={{ paddingBottom: '125%', minWidth: '260px' }}>
-              <iframe
-                src={`https://www.instagram.com/${type}/${id}/embed/`}
-                className="absolute inset-0 w-full h-full border-0"
-                allowTransparency
-                loading="lazy"
-                title={`Instagram ${type} ${id}`}
-              />
-            </div>
-          ))}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {visiblePosts.map(({ postId, type }, index) => {
+            const postUrl = `https://www.instagram.com/${type ?? 'p'}/${postId}/`
+            return (
+            <a
+              key={postId}
+              href={postUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative min-h-[320px] overflow-hidden rounded-lg border border-white/10 bg-primary/55 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-secondary/40"
+            >
+              <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:44px_44px]" />
+              <div className="relative flex h-full flex-col justify-between">
+                <div className="flex items-center justify-between text-sm text-white/56">
+                  <span>{handle ?? 'Instagram'}</span>
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold leading-tight text-white">
+                    사랑하는교회의 최근 소식
+                  </p>
+                  <p className="mt-4 text-sm leading-relaxed text-white/62">
+                    Instagram에서 게시물과 릴스를 확인하세요.
+                  </p>
+                </div>
+                <span className="inline-flex text-sm font-semibold text-secondary transition-transform group-hover:translate-x-1">
+                  게시물 보기 &rarr;
+                </span>
+              </div>
+            </a>
+            )
+          })}
         </div>
       </div>
     </section>

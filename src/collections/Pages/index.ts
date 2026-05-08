@@ -9,11 +9,10 @@ import { InstagramBlock } from '../../blocks/InstagramBlock/config'
 import { ScheduleBlock } from '../../blocks/ScheduleBlock/config'
 import { GoogleDriveBlock } from '../../blocks/GoogleDriveBlock/config'
 import { OfferingBlock } from '../../blocks/OfferingBlock/config'
-// BulletinsBlock and AnnouncementsBlock removed from Pages until DB migration runs
-// import { BulletinsBlock } from '../../blocks/BulletinsBlock/config'
-// import { AnnouncementsBlock } from '../../blocks/AnnouncementsBlock/config'
+import { BulletinsBlock } from '../../blocks/BulletinsBlock/config'
+import { AnnouncementsBlock } from '../../blocks/AnnouncementsBlock/config'
 import { hero } from '@/heros/config'
-import { slugField } from 'payload'
+import { adminSlugField } from '@/fields/adminSlugField'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
@@ -28,6 +27,10 @@ import {
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
+  labels: {
+    singular: '일반 페이지',
+    plural: '일반 페이지',
+  },
   access: {
     create: authenticated,
     delete: authenticated,
@@ -42,7 +45,13 @@ export const Pages: CollectionConfig<'pages'> = {
     slug: true,
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    components: {
+      beforeList: ['@/components/admin/FixedPagesPanel#FixedPagesPanel'],
+    },
+    defaultColumns: ['title', 'updatedAt'],
+    description:
+      '기본 페이지와 콘텐츠 게시판은 위 목록의 관리 위치에서 수정하고, 여기는 별도로 필요한 독립 페이지를 만듭니다.',
+    group: '2. 페이지와 메뉴',
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
@@ -63,31 +72,59 @@ export const Pages: CollectionConfig<'pages'> = {
     {
       name: 'title',
       type: 'text',
+      label: '일반 페이지 제목',
       required: true,
     },
     {
       type: 'tabs',
       tabs: [
         {
-          fields: [hero],
-          label: 'Hero',
-        },
-        {
           fields: [
             {
-              name: 'layout',
-              type: 'blocks',
-              blocks: [Content, MediaBlock, YouTubeBlock, InstagramBlock, ScheduleBlock, GoogleDriveBlock, OfferingBlock],
+              type: 'collapsible',
+              label: '상단 배너',
               admin: {
                 initCollapsed: true,
               },
+              fields: [hero],
+            },
+            {
+              name: 'layout',
+              type: 'blocks',
+              defaultValue: [
+                {
+                  blockType: 'content',
+                  columns: [
+                    {
+                      size: 'full',
+                    },
+                  ],
+                },
+              ],
+              blocks: [
+                Content,
+                MediaBlock,
+                YouTubeBlock,
+                InstagramBlock,
+                ScheduleBlock,
+                GoogleDriveBlock,
+                OfferingBlock,
+                AnnouncementsBlock,
+                BulletinsBlock,
+              ],
+              admin: {
+                description:
+                  '기본 문단은 미리 추가되어 있습니다. 사진, 유튜브, 일정이 필요할 때만 섹션을 추가하세요.',
+                initCollapsed: false,
+              },
+              label: '본문 블록',
             },
           ],
-          label: 'Content',
+          label: '페이지 내용',
         },
         {
           name: 'meta',
-          label: 'SEO',
+          label: '고급 설정',
           fields: [
             OverviewField({
               titlePath: 'meta.title',
@@ -117,11 +154,14 @@ export const Pages: CollectionConfig<'pages'> = {
     {
       name: 'publishedAt',
       type: 'date',
+      label: '발행일',
+      defaultValue: () => new Date().toISOString(),
       admin: {
+        description: '자동으로 채워집니다. 예약/수정이 필요할 때만 바꾸세요.',
         position: 'sidebar',
       },
     },
-    slugField(),
+    adminSlugField(),
   ],
   hooks: {
     afterChange: [revalidatePage],

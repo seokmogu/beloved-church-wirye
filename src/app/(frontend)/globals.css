@@ -136,8 +136,10 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-light: var(--church-primary-light);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
+  --color-secondary-dark: var(--church-secondary-dark);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
@@ -180,7 +182,53 @@
   }
 }
 
+.church-section-surface {
+  background-color: var(--church-section-bg);
+}
+
+.church-card-surface {
+  background-color: var(--card);
+}
+
+.church-dark-section {
+  background-color: var(--church-dark-section-bg);
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.04)),
+    var(--church-dark-section-background-image);
+  background-position: center;
+  background-size: cover;
+}
+
+.church-hero-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--church-hero-from) 0%,
+    var(--church-hero-mid) 52%,
+    var(--church-hero-to) 100%
+  );
+}
+
+.church-hero-overlay {
+  background: linear-gradient(
+    90deg,
+    var(--church-hero-overlay-start),
+    var(--church-hero-overlay-mid) 48%,
+    var(--church-hero-overlay-end)
+  );
+}
+
+.church-hero-pattern {
+  opacity: var(--church-hero-pattern-opacity);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 88px 88px;
+}
+
+.church-hero-fade {
+  background: linear-gradient(180deg, transparent, var(--church-section-bg));
+}
+
 /* Hide scrollbar for carousel */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-

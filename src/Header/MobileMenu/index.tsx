@@ -2,8 +2,8 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { SearchIcon } from 'lucide-react'
 import type { Header as HeaderType } from '@/payload-types'
+import { resolveCMSLink } from '@/utilities/resolveCMSLink'
 
 interface MobileMenuProps {
   data: HeaderType
@@ -11,9 +11,16 @@ interface MobileMenuProps {
   onClose: () => void
 }
 
+type NavItem = {
+  href: string
+  label: string
+  newTab?: boolean
+}
+
 export const MobileMenu: React.FC<MobileMenuProps> = ({ data, open, onClose }) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const navItems: any[] = data?.navItems || []
+  const navItems = (data?.navItems || [])
+    .map((item) => resolveCMSLink(item.link))
+    .filter(Boolean) as NavItem[]
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') onClose()
@@ -25,39 +32,22 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ data, open, onClose }) =
       aria-hidden={!open}
       onKeyDown={handleKeyDown}
     >
-      <nav className="flex flex-col border-t border-white/20 pb-4 bg-primary">
+      <nav className="flex flex-col border-t border-white/12 bg-primary pb-4">
         {navItems.map((item, i) => {
-          const link = item.link as { url?: string; label?: string }
+          const newTabProps = item.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
+
           return (
-            <div key={i} className="px-4 py-3 border-b border-white/10" onClick={onClose}>
+            <div key={i} className="border-b border-white/10 px-4 py-3" onClick={onClose}>
               <Link
-                href={link.url || '/'}
-                className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+                href={item.href}
+                className="text-sm font-medium text-white/80 transition-colors hover:text-white"
+                {...newTabProps}
               >
-                {link.label}
+                {item.label}
               </Link>
             </div>
           )
         })}
-        <div className="px-4 py-3 border-b border-white/10">
-          <Link
-            href="/bulletins"
-            className="text-sm font-medium text-white/80 hover:text-secondary transition-colors"
-            onClick={onClose}
-          >
-            주보
-          </Link>
-        </div>
-        <div className="px-4 py-3">
-          <Link
-            href="/search"
-            className="flex items-center gap-2 text-sm font-medium text-white/80 hover:text-secondary transition-colors"
-            onClick={onClose}
-          >
-            <SearchIcon className="w-4 h-4 text-white/60" />
-            검색
-          </Link>
-        </div>
       </nav>
     </div>
   )

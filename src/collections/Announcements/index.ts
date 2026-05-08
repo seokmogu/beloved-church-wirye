@@ -5,8 +5,14 @@ import { defaultLexical } from '@/fields/defaultLexical'
 export const Announcements: CollectionConfig = {
   slug: 'announcements',
   admin: {
+    components: {
+      beforeList: ['@/components/admin/AnnouncementBoardGuide#AnnouncementBoardGuide'],
+    },
     useAsTitle: 'title',
     defaultColumns: ['title', 'publishedAt', 'isPinned'],
+    description:
+      '공지 글을 작성하면 /announcements 게시판과 홈 공지 섹션에 자동으로 노출됩니다. 별도 페이지를 만들 필요가 없습니다.',
+    group: '3. 콘텐츠 게시',
   },
   labels: {
     singular: '공지사항',
@@ -33,30 +39,49 @@ export const Announcements: CollectionConfig = {
       label: '내용',
     },
     {
-      name: 'publishedAt',
-      type: 'date',
-      required: true,
-      label: '게시일',
-      defaultValue: () => new Date().toISOString(),
+      name: 'announcementPreview',
+      type: 'ui',
       admin: {
-        date: {
-          pickerAppearance: 'dayAndTime',
+        components: {
+          Field: '@/components/admin/AnnouncementPreview#AnnouncementPreview',
         },
       },
     },
     {
-      name: 'isPinned',
-      type: 'checkbox',
-      defaultValue: false,
-      label: '상단 고정',
-    },
-    {
-      name: 'googleDriveLink',
-      type: 'text',
-      label: '구글드라이브 링크',
+      type: 'collapsible',
+      label: '선택 설정',
       admin: {
-        description: '구글드라이브 파일 링크를 입력하면 미리보기가 표시됩니다',
+        initCollapsed: true,
       },
+      fields: [
+        {
+          name: 'publishedAt',
+          type: 'date',
+          required: true,
+          label: '게시일',
+          defaultValue: () => new Date().toISOString(),
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+            description: '비워두면 지금 시각으로 저장됩니다.',
+          },
+        },
+        {
+          name: 'isPinned',
+          type: 'checkbox',
+          defaultValue: false,
+          label: '상단 고정',
+        },
+        {
+          name: 'googleDriveLink',
+          type: 'text',
+          label: '구글드라이브 링크',
+          admin: {
+            description: '구글드라이브 파일 링크를 입력하면 미리보기가 표시됩니다',
+          },
+        },
+      ],
     },
   ],
 }

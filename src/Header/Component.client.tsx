@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 
-import type { Header } from '@/payload-types'
+import type { Header, SiteSetting } from '@/payload-types'
 
 import { Logo } from '@/components/Logo/Logo'
 import { HeaderNav } from './Nav'
@@ -12,9 +12,10 @@ import { MobileMenu } from './MobileMenu'
 
 interface HeaderClientProps {
   data: Header
+  siteSettings?: SiteSetting | null
 }
 
-export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
+export const HeaderClient: React.FC<HeaderClientProps> = ({ data, siteSettings }) => {
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
@@ -30,7 +31,6 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
 
   useEffect(() => {
     setTheme(headerTheme ?? null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [headerTheme])
 
   useEffect(() => {
@@ -44,17 +44,35 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [mobileOpen])
 
+  const logo = siteSettings?.logo
+  const logoUrl = typeof logo === 'object' && logo?.url ? logo.url : undefined
+  const logoAlt = siteSettings?.churchName ?? '사랑하는교회'
+  const logoHeight =
+    typeof siteSettings?.headerLogoHeight === 'number'
+      ? Math.max(24, Math.min(96, siteSettings.headerLogoHeight))
+      : 40
+  const logoInverted = siteSettings?.headerLogoInvert ?? true
+
   return (
-    <header className="relative z-20 shadow-sm" style={{ backgroundColor: '#1B3A2D', color: '#ffffff' }}>
+    <header
+      className="sticky top-0 z-50 border-b border-white/10 shadow-sm"
+      style={{ backgroundColor: 'var(--church-header-bg)', color: '#ffffff' }}
+    >
       <div ref={menuRef} className="container">
-        <div className="py-5 flex justify-between items-center">
+        <div className="flex items-center justify-between py-4">
           <Link href="/">
-            <Logo loading="eager" priority="high" />
+            <Logo
+              alt={logoAlt}
+              height={logoHeight}
+              inverted={logoInverted}
+              loading="eager"
+              priority="high"
+              src={logoUrl}
+            />
           </Link>
           <HeaderNav data={data} />
-          {/* Hamburger button - mobile only */}
           <button
-            className="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5 rounded focus:outline-none"
+            className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 rounded-md border border-white/12 bg-white/5 md:hidden"
             aria-label={mobileOpen ? '메뉴 닫기' : '메뉴 열기'}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((prev) => !prev)}

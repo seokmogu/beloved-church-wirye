@@ -22,11 +22,13 @@ import { SpecialBanner } from './globals/SpecialBanner'
 import { SiteSettings } from './globals/SiteSettings'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
-import { getServerSideURL } from './utilities/getURL'
+import { getPayloadAllowedOrigins, getPayloadServerURL } from './utilities/getURL'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const allowedOrigins = getPayloadAllowedOrigins()
+const serverURL = getPayloadServerURL()
 
 export default buildConfig({
   i18n: {
@@ -35,6 +37,7 @@ export default buildConfig({
   },
   admin: {
     components: {
+      Nav: '@/components/admin/OrderedNav#OrderedNav',
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below.
       beforeLogin: ['@/components/BeforeLogin'],
@@ -77,10 +80,10 @@ export default buildConfig({
     },
     push: false,
   }),
-  collections: [Pages, Posts, Announcements, Bulletins, Sermons, Newcomers, Media, Users],
-  serverURL: getServerSideURL(),
-  csrf: [getServerSideURL()].filter(Boolean),
-  cors: [getServerSideURL()].filter(Boolean),
+  collections: [Pages, Announcements, Bulletins, Sermons, Posts, Newcomers, Media, Users],
+  serverURL,
+  csrf: [],
+  cors: allowedOrigins,
   plugins: [
     ...plugins,
     ...(process.env.BLOB_READ_WRITE_TOKEN
@@ -94,7 +97,7 @@ export default buildConfig({
         ]
       : []),
   ],
-  globals: [Header, Footer, SiteSettings, OfferingPage, SpecialBanner],
+  globals: [SiteSettings, Header, Footer, SpecialBanner, OfferingPage],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {

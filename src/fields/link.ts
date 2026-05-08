@@ -15,6 +15,17 @@ export const appearanceOptions: Record<LinkAppearances, { label: string; value: 
   },
 }
 
+export const internalLinkOptions = [
+  { label: '홈', value: '/' },
+  { label: '교회 소개 - 홈/디자인/교회 정보에서 관리', value: '/about' },
+  { label: '예배 안내 - 홈/디자인/교회 정보 > 예배와 위치에서 관리', value: '/worship' },
+  { label: '최신 설교 - 설교에서 관리', value: '/sermon' },
+  { label: '공지사항 - 공지사항에서 관리', value: '/announcements' },
+  { label: '주보 - 주보에서 관리', value: '/bulletins' },
+  { label: '새가족 등록 - 신청 내역은 새가족에서 확인', value: '/newcomer' },
+  { label: '헌금 안내 - 헌금 안내 페이지에서 관리', value: '/offering' },
+]
+
 type LinkType = (options?: {
   appearances?: LinkAppearances[] | false
   disableLabel?: boolean
@@ -39,14 +50,18 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
               layout: 'horizontal',
               width: '50%',
             },
-            defaultValue: 'reference',
+            defaultValue: 'internal',
             options: [
               {
-                label: 'Internal link',
+                label: '사이트 고정 페이지',
+                value: 'internal',
+              },
+              {
+                label: 'CMS 페이지/글 선택',
                 value: 'reference',
               },
               {
-                label: 'Custom URL',
+                label: '외부/직접 주소',
                 value: 'custom',
               },
             ],
@@ -69,12 +84,25 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
 
   const linkTypes: Field[] = [
     {
+      name: 'internalPath',
+      type: 'select',
+      admin: {
+        condition: (_, siblingData) => siblingData?.type === 'internal',
+        description:
+          '고정 페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배 안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.',
+      },
+      defaultValue: '/',
+      label: '사이트 고정 페이지',
+      options: internalLinkOptions,
+      required: true,
+    },
+    {
       name: 'reference',
       type: 'relationship',
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'reference',
       },
-      label: 'Document to link to',
+      label: 'CMS 페이지/글 선택',
       relationTo: ['pages', 'posts'],
       required: true,
     },
@@ -84,20 +112,12 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'custom',
       },
-      label: 'Custom URL',
+      label: '외부 URL 또는 직접 주소',
       required: true,
     },
   ]
 
   if (!disableLabel) {
-    linkTypes.map((linkType) => ({
-      ...linkType,
-      admin: {
-        ...linkType.admin,
-        width: '50%',
-      },
-    }))
-
     linkResult.fields.push({
       type: 'row',
       fields: [

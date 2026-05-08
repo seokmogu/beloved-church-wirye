@@ -5,7 +5,8 @@ export const Newcomers: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'phone', 'visitDate', 'source', 'createdAt'],
-    group: '회원 관리',
+    description: '새가족 신청과 후속 연락 상태를 관리합니다.',
+    group: '4. 새가족/계정',
   },
   labels: {
     singular: '새가족',

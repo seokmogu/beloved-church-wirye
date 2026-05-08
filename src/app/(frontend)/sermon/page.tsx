@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import Image from 'next/image'
-import type { Sermon } from '@/payload-types'
+import type { Sermon, SiteSetting } from '@/payload-types'
 
 export const metadata: Metadata = {
   title: '설교 | 사랑하는교회',
@@ -26,8 +26,10 @@ export default async function SermonPage() {
   const payload = await getPayload({ config })
 
   let sermons: Sermon[] = []
+  let settings: SiteSetting | null = null
 
   try {
+    settings = await payload.findGlobal({ slug: 'site-settings' })
     // Fetch published sermons from CMS, sorted by date (latest first)
     const sermonsData = await payload.find({
       collection: 'sermons',
@@ -197,7 +199,7 @@ export default async function SermonPage() {
             {/* YouTube Channel Link */}
             <div className="mt-12 text-center">
               <a
-                href="https://www.youtube.com/@BelovedChurchWirye"
+                href={settings?.youtubeChannelUrl ?? '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
@@ -244,7 +246,7 @@ export default async function SermonPage() {
                 CMS에서 설교 콘텐츠를 추가하거나 YouTube 채널에서 최신 설교를 확인해보세요.
               </p>
               <a
-                href="https://www.youtube.com/@BelovedChurchWirye"
+                href={settings?.youtubeChannelUrl ?? '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-primary hover:underline"

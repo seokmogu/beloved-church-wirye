@@ -9,11 +9,9 @@ import { InstagramBlockComponent } from '@/blocks/InstagramBlock/Component'
 import { ScheduleBlockComponent } from '@/blocks/ScheduleBlock/Component'
 import { GoogleDriveBlockComponent } from '@/blocks/GoogleDriveBlock/Component'
 import { OfferingBlockComponent } from '@/blocks/OfferingBlock/Component'
-// BulletinsBlockComponent and AnnouncementsBlockComponent excluded until DB migration
-// import { BulletinsBlockComponent } from '@/blocks/BulletinsBlock/Component'
-// import { AnnouncementsBlockComponent } from '@/blocks/AnnouncementsBlock/Component'
+import { BulletinsBlockComponent } from '@/blocks/BulletinsBlock/Component'
+import { AnnouncementsBlockComponent } from '@/blocks/AnnouncementsBlock/Component'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const blockComponents: Record<string, React.FC<any>> = {
   content: ContentBlock,
   mediaBlock: MediaBlock,
@@ -22,12 +20,11 @@ const blockComponents: Record<string, React.FC<any>> = {
   scheduleBlock: ScheduleBlockComponent,
   googleDriveBlock: GoogleDriveBlockComponent,
   offeringBlock: OfferingBlockComponent,
-  // bulletinsBlock: BulletinsBlockComponent,
-  // announcementsBlock: AnnouncementsBlockComponent,
+  bulletinsBlock: BulletinsBlockComponent,
+  announcementsBlock: AnnouncementsBlockComponent,
 }
 
 export const RenderBlocks: React.FC<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   blocks: any[]
 }> = (props) => {
   const { blocks } = props

@@ -16,7 +16,17 @@ const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  labels: {
+    singular: '이미지/파일',
+    plural: '이미지/파일',
+  },
   folders: true,
+  admin: {
+    defaultColumns: ['filename', 'alt', 'updatedAt'],
+    description: '사이트에서 사용하는 이미지, 주보 파일, QR 코드 등을 보관합니다.',
+    group: '5. 이미지/파일',
+    useAsTitle: 'filename',
+  },
   access: {
     create: authenticated,
     delete: authenticated,
@@ -27,11 +37,13 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
+      label: '대체 텍스트',
       //required: true,
     },
     {
       name: 'caption',
       type: 'richText',
+      label: '설명',
       editor: lexicalEditor({
         features: ({ rootFeatures }) => {
           return [...rootFeatures, FixedToolbarFeature(), InlineToolbarFeature()]

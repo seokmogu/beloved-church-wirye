@@ -2,40 +2,36 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { SearchIcon } from 'lucide-react'
 import type { Header as HeaderType } from '@/payload-types'
+import { resolveCMSLink } from '@/utilities/resolveCMSLink'
+
+type NavItem = {
+  href: string
+  label: string
+  newTab?: boolean
+}
 
 export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const navItems: any[] = data?.navItems || []
+  const navItems = (data?.navItems || [])
+    .map((item) => resolveCMSLink(item.link))
+    .filter(Boolean) as NavItem[]
 
   return (
-    <nav className="hidden md:flex gap-1 items-center">
+    <nav className="hidden items-center gap-1 md:flex">
       {navItems.map((item, i) => {
-        const link = item.link as { url?: string; label?: string }
+        const newTabProps = item.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
+
         return (
           <Link
             key={i}
-            href={link.url || '/'}
-            className="text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 rounded-md px-3 py-2 transition-colors"
+            href={item.href}
+            className="rounded-md px-3 py-2 text-sm font-medium text-white/78 transition-colors hover:bg-white/10 hover:text-white"
+            {...newTabProps}
           >
-            {link.label}
+            {item.label}
           </Link>
         )
       })}
-      <Link
-        href="/bulletins"
-        className="text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 rounded-md px-3 py-2 transition-colors"
-      >
-        주보
-      </Link>
-      <Link
-        href="/search"
-        className="text-white/80 hover:text-white hover:bg-white/10 rounded-md p-2 transition-colors"
-      >
-        <span className="sr-only">Search</span>
-        <SearchIcon className="w-4 h-4" />
-      </Link>
     </nav>
   )
 }

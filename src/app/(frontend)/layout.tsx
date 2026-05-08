@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { AdminBar } from '@/components/AdminBar'
 import { SpecialBanner } from '@/components/SpecialBanner'
 import { ChatWidget } from '@/components/ChatWidget'
+import { ThemeStyles } from '@/components/ThemeStyles'
 import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
 import { Providers } from '@/providers'
@@ -20,6 +21,7 @@ export default async function RootLayout({ children }: { children: import('react
     <html lang="ko" suppressHydrationWarning>
       <head>
         <InitTheme />
+        <ThemeStyles />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
       </head>

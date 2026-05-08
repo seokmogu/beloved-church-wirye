@@ -23,10 +23,14 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
-import { slugField } from 'payload'
+import { adminSlugField } from '@/fields/adminSlugField'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
+  labels: {
+    singular: '소식 글',
+    plural: '소식 글',
+  },
   access: {
     create: authenticated,
     delete: authenticated,
@@ -45,7 +49,9 @@ export const Posts: CollectionConfig<'posts'> = {
     },
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    defaultColumns: ['title', 'updatedAt'],
+    description: '글 제목과 본문만 입력하면 URL과 작성자 정보는 자동으로 관리됩니다.',
+    group: '3. 콘텐츠 게시',
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
@@ -66,6 +72,7 @@ export const Posts: CollectionConfig<'posts'> = {
     {
       name: 'title',
       type: 'text',
+      label: '글 제목',
       required: true,
     },
     {
@@ -97,24 +104,9 @@ export const Posts: CollectionConfig<'posts'> = {
               required: true,
             },
           ],
-          label: 'Content',
+          label: '본문',
         },
         {
-          fields: [
-            {
-              name: 'googleDriveLink',
-              type: 'text',
-              label: '구글드라이브 링크',
-              admin: {
-                description: '구글드라이브 파일 링크를 입력하면 미리보기가 표시됩니다',
-              },
-            },
-          ],
-          label: 'Meta',
-        },
-        {
-          name: 'meta',
-          label: 'SEO',
           fields: [
             OverviewField({
               titlePath: 'meta.title',
@@ -138,16 +130,38 @@ export const Posts: CollectionConfig<'posts'> = {
               descriptionPath: 'meta.description',
             }),
           ],
+          name: 'meta',
+          label: '고급 설정',
+        },
+      ],
+    },
+    {
+      type: 'collapsible',
+      label: '첨부 링크',
+      admin: {
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          name: 'googleDriveLink',
+          type: 'text',
+          label: '구글드라이브 링크',
+          admin: {
+            description: '구글드라이브 파일 링크를 입력하면 미리보기가 표시됩니다',
+          },
         },
       ],
     },
     {
       name: 'publishedAt',
       type: 'date',
+      label: '발행일',
+      defaultValue: () => new Date().toISOString(),
       admin: {
         date: {
           pickerAppearance: 'dayAndTime',
         },
+        description: '자동으로 채워집니다. 예약/수정이 필요할 때만 바꾸세요.',
         position: 'sidebar',
       },
       hooks: {
@@ -164,7 +178,9 @@ export const Posts: CollectionConfig<'posts'> = {
     {
       name: 'authors',
       type: 'relationship',
+      label: '작성자',
       admin: {
+        description: '기본값을 그대로 두고, 필요할 때만 작성자를 지정하세요.',
         position: 'sidebar',
       },
       hasMany: true,
@@ -181,6 +197,7 @@ export const Posts: CollectionConfig<'posts'> = {
       },
       admin: {
         disabled: true,
+        hidden: true,
         readOnly: true,
       },
       fields: [
@@ -194,7 +211,7 @@ export const Posts: CollectionConfig<'posts'> = {
         },
       ],
     },
-    slugField(),
+    adminSlugField(),
   ],
   hooks: {
     afterChange: [revalidatePost],

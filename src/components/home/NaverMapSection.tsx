@@ -21,19 +21,37 @@ declare global {
 type NaverMapSectionProps = {
   address?: string
   addressDetail?: string
+  churchName?: string
+  description?: string | null
+  eyebrow?: string | null
   transitInfo?: string
-  sundayServiceTime?: string
-  fridayServiceTime?: string
+  title?: string | null
+  worshipServices?: {
+    name?: string | null
+    time?: string | null
+  }[] | null
   lat?: number
   lng?: number
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
 }
 
 export function NaverMapSection({
   address = '위례서일로 3길 21-4',
   addressDetail = 'BELOVED LOUNGE',
+  churchName = '사랑하는교회',
+  description,
+  eyebrow,
   transitInfo = '남위례역 근처, 도보 약 5분 거리',
-  sundayServiceTime = '12:00',
-  fridayServiceTime = '20:00',
+  title,
+  worshipServices,
   lat = 37.4670,
   lng = 127.1395,
 }: NaverMapSectionProps) {
@@ -57,7 +75,7 @@ export function NaverMapSection({
 
     const infoWindow = new window.naver.maps.InfoWindow({
       content:
-        '<div style="padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap;">사랑하는교회</div>',
+        `<div style="padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap;">${escapeHtml(churchName)}</div>`,
     })
     infoWindow.open(map, marker)
   }
@@ -71,9 +89,52 @@ export function NaverMapSection({
 
   if (!naverClientId) {
     return (
-      <section id="map" className="py-20 bg-secondary/30">
-        <div className="container text-center text-muted-foreground">
-          <p>Naver Map client ID is not configured.</p>
+      <section id="map" className="church-section-surface py-20 md:py-24">
+        <div className="container">
+          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+            <div>
+              <p className="mb-2 text-sm font-semibold uppercase text-secondary">{eyebrow ?? 'Location'}</p>
+              <h2 className="text-3xl font-bold text-foreground md:text-5xl">{title ?? '오시는 길'}</h2>
+              {description && <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">{description}</p>}
+            </div>
+
+            <div className="rounded-lg border border-border bg-card p-6 shadow-[0_18px_60px_rgba(20,42,33,0.08)]">
+              <div className="grid gap-6 md:grid-cols-2">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">주소</h3>
+                  <p className="mt-3 leading-relaxed text-muted-foreground">
+                    {address}
+                    {addressDetail && (
+                      <>
+                        <br />({addressDetail})
+                      </>
+                    )}
+                  </p>
+                  <a
+                    href={`https://map.naver.com/p/search/${encodeURIComponent(`${churchName} ${address}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-5 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-light"
+                  >
+                    네이버 지도 열기
+                  </a>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">예배 시간</h3>
+                  <div className="mt-3 divide-y divide-border text-sm">
+                    {(worshipServices ?? []).filter((item) => item?.name && item?.time).slice(0, 4).map((item) => (
+                      <div key={`${item.name}-${item.time}`} className="grid grid-cols-[1fr_auto] gap-4 py-2.5 first:pt-0">
+                        <span className="font-medium text-foreground">{item.name}</span>
+                        <span className="font-semibold text-primary">{item.time}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {transitInfo && <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{transitInfo}</p>}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     )
@@ -87,33 +148,28 @@ export function NaverMapSection({
         onLoad={initMap}
       />
 
-      <section id="map" className="py-20 bg-secondary/30">
+      <section id="map" className="church-section-surface py-20 md:py-24">
         <div className="container">
-          {/* Section header */}
           <div className="mb-10">
-            <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">
-              Location
-            </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">오시는 길</h2>
+            <p className="mb-2 text-sm font-semibold uppercase text-secondary">{eyebrow ?? 'Location'}</p>
+            <h2 className="text-3xl font-bold text-foreground md:text-5xl">{title ?? '오시는 길'}</h2>
+            {description && <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">{description}</p>}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            {/* Map */}
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
             <div className="lg:col-span-3">
               <div
                 ref={mapRef}
-                className="w-full h-[400px] rounded-xl overflow-hidden border border-border"
+                className="h-[400px] w-full overflow-hidden rounded-lg border border-border shadow-[0_18px_60px_rgba(20,42,33,0.08)]"
                 aria-label="Church location map"
               />
             </div>
 
-            {/* Info */}
-            <div className="lg:col-span-2 flex flex-col gap-8">
-              {/* Address */}
+            <div className="flex flex-col gap-8 rounded-lg border border-border bg-card p-6 lg:col-span-2">
               <div>
-                <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
                   <svg
-                    className="w-5 h-5 text-secondary"
+                    className="h-5 w-5 text-secondary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -134,7 +190,7 @@ export function NaverMapSection({
                   </svg>
                   주소
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="leading-relaxed text-muted-foreground">
                   {address}
                   {addressDetail && (
                     <>
@@ -144,11 +200,10 @@ export function NaverMapSection({
                 </p>
               </div>
 
-              {/* Transit */}
               <div>
-                <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
                   <svg
-                    className="w-5 h-5 text-secondary"
+                    className="h-5 w-5 text-secondary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -163,17 +218,17 @@ export function NaverMapSection({
                   </svg>
                   교통편
                 </h3>
-                <div className="text-muted-foreground text-sm space-y-1">
-                  <p><span className="font-medium text-foreground">자차 이용 시</span> — 네이버에서 &apos;비러브드라운지&apos; 검색</p>
-                  <p><span className="font-medium text-foreground">대중교통 이용 시</span> — 남위례역 3번 출구 도보 5분</p>
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  {transitInfo.split('\n').map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
                 </div>
               </div>
 
-              {/* Worship schedule */}
               <div>
-                <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
                   <svg
-                    className="w-5 h-5 text-secondary"
+                    className="h-5 w-5 text-secondary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -189,15 +244,10 @@ export function NaverMapSection({
                   예배 시간
                 </h3>
                 <div className="space-y-1.5 text-sm">
-                  {[
-                    { label: '청·장년예배', time: '주일 낮 12시' },
-                    { label: '어린이예배', time: '주일 낮 12시' },
-                    { label: '금요기도회', time: '금요일 밤 8시' },
-                    { label: '매일 큐티', time: '월–금 새벽 6시 (온라인)' },
-                  ].map((item) => (
-                    <div key={item.label} className="flex justify-between items-center py-1.5 border-b border-border last:border-0">
-                      <span className="text-foreground font-medium">{item.label}</span>
-                      <span className="text-secondary font-semibold">{item.time}</span>
+                  {(worshipServices ?? []).filter((item) => item?.name && item?.time).map((item) => (
+                    <div key={`${item.name}-${item.time}`} className="flex items-center justify-between border-b border-border py-1.5 last:border-0">
+                      <span className="font-medium text-foreground">{item.name}</span>
+                      <span className="font-semibold text-primary">{item.time}</span>
                     </div>
                   ))}
                 </div>

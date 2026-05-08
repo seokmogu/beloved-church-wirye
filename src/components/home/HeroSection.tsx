@@ -1,101 +1,111 @@
 import Image from 'next/image'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-import type { Media } from '@/payload-types'
+import Link from 'next/link'
 
-async function getSiteSettings() {
-  try {
-    const payload = await getPayload({ config: configPromise })
-    return await payload.findGlobal({ slug: 'site-settings' })
-  } catch {
-    return null
-  }
+import type { Media, SiteSetting } from '@/payload-types'
+
+function getMediaUrl(media: Media | number | null | undefined): string | null {
+  return media && typeof media === 'object' && media.url ? media.url : null
 }
 
-export async function HeroSection() {
-  const settings = await getSiteSettings()
-  const heroImage = settings?.heroImage as Media | null | undefined
-  const heroImageUrl =
-    heroImage && typeof heroImage === 'object' && heroImage.url ? heroImage.url : null
+function getWorshipBadges(settings?: SiteSetting | null) {
+  return (settings?.worshipServices ?? []).slice(0, 3).filter((item) => item?.name && item?.time)
+}
+
+export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
+  const heroImageUrl = getMediaUrl(settings?.heroImage as Media | number | null | undefined)
+  const logoUrl = getMediaUrl(settings?.logo as Media | number | null | undefined)
+  const churchName = settings?.churchName ?? '사랑하는교회'
+  const eyebrow = settings?.heroEyebrow ?? settings?.englishName ?? 'Beloved Church Wirye'
+  const title = settings?.heroTitle ?? churchName
+  const subtitle = settings?.heroSubtitle ?? settings?.tagline ?? ''
+  const body = settings?.subTagline ?? ''
+  const badges = getWorshipBadges(settings)
+  const primaryLabel = settings?.heroPrimaryLabel ?? '예배 안내'
+  const primaryUrl = settings?.heroPrimaryUrl ?? '/worship'
+  const secondaryLabel = settings?.heroSecondaryLabel ?? '최신 설교 보기'
+  const secondaryUrl = settings?.heroSecondaryUrl ?? '/sermon'
+  const location = [settings?.address, settings?.addressDetail].filter(Boolean).join(' · ')
+  const scheduleItems = badges.length > 0 ? badges : (settings?.worshipServices ?? []).filter((item) => item?.name && item?.time)
 
   return (
-    <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-light to-primary-dark" />
+    <section className="relative min-h-[82svh] overflow-hidden bg-primary text-white">
+      <div className="church-hero-gradient absolute inset-0" />
       {heroImageUrl && (
         <Image
           src={heroImageUrl}
-          alt="위례 신도시 사랑하는교회 예배당 전경"
+          alt={`${churchName} 히어로 이미지`}
           fill
           priority
           className="object-cover"
           sizes="100vw"
         />
       )}
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/75" />
+      <div className="church-hero-overlay absolute inset-0" />
+      <div className="church-hero-pattern absolute inset-0" />
+      <div className="church-hero-fade absolute bottom-0 left-0 right-0 h-28" />
 
-      {/* Content */}
-      <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
-        <p className="text-secondary text-sm md:text-base tracking-[0.3em] uppercase mb-6 font-medium">
-          Beloved Church Wirye
-        </p>
-        {/* 로고 이미지 */}
-        <div className="flex justify-center mb-6">
-          <img
-            src="/logo-beloved.png"
-            alt="사랑하는교회"
-            className="h-16 md:h-20 w-auto object-contain"
-          />
-        </div>
-        <p className="text-white/80 text-base md:text-lg mb-3 leading-relaxed">
-          우리는 사랑으로 교회를 세웁니다
-        </p>
-        <p className="text-white/60 text-sm md:text-base mb-10 leading-relaxed">
-          더불어 우리의 삶 속에 하나님 나라를 세웁니다
-        </p>
+      <div className="container relative z-10 grid min-h-[82svh] items-center gap-12 py-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.65fr)] lg:py-24">
+        <div className="max-w-3xl">
+          <p className="mb-5 text-sm font-semibold uppercase text-secondary">{eyebrow}</p>
 
-        {/* Worship time badges */}
-        <div className="flex flex-wrap justify-center gap-2 mb-3">
-          <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white rounded-full px-5 py-2.5 text-sm">
-            <span className="w-2 h-2 rounded-full bg-secondary" />
-            주일예배 {settings?.sundayServiceTime ?? '12:00'}
-          </span>
-          <span className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white rounded-full px-5 py-2.5 text-sm">
-            <span className="w-2 h-2 rounded-full bg-secondary" />
-            금요기도회 {settings?.fridayServiceTime ?? '20:00'}
-          </span>
-        </div>
-        <p className="text-white/50 text-xs mb-10">
-          청·장년예배 주일 낮 12시 &nbsp;·&nbsp; 어린이예배 주일 낮 12시 &nbsp;·&nbsp; 금요기도회 금요일 밤 8시
-        </p>
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt={churchName} className="mb-7 h-16 w-auto object-contain brightness-0 invert md:h-20" />
+          ) : (
+            <h1 className="mb-6 text-5xl font-bold leading-tight text-white md:text-7xl lg:text-8xl">{title}</h1>
+          )}
 
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-          <a
-            href="#map"
-            className="inline-flex items-center gap-2 bg-secondary hover:bg-secondary-dark text-primary font-semibold rounded-full px-8 py-3.5 text-base transition-colors"
-          >
-            예배 안내
-            <span aria-hidden="true">&rarr;</span>
-          </a>
-          <a
-            href="https://www.youtube.com/@BelovedChurchWirye"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border-2 border-white/30 hover:bg-white/25 text-white font-semibold rounded-full px-8 py-3.5 text-base transition-colors"
-          >
-            최신 설교 바로가기
-            <span aria-hidden="true">&rarr;</span>
-          </a>
-        </div>
-      </div>
+          {logoUrl && <h1 className="sr-only">{title}</h1>}
+          {subtitle && <p className="max-w-2xl text-2xl font-semibold leading-snug text-white md:text-3xl">{subtitle}</p>}
+          {body && <p className="mt-5 max-w-xl text-base leading-relaxed text-white/72 md:text-lg">{body}</p>}
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
-        <div className="w-6 h-10 rounded-full border-2 border-white/40 flex justify-center pt-2">
-          <div className="w-1 h-3 rounded-full bg-white/60 animate-bounce" />
+          {badges.length > 0 && (
+            <div className="mt-8 flex flex-wrap gap-2.5">
+              {badges.map((item) => (
+                <span
+                  key={`${item.name}-${item.time}`}
+                  className="inline-flex items-center gap-2 rounded-md border border-white/18 bg-white/12 px-4 py-2 text-sm text-white backdrop-blur-sm"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
+                  <span>{item.name}</span>
+                  <span className="text-white/64">{item.time}</span>
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            {primaryLabel && primaryUrl && (
+              <Link
+                href={primaryUrl}
+                className="inline-flex min-h-12 items-center justify-center rounded-md bg-secondary px-6 py-3 text-sm font-semibold text-primary transition-colors hover:bg-secondary-dark"
+              >
+                {primaryLabel}
+              </Link>
+            )}
+            {secondaryLabel && secondaryUrl && (
+              <Link
+                href={secondaryUrl}
+                className="inline-flex min-h-12 items-center justify-center rounded-md border border-white/28 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/18"
+              >
+                {secondaryLabel}
+              </Link>
+            )}
+          </div>
         </div>
+
+        <aside className="hidden border-l border-white/18 pl-8 lg:block">
+          <p className="text-sm font-semibold text-secondary">Worship This Week</p>
+          <div className="mt-6 divide-y divide-white/12 border-y border-white/12">
+            {scheduleItems.slice(0, 4).map((item) => (
+              <div key={`${item.name}-${item.time}`} className="grid grid-cols-[1fr_auto] gap-5 py-4">
+                <span className="text-sm text-white/70">{item.name}</span>
+                <span className="text-sm font-semibold text-white">{item.time}</span>
+              </div>
+            ))}
+          </div>
+          {location && <p className="mt-6 text-sm leading-relaxed text-white/62">{location}</p>}
+        </aside>
       </div>
     </section>
   )

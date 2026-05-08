@@ -3,69 +3,43 @@ import { test, expect } from '@playwright/test'
 test.describe('Desktop tests (1280x800)', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  test('Homepage loads with hero section (green background visible)', async ({ page }) => {
+  test('Homepage loads with CMS-driven hero and primary CTAs', async ({ page }) => {
     await page.goto('/')
-    // Hero section has bg-gradient with #1B3A2D green
-    const heroSection = page.locator('section').first()
+    const heroSection = page.locator('main section').first()
     await expect(heroSection).toBeVisible()
-    // Verify the green gradient background div exists
-    const greenBg = page.locator('[class*="bg-gradient"][class*="1B3A2D"]').first()
-    await expect(greenBg).toBeVisible()
-    // Verify hero title is present
     await expect(page.locator('h1')).toContainText('사랑하는교회')
+    await expect(heroSection.getByRole('link', { name: '예배 안내' })).toBeVisible()
+    await expect(heroSection.getByRole('link', { name: '최신 설교 보기' })).toBeVisible()
   })
 
-  test('Header navigation is visible with nav links', async ({ page }) => {
+  test('Header and footer shells are visible', async ({ page }) => {
     await page.goto('/')
-    // Desktop nav rendered as <nav class="flex gap-3 items-center">
-    const nav = page.locator('header nav')
-    await expect(nav).toBeVisible()
-    // Nav should have links
-    const navLinks = nav.locator('a')
-    await expect(navLinks.first()).toBeVisible()
-    // Check for bulletins link
-    await expect(nav.locator('a[href="/bulletins"]')).toBeVisible()
-    // Check for search link
-    await expect(nav.locator('a[href="/search"]')).toBeVisible()
+    await expect(page.locator('header')).toBeVisible()
+    await expect(page.locator('footer')).toBeVisible()
   })
 
-  test('YouTube section shows sermon thumbnails', async ({ page }) => {
+  test('Homepage renders CMS-controlled sections', async ({ page }) => {
     await page.goto('/')
-    // YouTube section has "Sermon" label and heading
-    const sermonHeading = page.locator('h2', { hasText: '최신 설교' })
-    await expect(sermonHeading).toBeVisible()
-    // Check for video thumbnail images (aspect-video containers)
-    const thumbnails = page.locator('.aspect-video img')
-    const count = await thumbnails.count()
-    if (count > 0) {
-      await expect(thumbnails.first()).toBeVisible()
-    } else {
-      // If no videos returned from YouTube API, section may not render
-      test.skip()
-    }
+    await expect(page.getByRole('heading', { name: '그리스도를 본받아 함께 사랑하는 공동체' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '최신 설교' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '인스타그램' })).toBeVisible()
   })
 
-  test('Footer has church address info', async ({ page }) => {
+  test('CTA links navigate to dedicated pages', async ({ page }) => {
     await page.goto('/')
-    const footer = page.locator('footer')
-    await expect(footer).toBeVisible()
-    // Check for church name (use h3 to avoid strict mode with multiple matches)
-    await expect(footer.locator('h3', { hasText: '사랑하는교회' })).toBeVisible()
-    // Check for address
-    await expect(footer.locator('text=위례서일로')).toBeVisible()
-    // Check for worship schedule heading
-    await expect(footer.locator('h4', { hasText: '예배 안내' })).toBeVisible()
+    await page.locator('main section').first().getByRole('link', { name: '예배 안내' }).click()
+    await expect(page).toHaveURL(/\/worship$/)
+    await expect(page.locator('h1', { hasText: '예배 안내' })).toBeVisible()
+
+    await page.goto('/')
+    await page.locator('main section').first().getByRole('link', { name: '최신 설교 보기' }).click()
+    await expect(page).toHaveURL(/\/sermon$/)
+    await expect(page.locator('h1', { hasText: '설교' })).toBeVisible()
   })
 
-  test('Bulletins (/bulletins) page loads and shows the header', async ({ page }) => {
+  test('Bulletins (/bulletins) page loads', async ({ page }) => {
     await page.goto('/bulletins')
-    // Page header with green background
-    const headerBanner = page.locator('.bg-\\[\\#1B3A2D\\]', { hasText: '주보' })
-    await expect(headerBanner).toBeVisible()
-    // Page title
     await expect(page.locator('h1', { hasText: '주보' })).toBeVisible()
-    // "WEEKLY BULLETIN" label
-    await expect(page.locator('text=WEEKLY BULLETIN')).toBeVisible()
   })
 })
 
@@ -74,64 +48,24 @@ test.describe('Mobile tests (375x667 - iPhone SE)', () => {
 
   test('Homepage loads on mobile', async ({ page }) => {
     await page.goto('/')
-    // Hero title should be visible
     await expect(page.locator('h1')).toContainText('사랑하는교회')
-    // Page should have footer attached
-    const footer = page.locator('footer')
-    await expect(footer).toBeAttached()
+    await expect(page.locator('footer')).toBeAttached()
   })
 
-  test('Hamburger menu button is visible (not desktop nav)', async ({ page }) => {
-    await page.goto('/')
-    // Wait for client-side hydration to complete
-    await page.waitForLoadState('networkidle')
-    // After hydration, hamburger button should appear for mobile
-    const hamburger = page.locator('header button[aria-label]')
-    const hamburgerCount = await hamburger.count()
-    if (hamburgerCount > 0) {
-      await expect(hamburger.first()).toBeVisible()
-    } else {
-      // If SSR does not render the hamburger initially, the nav should still be usable
-      const nav = page.locator('header nav')
-      await expect(nav).toBeVisible()
-      test.info().annotations.push({ type: 'note', description: 'No hamburger button found - nav renders directly on mobile' })
-    }
-  })
-
-  test('Clicking hamburger opens mobile menu', async ({ page }) => {
+  test('Mobile header menu control is usable when nav items exist', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    const hamburger = page.locator('header button[aria-label]')
+    const hamburger = page.locator('header button[aria-label="메뉴 열기"]')
     const hamburgerCount = await hamburger.count()
     if (hamburgerCount > 0) {
-      await hamburger.first().click()
-      // After clicking, mobile nav should become visible
-      await expect(page.locator('button[aria-label="메뉴 닫기"]')).toBeVisible()
-      const mobileNav = page.locator('nav.flex.flex-col')
-      await expect(mobileNav).toBeVisible()
+      await hamburger.click()
+      await expect(page.locator('header button[aria-expanded="true"]')).toBeVisible()
     } else {
-      test.info().annotations.push({ type: 'note', description: 'Hamburger not rendered - mobile menu test skipped' })
-      // Verify nav links are accessible even without hamburger
-      await expect(page.locator('header nav a').first()).toBeVisible()
-    }
-  })
-
-  test('Mobile menu has navigation links', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
-    const hamburger = page.locator('header button[aria-label]')
-    const hamburgerCount = await hamburger.count()
-    if (hamburgerCount > 0) {
-      await hamburger.first().click()
-      // Check for navigation links in mobile menu
-      const mobileMenu = page.locator('[aria-hidden="false"]')
-      await expect(mobileMenu.locator('a[href="/bulletins"]')).toBeVisible()
-      await expect(mobileMenu.locator('a[href="/search"]')).toBeVisible()
-    } else {
-      // Nav links should be accessible directly
-      const nav = page.locator('header nav')
-      await expect(nav.locator('a[href="/bulletins"]')).toBeVisible()
-      await expect(nav.locator('a[href="/search"]')).toBeVisible()
+      test.info().annotations.push({
+        type: 'note',
+        description: 'No mobile hamburger rendered because Header global currently has no nav items.',
+      })
+      await expect(page.locator('header')).toBeVisible()
     }
   })
 
@@ -140,9 +74,6 @@ test.describe('Mobile tests (375x667 - iPhone SE)', () => {
     const footer = page.locator('footer')
     await footer.scrollIntoViewIfNeeded()
     await expect(footer).toBeVisible()
-    // Church name (specific h3 to avoid strict mode violation)
-    await expect(footer.locator('h3', { hasText: '사랑하는교회' })).toBeVisible()
-    // Address
-    await expect(footer.locator('text=위례서일로')).toBeVisible()
+    await expect(footer.getByRole('heading', { name: '예배 안내' })).toBeVisible()
   })
 })

@@ -1,208 +1,187 @@
 import type { Metadata } from 'next'
-import { PageHero } from '@/components/PageHero'
+import Image from 'next/image'
 import Link from 'next/link'
+import { getPayload } from 'payload'
+
+import config from '@payload-config'
+import { PageHero } from '@/components/PageHero'
+import type { Media, SiteSetting } from '@/payload-types'
 
 export const metadata: Metadata = {
   title: '교회 소개 | 사랑하는교회',
-  description: '사랑하는교회 위례는 그리스도를 본받아 함께 사랑하는 공동체입니다.',
+  description: '사랑하는교회 위례 소개',
 }
 
-const sections = [
-  { id: 'intro', label: '① 교회 소개' },
-  { id: 'pastor', label: '② 담임목사 소개' },
-  { id: 'worship', label: '③ 예배 안내' },
-]
+export const dynamic = 'force-dynamic'
 
-export default function AboutPage() {
+function mediaUrl(media: Media | number | null | undefined): string | null {
+  return media && typeof media === 'object' && media.url ? media.url : null
+}
+
+function splitLines(value?: string | null): string[] {
+  return (value ?? '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+}
+
+async function getSettings(): Promise<SiteSetting | null> {
+  try {
+    const payload = await getPayload({ config })
+    return await payload.findGlobal({ slug: 'site-settings', depth: 1 })
+  } catch (error) {
+    console.error('Failed to fetch site settings:', error)
+    return null
+  }
+}
+
+export default async function AboutPage() {
+  const settings = await getSettings()
+  const values = settings?.coreValues ?? []
+  const services = settings?.worshipServices ?? []
+  const pastorPhotoUrl = mediaUrl(settings?.pastorPhoto as Media | number | null | undefined)
+  const pastorBio = splitLines(settings?.pastorBio)
+  const visitorNotes = settings?.visitorNotes ?? []
+
   return (
     <main className="min-h-screen bg-background">
       <PageHero
         label="ABOUT US"
         title="교회 소개"
-        subtitle="그리스도를 본받아 함께 사랑하는 공동체"
+        subtitle={settings?.tagline ?? '그리스도를 본받아 함께 사랑하는 공동체'}
       />
 
-      {/* 섹션 내비게이션 */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border shadow-sm">
-        <div className="container">
-          <nav className="flex overflow-x-auto">
-            {sections.map((s) => (
-              <a
-                key={s.id}
-                href={`#${s.id}`}
-                className="shrink-0 px-6 py-4 text-sm font-medium text-muted-foreground hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors"
+      <section className="border-b border-border bg-background py-20">
+        <div className="container max-w-5xl">
+          <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
+                Church Introduction
+              </p>
+              <h2 className="text-3xl font-bold leading-tight text-foreground md:text-4xl">
+                {settings?.churchVision ?? 'Like Christ'}
+              </h2>
+            </div>
+            <div className="space-y-5 leading-relaxed text-muted-foreground">
+              {settings?.churchDescription && <p>{settings.churchDescription}</p>}
+              {settings?.churchQuote && (
+                <blockquote className="border-l-2 border-secondary pl-5 font-medium text-foreground">
+                  &ldquo;{settings.churchQuote}&rdquo;
+                </blockquote>
+              )}
+              <dl className="grid gap-4 pt-4 sm:grid-cols-2">
+                {settings?.denomination && (
+                  <div className="rounded-lg border border-border bg-card p-5">
+                    <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">교단</dt>
+                    <dd className="mt-2 font-semibold text-foreground">{settings.denomination}</dd>
+                  </div>
+                )}
+                {(settings?.address || settings?.addressDetail) && (
+                  <div className="rounded-lg border border-border bg-card p-5">
+                    <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">위치</dt>
+                    <dd className="mt-2 font-semibold text-foreground">{settings.address}</dd>
+                    {settings.addressDetail && <dd className="text-sm text-muted-foreground">{settings.addressDetail}</dd>}
+                  </div>
+                )}
+              </dl>
+            </div>
+          </div>
+
+          {values.length > 0 && (
+            <div className="mt-16 grid gap-5 md:grid-cols-3">
+              {values.map((value, index) => (
+                <article key={value.id ?? value.title} className="rounded-lg border border-border bg-card p-6">
+                  <span className="text-xs font-bold text-secondary">{String(index + 1).padStart(2, '0')}</span>
+                  <h3 className="mt-4 text-lg font-bold text-foreground">{value.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{value.description}</p>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-muted/25 py-20">
+        <div className="container max-w-5xl">
+          <div className="grid gap-10 md:grid-cols-[240px_1fr]">
+            <div>
+              {pastorPhotoUrl ? (
+                <div className="relative aspect-square overflow-hidden rounded-lg border border-border bg-card">
+                  <Image src={pastorPhotoUrl} alt={settings?.pastorName ?? '담임목사'} fill className="object-cover" sizes="240px" />
+                </div>
+              ) : (
+                <div className="flex aspect-square items-center justify-center rounded-lg border border-border bg-card text-sm text-muted-foreground">
+                  사진 등록 필요
+                </div>
+              )}
+            </div>
+
+            <div>
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
+                Senior Pastor
+              </p>
+              <h2 className="text-3xl font-bold text-foreground">{settings?.pastorName ?? '담임목사'}</h2>
+              {settings?.pastorTitle && <p className="mt-2 font-medium text-primary">{settings.pastorTitle}</p>}
+              {pastorBio.length > 0 && (
+                <div className="mt-7 space-y-2 text-muted-foreground">
+                  {pastorBio.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
+              )}
+              {settings?.pastorQuote && (
+                <blockquote className="mt-7 border-l-2 border-secondary pl-5 italic text-muted-foreground">
+                  &ldquo;{settings.pastorQuote}&rdquo;
+                </blockquote>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="container max-w-5xl">
+          <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+            <div>
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
+                Worship Guide
+              </p>
+              <h2 className="text-3xl font-bold text-foreground">예배 안내</h2>
+            </div>
+
+            <div className="space-y-8">
+              {services.length > 0 && (
+                <div className="divide-y divide-border rounded-lg border border-border bg-card">
+                  {services.map((service) => (
+                    <div key={service.id ?? `${service.name}-${service.time}`} className="grid gap-2 p-5 sm:grid-cols-[1fr_auto]">
+                      <div>
+                        <h3 className="font-semibold text-foreground">{service.name}</h3>
+                        {service.description && <p className="mt-1 text-sm text-muted-foreground">{service.description}</p>}
+                      </div>
+                      <p className="font-semibold text-primary">{service.time}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {visitorNotes.length > 0 && (
+                <div className="rounded-lg border border-secondary/30 bg-secondary/10 p-6">
+                  <h3 className="font-bold text-foreground">처음 오시는 분들께</h3>
+                  <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                    {visitorNotes.map((note) => (
+                      <li key={note.id ?? note.text}>- {note.text}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <Link
+                href="/newcomer"
+                className="inline-flex rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
               >
-                {s.label}
-              </a>
-            ))}
-          </nav>
-        </div>
-      </div>
-
-      {/* ① 교회 소개 */}
-      <section id="intro" className="py-20 bg-background scroll-mt-16">
-        <div className="container max-w-4xl">
-          <div className="mb-2 text-sm font-medium text-secondary tracking-wider uppercase">
-            Church Introduction
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-10">
-            교회 소개
-          </h2>
-
-          {/* 비전 */}
-          <div className="bg-primary text-white rounded-2xl p-8 mb-10">
-            <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-2">Vision</p>
-            <h3 className="text-2xl md:text-3xl font-bold mb-4">
-              Like Christ<br />
-              <span className="text-white/80 text-xl font-medium">그리스도를 본받아</span>
-            </h3>
-            <p className="text-white/80 leading-relaxed">
-              사랑하는교회는 예수 그리스도의 삶과 사랑을 본받아, 하나님과 이웃을 사랑하는 공동체입니다.
-              말씀 중심의 예배와 기도, 성도 간의 교제를 통해 그리스도의 형상을 닮아가며
-              위례 신도시에서 복음의 빛을 비추는 교회가 되기를 소망합니다.
-            </p>
-          </div>
-
-          {/* 교단·위치 */}
-          <div className="grid md:grid-cols-2 gap-6 mb-10">
-            <div className="border border-border rounded-xl p-6">
-              <p className="text-xs text-secondary font-semibold tracking-widest uppercase mb-1">교단</p>
-              <p className="text-lg font-semibold text-foreground">기독교대한감리회</p>
+                새가족 등록하기
+              </Link>
             </div>
-            <div className="border border-border rounded-xl p-6">
-              <p className="text-xs text-secondary font-semibold tracking-widest uppercase mb-1">위치</p>
-              <p className="text-lg font-semibold text-foreground">위례서일로 3길 21-4</p>
-              <p className="text-sm text-muted-foreground">BELOVED LOUNGE · 남위례역 근처</p>
-            </div>
-          </div>
-
-          {/* 핵심 가치 */}
-          <h3 className="text-xl font-bold text-foreground mb-6">핵심 가치</h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { icon: '📖', title: '말씀 중심', desc: '성경 말씀을 삶의 기준으로 삼아 신앙과 삶을 일치시킵니다' },
-              { icon: '🙏', title: '예배와 기도', desc: '하나님께 영광 돌리는 예배와 간절한 기도로 신앙을 성장시킵니다' },
-              { icon: '❤️', title: '사랑과 섬김', desc: '그리스도의 사랑으로 서로를 섬기고 이웃에게 복음을 전합니다' },
-            ].map((v) => (
-              <div key={v.title} className="bg-card border border-border rounded-xl p-6 text-center">
-                <div className="text-4xl mb-3">{v.icon}</div>
-                <h4 className="text-lg font-semibold text-foreground mb-2">{v.title}</h4>
-                <p className="text-sm text-muted-foreground">{v.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 구분선 */}
-      <div className="h-px bg-border" />
-
-      {/* ② 담임목사 소개 */}
-      <section id="pastor" className="py-20 bg-neutral-cream/40 scroll-mt-16">
-        <div className="container max-w-4xl">
-          <div className="mb-2 text-sm font-medium text-secondary tracking-wider uppercase">
-            Senior Pastor
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-10">
-            담임목사 소개
-          </h2>
-
-          <div className="flex flex-col md:flex-row gap-10 items-start">
-            {/* 사진 자리 (이미지 전달 후 교체) */}
-            <div className="shrink-0">
-              <div className="w-48 h-48 rounded-2xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center">
-                <span className="text-5xl">👨‍💼</span>
-              </div>
-            </div>
-
-            <div className="flex-1">
-              <h3 className="text-2xl font-bold text-foreground mb-1">차원석 목사</h3>
-              <p className="text-secondary font-medium mb-6">사랑하는교회 담임목사</p>
-
-              <div className="space-y-3 text-muted-foreground leading-relaxed mb-6">
-                <p>연세대학교 일반대학원 박사과정(Ph.D) 재학</p>
-                <p>감리교신학대학교 및 대학원(Th.M) 졸업</p>
-                <p>前 만나교회 부목사</p>
-              </div>
-
-              <blockquote className="border-l-4 border-secondary pl-4 italic text-muted-foreground">
-                "우리는 사랑으로 교회를 세웁니다."
-              </blockquote>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 구분선 */}
-      <div className="h-px bg-border" />
-
-      {/* ③ 예배 안내 */}
-      <section id="worship" className="py-20 bg-background scroll-mt-16">
-        <div className="container max-w-4xl">
-          <div className="mb-2 text-sm font-medium text-secondary tracking-wider uppercase">
-            Worship Guide
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-10">
-            예배 안내
-          </h2>
-
-          {/* 예배 시간 */}
-          <div className="grid md:grid-cols-2 gap-6 mb-10">
-            <div className="bg-primary text-white rounded-2xl p-8">
-              <p className="text-secondary text-sm font-medium tracking-widest uppercase mb-3">Sunday Service</p>
-              <h3 className="text-2xl font-bold mb-1">주일예배</h3>
-              <p className="text-4xl font-bold text-secondary mb-3">12:00</p>
-              <p className="text-white/70 text-sm">매주 일요일 낮 12시</p>
-            </div>
-            <div className="bg-card border border-border rounded-2xl p-8">
-              <p className="text-secondary text-sm font-medium tracking-widest uppercase mb-3">Friday Prayer</p>
-              <h3 className="text-2xl font-bold text-foreground mb-1">금요기도회</h3>
-              <p className="text-4xl font-bold text-primary mb-3">20:00</p>
-              <p className="text-muted-foreground text-sm">매주 금요일 저녁 8시</p>
-            </div>
-          </div>
-
-          {/* 위치 안내 */}
-          <div className="bg-card border border-border rounded-2xl p-8 mb-10">
-            <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
-              <span>📍</span> 찾아오는 길
-            </h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <p className="text-xs font-semibold text-secondary tracking-widest uppercase mb-1">주소</p>
-                <p className="text-foreground font-medium">위례서일로 3길 21-4</p>
-                <p className="text-muted-foreground text-sm">BELOVED LOUNGE</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-secondary tracking-widest uppercase mb-1">교통편</p>
-                <p className="text-foreground font-medium">남위례역</p>
-                <p className="text-muted-foreground text-sm">도보 약 5분 거리</p>
-              </div>
-            </div>
-          </div>
-
-          {/* 안내 사항 */}
-          <div className="bg-neutral-cream/60 border border-secondary/20 rounded-2xl p-8 mb-10">
-            <h3 className="text-lg font-bold text-foreground mb-4">처음 오시는 분들께</h3>
-            <ul className="space-y-2 text-muted-foreground text-sm">
-              <li>• 주차는 인근 공영주차장을 이용해 주세요.</li>
-              <li>• 어린이를 위한 별도 프로그램이 준비되어 있습니다.</li>
-              <li>• 복장은 편하게 오시면 됩니다.</li>
-              <li>• 처음 방문하시는 분은 안내 데스크를 찾아주세요.</li>
-            </ul>
-          </div>
-
-          {/* CTA */}
-          <div className="text-center">
-            <Link
-              href="/newcomer"
-              className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-xl font-semibold hover:bg-primary/90 transition-colors text-lg"
-            >
-              새가족 등록하기
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
           </div>
         </div>
       </section>

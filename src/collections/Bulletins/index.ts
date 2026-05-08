@@ -1,5 +1,22 @@
 import type { CollectionConfig } from 'payload'
 
+function defaultBulletinTitle(dateValue: unknown): string {
+  const date = dateValue ? new Date(String(dateValue)) : new Date()
+
+  if (Number.isNaN(date.getTime())) {
+    return '주보'
+  }
+
+  return (
+    new Intl.DateTimeFormat('ko-KR', {
+      day: 'numeric',
+      month: 'long',
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+    }).format(date) + ' 주보'
+  )
+}
+
 export const Bulletins: CollectionConfig = {
   slug: 'bulletins',
   labels: {
@@ -9,7 +26,8 @@ export const Bulletins: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'date', 'isPublic', 'updatedAt'],
-    description: '매주 주보를 업로드하고 관리합니다. 공개 여부를 선택할 수 있습니다.',
+    description: '주보 파일만 올려도 날짜와 제목은 자동으로 채워집니다.',
+    group: '3. 콘텐츠 게시',
   },
   access: {
     read: ({ req }) => {
@@ -24,9 +42,8 @@ export const Bulletins: CollectionConfig = {
       name: 'title',
       type: 'text',
       label: '제목',
-      required: true,
       admin: {
-        description: '예: 2026년 3월 22일 주보',
+        description: '비워두면 주보 날짜 기준으로 자동 생성됩니다.',
       },
     },
     {
@@ -34,6 +51,7 @@ export const Bulletins: CollectionConfig = {
       type: 'date',
       label: '주보 날짜',
       required: true,
+      defaultValue: () => new Date().toISOString(),
       admin: {
         date: {
           pickerAppearance: 'dayOnly',
@@ -45,7 +63,7 @@ export const Bulletins: CollectionConfig = {
       name: 'isPublic',
       type: 'checkbox',
       label: '공개 여부',
-      defaultValue: false,
+      defaultValue: true,
       admin: {
         description: '체크하면 로그인 없이도 열람 가능합니다.',
         position: 'sidebar',
@@ -70,5 +88,14 @@ export const Bulletins: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    beforeValidate: [
+      ({ data }) => {
+        if (!data) return data
+        if (!data.title) data.title = defaultBulletinTitle(data.date)
+        return data
+      },
+    ],
+  },
   timestamps: true,
 }

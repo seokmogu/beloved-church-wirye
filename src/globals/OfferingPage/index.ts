@@ -3,6 +3,10 @@ import type { GlobalConfig } from 'payload'
 export const OfferingPage: GlobalConfig = {
   slug: 'offering-page',
   label: '헌금 안내 페이지',
+  admin: {
+    description: '헌금 안내 페이지의 문구, 계좌, 안내 사항을 관리합니다.',
+    group: '1. 홈페이지 편집',
+  },
   access: {
     read: () => true,
     update: ({ req }) => Boolean(req.user),

@@ -1,93 +1,100 @@
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
+import type { SiteSetting } from '@/payload-types'
 
-async function getSiteSettings() {
-  try {
-    const payload = await getPayload({ config: configPromise })
-    return await payload.findGlobal({ slug: 'site-settings' })
-  } catch {
-    return null
-  }
+type HomeSectionCopy = {
+  description?: string | null
+  eyebrow?: string | null
+  title?: string | null
 }
 
-export async function ChurchIntroSection() {
-  const settings = await getSiteSettings()
-
-  const sundayTime = settings?.sundayServiceTime ?? '12:00'
-  const fridayTime = settings?.fridayServiceTime ?? '20:00'
-  const address = settings?.address ?? '위례서일로 3길 21-4'
-  const addressDetail = settings?.addressDetail ?? 'BELOVED LOUNGE'
-  const description = settings?.churchDescription ??
-    '사랑하는교회는 기독교대한감리회 소속으로, 위례 신도시에서 하나님의 말씀을 중심으로 모이는 공동체입니다.'
-  const vision = settings?.churchVision ?? 'Like Christ (그리스도를 본받아)'
-  const quote = settings?.churchQuote ?? '사랑 안에서 진리를 말하고, 그리스도 안에서 함께 자라가는 교회'
-  const denomination = settings?.denomination ?? '기독교대한감리회'
+export function ChurchIntroSection({
+  section,
+  settings,
+}: {
+  section?: HomeSectionCopy
+  settings?: SiteSetting | null
+}) {
+  const services = (settings?.worshipServices ?? []).filter((item) => item?.name && item?.time)
+  const values = (settings?.coreValues ?? []).filter((item) => item?.title && item?.description)
+  const address = settings?.address ?? ''
+  const addressDetail = settings?.addressDetail ?? ''
+  const description = section?.description ?? settings?.churchDescription ?? ''
+  const vision = settings?.churchVision ?? ''
+  const quote = settings?.churchQuote ?? ''
+  const denomination = settings?.denomination ?? ''
 
   return (
-    <section className="py-20 bg-background">
+    <section className="church-section-surface border-b border-border py-20 md:py-24">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div>
-            <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-3">
-              ABOUT US
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+          <div className="lg:sticky lg:top-28">
+            <p className="mb-3 text-sm font-semibold uppercase text-secondary">
+              {section?.eyebrow ?? 'ABOUT US'}
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6 leading-tight">
-              그리스도를 본받아<br />함께 사랑하는 공동체
+            <h2 className="max-w-xl text-3xl font-bold leading-tight text-foreground md:text-5xl">
+              {section?.title ?? settings?.tagline ?? '교회 소개'}
             </h2>
-            <div className="space-y-4 text-muted-foreground leading-relaxed">
-              <p>{description}</p>
-              <p>
-                우리는 <strong className="text-foreground">{vision}</strong>이라는 비전 아래,
-                예수님의 삶과 사랑을 삶 속에서 실천하는 교회를 지향합니다.
-              </p>
-              <p>
-                주일예배와 금요기도회를 통해 말씀을 나누며, 소그룹과 다양한 사역으로 서로 연결된 공동체를 만들어가고 있습니다.
-              </p>
+            <div className="mt-6 max-w-xl space-y-4 text-base leading-relaxed text-muted-foreground">
+              {description && <p>{description}</p>}
+              {vision && (
+                <p>
+                  우리는 <strong className="text-foreground">{vision}</strong>이라는 비전 아래,
+                  예수님의 삶과 사랑을 삶 속에서 실천하는 교회를 지향합니다.
+                </p>
+              )}
             </div>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="w-2 h-2 rounded-full bg-primary" />
-                <span className="text-foreground font-medium">{denomination}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="w-2 h-2 rounded-full bg-secondary" />
-                <span className="text-foreground font-medium">위례 신도시</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="w-2 h-2 rounded-full bg-primary" />
-                <span className="text-foreground font-medium">Like Christ</span>
-              </div>
-            </div>
+
+            <dl className="mt-9 grid grid-cols-1 gap-5 sm:grid-cols-2">
+              {denomination && (
+                <div className="border-l-2 border-secondary pl-4">
+                  <dt className="text-xs font-semibold uppercase text-muted-foreground">교단</dt>
+                  <dd className="mt-1 font-semibold text-foreground">{denomination}</dd>
+                </div>
+              )}
+              {(address || addressDetail) && (
+                <div className="border-l-2 border-secondary pl-4">
+                  <dt className="text-xs font-semibold uppercase text-muted-foreground">위치</dt>
+                  <dd className="mt-1 font-semibold text-foreground">{address}</dd>
+                  {addressDetail && <dd className="text-sm text-muted-foreground">{addressDetail}</dd>}
+                </div>
+              )}
+            </dl>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-primary rounded-2xl p-6 text-white">
-              <div className="text-3xl font-bold text-secondary mb-1">예배</div>
-              <div className="text-sm text-white/70 mb-3">Worship</div>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-white/70">주일예배</span>
-                  <span className="font-semibold">{sundayTime}</span>
+
+          <div className="space-y-6">
+            {services.length > 0 && (
+              <div className="rounded-lg border border-border bg-card p-6 shadow-[0_18px_60px_rgba(20,42,33,0.08)]">
+                <div className="mb-5 flex items-center justify-between gap-4">
+                  <h3 className="text-lg font-bold text-foreground">예배와 모임</h3>
+                  <span className="text-xs font-semibold uppercase text-secondary">Worship</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-white/70">금요기도회</span>
-                  <span className="font-semibold">{fridayTime}</span>
+                <div className="divide-y divide-border">
+                  {services.slice(0, 4).map((item) => (
+                    <div key={`${item.name}-${item.time}`} className="grid grid-cols-[1fr_auto] gap-4 py-4 first:pt-0 last:pb-0">
+                      <span className="font-medium text-foreground">{item.name}</span>
+                      <span className="text-sm font-semibold text-primary">{item.time}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
-            <div className="bg-neutral-cream rounded-2xl p-6">
-              <div className="text-3xl font-bold text-primary mb-1">위치</div>
-              <div className="text-sm text-primary/60 mb-3">Location</div>
-              <div className="text-sm text-primary/80 leading-relaxed">
-                {address}<br />
-                ({addressDetail})<br />
-                남위례역 근처
+            )}
+
+            {quote && (
+              <div className="rounded-lg border border-secondary/35 bg-secondary/10 px-6 py-6">
+                <p className="text-center text-base font-semibold leading-relaxed text-primary">&ldquo;{quote}&rdquo;</p>
               </div>
-            </div>
-            <div className="col-span-2 bg-secondary/10 border border-secondary/30 rounded-2xl p-6">
-              <p className="text-primary font-medium text-sm leading-relaxed text-center">
-                &ldquo;{quote}&rdquo;
-              </p>
-            </div>
+            )}
+
+            {values.length > 0 && (
+              <div className="grid gap-4 sm:grid-cols-3">
+                {values.slice(0, 3).map((item, index) => (
+                  <div key={item.title} className="rounded-lg border border-border bg-card p-5 transition-transform duration-300 hover:-translate-y-1">
+                    <span className="text-xs font-bold text-secondary">{String(index + 1).padStart(2, '0')}</span>
+                    <h4 className="mt-3 font-semibold text-foreground">{item.title}</h4>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

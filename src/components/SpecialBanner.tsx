@@ -2,8 +2,15 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 
 export async function SpecialBanner() {
-  const payload = await getPayload({ config })
-  const data = await payload.findGlobal({ slug: 'special-banner' })
+  let data
+
+  try {
+    const payload = await getPayload({ config })
+    data = await payload.findGlobal({ slug: 'special-banner' })
+  } catch (error) {
+    console.error('Failed to fetch special banner:', error)
+    return null
+  }
 
   if (!data.enabled) return null
 

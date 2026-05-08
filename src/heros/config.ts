@@ -16,23 +16,23 @@ export const hero: Field = {
     {
       name: 'type',
       type: 'select',
-      defaultValue: 'lowImpact',
-      label: 'Type',
+      defaultValue: 'none',
+      label: '상단 배너 유형',
       options: [
         {
-          label: 'None',
+          label: '표시 안 함',
           value: 'none',
         },
         {
-          label: 'High Impact',
+          label: '큰 이미지 히어로',
           value: 'highImpact',
         },
         {
-          label: 'Medium Impact',
+          label: '이미지 배너',
           value: 'mediumImpact',
         },
         {
-          label: 'Low Impact',
+          label: '기본 상단 문구',
           value: 'lowImpact',
         },
         {

@@ -68,10 +68,10 @@ export interface Config {
   blocks: {};
   collections: {
     pages: Page;
-    posts: Post;
     announcements: Announcement;
     bulletins: Bulletin;
     sermons: Sermon;
+    posts: Post;
     newcomers: Newcomer;
     media: Media;
     users: User;
@@ -93,10 +93,10 @@ export interface Config {
   };
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
-    posts: PostsSelect<false> | PostsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     bulletins: BulletinsSelect<false> | BulletinsSelect<true>;
     sermons: SermonsSelect<false> | SermonsSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
     newcomers: NewcomersSelect<false> | NewcomersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -116,18 +116,18 @@ export interface Config {
   };
   fallbackLocale: null;
   globals: {
+    'site-settings': SiteSetting;
     header: Header;
     footer: Footer;
-    'site-settings': SiteSetting;
-    'offering-page': OfferingPage;
     'special-banner': SpecialBanner;
+    'offering-page': OfferingPage;
   };
   globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
-    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
-    'offering-page': OfferingPageSelect<false> | OfferingPageSelect<true>;
     'special-banner': SpecialBannerSelect<false> | SpecialBannerSelect<true>;
+    'offering-page': OfferingPageSelect<false> | OfferingPageSelect<true>;
   };
   locale: null;
   widgets: {
@@ -164,6 +164,8 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * 기본 페이지와 콘텐츠 게시판은 위 목록의 관리 위치에서 수정하고, 여기는 별도로 필요한 독립 페이지를 만듭니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
@@ -190,8 +192,14 @@ export interface Page {
     links?:
       | {
           link: {
-            type?: ('reference' | 'custom') | null;
+            type?: ('internal' | 'reference' | 'custom') | null;
             newTab?: boolean | null;
+            /**
+             * 고정 페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배 안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.
+             */
+            internalPath?:
+              | ('/' | '/about' | '/worship' | '/sermon' | '/announcements' | '/bulletins' | '/newcomer' | '/offering')
+              | null;
             reference?:
               | ({
                   relationTo: 'pages';
@@ -213,6 +221,9 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
+  /**
+   * 기본 문단은 미리 추가되어 있습니다. 사진, 유튜브, 일정이 필요할 때만 섹션을 추가하세요.
+   */
   layout?:
     | (
         | ContentBlock
@@ -260,6 +271,21 @@ export interface Page {
             blockType: 'googleDriveBlock';
           }
         | OfferingBlock
+        | {
+            limit?: number | null;
+            showPinnedFirst?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'announcementsBlock';
+          }
+        | {
+            title?: string | null;
+            description?: string | null;
+            limit?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'bulletinsBlock';
+          }
       )[]
     | null;
   meta?: {
@@ -270,12 +296,21 @@ export interface Page {
     image?: (number | null) | Media;
     description?: string | null;
   };
+  /**
+   * 자동으로 채워집니다. 예약/수정이 필요할 때만 바꾸세요.
+   */
   publishedAt?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
-  slug: string;
+  /**
+   * 제목을 기준으로 자동 생성됩니다. 필요하면 직접 수정할 수 있습니다.
+   */
+  slug?: string | null;
+  /**
+   * 비워두면 최상위 페이지로 생성됩니다. 하위 페이지로 만들 때만 선택하세요.
+   */
   parent?: (number | null) | Page;
   breadcrumbs?:
     | {
@@ -290,6 +325,8 @@ export interface Page {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * 글 제목과 본문만 입력하면 URL과 작성자 정보는 자동으로 관리됩니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
@@ -312,10 +349,6 @@ export interface Post {
     };
     [k: string]: unknown;
   };
-  /**
-   * 구글드라이브 파일 링크를 입력하면 미리보기가 표시됩니다
-   */
-  googleDriveLink?: string | null;
   meta?: {
     title?: string | null;
     /**
@@ -324,7 +357,17 @@ export interface Post {
     image?: (number | null) | Media;
     description?: string | null;
   };
+  /**
+   * 구글드라이브 파일 링크를 입력하면 미리보기가 표시됩니다
+   */
+  googleDriveLink?: string | null;
+  /**
+   * 자동으로 채워집니다. 예약/수정이 필요할 때만 바꾸세요.
+   */
   publishedAt?: string | null;
+  /**
+   * 기본값을 그대로 두고, 필요할 때만 작성자를 지정하세요.
+   */
   authors?: (number | User)[] | null;
   populatedAuthors?:
     | {
@@ -336,12 +379,17 @@ export interface Post {
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
-  slug: string;
+  /**
+   * 제목을 기준으로 자동 생성됩니다. 필요하면 직접 수정할 수 있습니다.
+   */
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * 사이트에서 사용하는 이미지, 주보 파일, QR 코드 등을 보관합니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -461,6 +509,8 @@ export interface FolderInterface {
   createdAt: string;
 }
 /**
+ * CMS에 로그인할 수 있는 관리자 계정을 관리합니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -511,8 +561,14 @@ export interface ContentBlock {
         } | null;
         enableLink?: boolean | null;
         link?: {
-          type?: ('reference' | 'custom') | null;
+          type?: ('internal' | 'reference' | 'custom') | null;
           newTab?: boolean | null;
+          /**
+           * 고정 페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배 안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.
+           */
+          internalPath?:
+            | ('/' | '/about' | '/worship' | '/sermon' | '/announcements' | '/bulletins' | '/newcomer' | '/offering')
+            | null;
           reference?:
             | ({
                 relationTo: 'pages';
@@ -569,6 +625,8 @@ export interface OfferingBlock {
   blockType: 'offeringBlock';
 }
 /**
+ * 공지 글을 작성하면 /announcements 게시판과 홈 공지 섹션에 자동으로 노출됩니다. 별도 페이지를 만들 필요가 없습니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "announcements".
  */
@@ -590,6 +648,9 @@ export interface Announcement {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * 비워두면 지금 시각으로 저장됩니다.
+   */
   publishedAt: string;
   isPinned?: boolean | null;
   /**
@@ -600,7 +661,7 @@ export interface Announcement {
   createdAt: string;
 }
 /**
- * 매주 주보를 업로드하고 관리합니다. 공개 여부를 선택할 수 있습니다.
+ * 주보 파일만 올려도 날짜와 제목은 자동으로 채워집니다.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bulletins".
@@ -608,9 +669,9 @@ export interface Announcement {
 export interface Bulletin {
   id: number;
   /**
-   * 예: 2026년 3월 22일 주보
+   * 비워두면 주보 날짜 기준으로 자동 생성됩니다.
    */
-  title: string;
+  title?: string | null;
   date: string;
   /**
    * 체크하면 로그인 없이도 열람 가능합니다.
@@ -628,6 +689,8 @@ export interface Bulletin {
   createdAt: string;
 }
 /**
+ * 설교 제목과 YouTube URL만 입력해도 영상 정보와 공개 상태가 자동으로 정리됩니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "sermons".
  */
@@ -638,25 +701,25 @@ export interface Sermon {
    */
   title: string;
   /**
-   * Auto-generated from title
+   * 제목을 기준으로 자동 생성됩니다. 필요하면 직접 수정할 수 있습니다.
    */
   slug?: string | null;
-  /**
-   * Name of the preacher
-   */
-  preacher: string;
-  /**
-   * Scripture reference (e.g., John 3:16, Genesis 1:1-5)
-   */
-  scriptureRef: string;
-  /**
-   * Date when the sermon was preached
-   */
-  sermonDate: string;
   /**
    * YouTube video URL
    */
   youtubeUrl: string;
+  /**
+   * Name of the preacher
+   */
+  preacher?: string | null;
+  /**
+   * Scripture reference (e.g., John 3:16, Genesis 1:1-5)
+   */
+  scriptureRef?: string | null;
+  /**
+   * Date when the sermon was preached
+   */
+  sermonDate: string;
   /**
    * Auto-extracted from YouTube URL
    */
@@ -666,11 +729,11 @@ export interface Sermon {
    */
   thumbnail?: string | null;
   /**
-   * Brief description or summary of the sermon (optional)
+   * Brief description or summary of the sermon
    */
   description?: string | null;
   /**
-   * Sermon series name (optional)
+   * Sermon series name
    */
   sermonSeries?: string | null;
   /**
@@ -681,6 +744,8 @@ export interface Sermon {
   createdAt: string;
 }
 /**
+ * 새가족 신청과 후속 연락 상태를 관리합니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "newcomers".
  */
@@ -728,6 +793,8 @@ export interface Newcomer {
   createdAt: string;
 }
 /**
+ * 페이지 URL 변경 시 필요한 고급 리다이렉트 설정입니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -754,6 +821,8 @@ export interface Redirect {
   createdAt: string;
 }
 /**
+ * 문의 폼 구성이 필요할 때만 사용하는 고급 설정입니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "forms".
  */
@@ -928,6 +997,8 @@ export interface Form {
   createdAt: string;
 }
 /**
+ * 폼으로 접수된 응답 목록입니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
@@ -945,7 +1016,7 @@ export interface FormSubmission {
   createdAt: string;
 }
 /**
- * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
+ * 검색 인덱스 동기화 결과입니다. 일반 콘텐츠 수정은 소식 글에서 진행합니다.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "search".
@@ -1096,10 +1167,6 @@ export interface PayloadLockedDocument {
         value: number | Page;
       } | null)
     | ({
-        relationTo: 'posts';
-        value: number | Post;
-      } | null)
-    | ({
         relationTo: 'announcements';
         value: number | Announcement;
       } | null)
@@ -1110,6 +1177,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'sermons';
         value: number | Sermon;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
       } | null)
     | ({
         relationTo: 'newcomers';
@@ -1204,6 +1275,7 @@ export interface PagesSelect<T extends boolean = true> {
                 | {
                     type?: T;
                     newTab?: T;
+                    internalPath?: T;
                     reference?: T;
                     url?: T;
                     label?: T;
@@ -1259,6 +1331,23 @@ export interface PagesSelect<T extends boolean = true> {
               blockName?: T;
             };
         offeringBlock?: T | OfferingBlockSelect<T>;
+        announcementsBlock?:
+          | T
+          | {
+              limit?: T;
+              showPinnedFirst?: T;
+              id?: T;
+              blockName?: T;
+            };
+        bulletinsBlock?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              limit?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   meta?:
     | T
@@ -1299,6 +1388,7 @@ export interface ContentBlockSelect<T extends boolean = true> {
           | {
               type?: T;
               newTab?: T;
+              internalPath?: T;
               reference?: T;
               url?: T;
               label?: T;
@@ -1329,36 +1419,6 @@ export interface OfferingBlockSelect<T extends boolean = true> {
   showKakaoPay?: T;
   id?: T;
   blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts_select".
- */
-export interface PostsSelect<T extends boolean = true> {
-  title?: T;
-  heroImage?: T;
-  content?: T;
-  googleDriveLink?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        image?: T;
-        description?: T;
-      };
-  publishedAt?: T;
-  authors?: T;
-  populatedAuthors?:
-    | T
-    | {
-        id?: T;
-        name?: T;
-      };
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1393,10 +1453,10 @@ export interface BulletinsSelect<T extends boolean = true> {
 export interface SermonsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  youtubeUrl?: T;
   preacher?: T;
   scriptureRef?: T;
   sermonDate?: T;
-  youtubeUrl?: T;
   youtubeId?: T;
   thumbnail?: T;
   description?: T;
@@ -1404,6 +1464,36 @@ export interface SermonsSelect<T extends boolean = true> {
   status?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  heroImage?: T;
+  content?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  googleDriveLink?: T;
+  publishedAt?: T;
+  authors?: T;
+  populatedAuthors?:
+    | T
+    | {
+        id?: T;
+        name?: T;
+      };
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1817,16 +1907,187 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * 홈 메인 화면을 섹션 단위로 편집하고, 교회 정보/예배/디자인/SNS 설정을 관리합니다.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  /**
+   * 홈페이지 상단 배경 이미지. 권장 해상도: 1920x1080 이상
+   */
+  heroImage?: (number | null) | Media;
+  heroEyebrow?: string | null;
+  heroTitle?: string | null;
+  heroSubtitle?: string | null;
+  heroPrimaryLabel?: string | null;
+  heroPrimaryUrl?: string | null;
+  heroSecondaryLabel?: string | null;
+  heroSecondaryUrl?: string | null;
+  /**
+   * 각 섹션 카드 안에서 홈에 보이는 형태를 보면서 바로 수정합니다. 행 추가/삭제로 섹션을 추가하거나 제거하고, 드래그로 순서를 바꿉니다.
+   */
+  homeSections?:
+    | {
+        enabled?: boolean | null;
+        /**
+         * 섹션 역할은 어떤 콘텐츠를 가져올지 결정합니다. 예: 공지사항 섹션은 공지사항 게시글을 가져옵니다.
+         */
+        sectionType: 'intro' | 'announcements' | 'sermons' | 'instagram' | 'map';
+        /**
+         * 예: ABOUT US, NOTICE, SERMON처럼 제목 위에 작게 표시됩니다.
+         */
+        eyebrow?: string | null;
+        title?: string | null;
+        /**
+         * 홈 화면에 표시되는 설명 문구입니다. 비워두면 해당 섹션의 기본 구성만 표시합니다.
+         */
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  churchName: string;
+  englishName?: string | null;
+  tagline?: string | null;
+  subTagline?: string | null;
+  /**
+   * Header와 히어로에 사용할 로고입니다. 비워두면 기본 로고 파일을 사용합니다.
+   */
+  logo?: (number | null) | Media;
+  /**
+   * GNB에 표시되는 로고 높이(px)입니다. 기본값은 40입니다.
+   */
+  headerLogoHeight?: number | null;
+  /**
+   * 어두운 상단 배경에서 흰색 로고처럼 보여야 하면 켜두세요. 원본 색상을 그대로 쓰려면 끕니다.
+   */
+  headerLogoInvert?: boolean | null;
+  denomination?: string | null;
+  churchDescription?: string | null;
+  churchVision?: string | null;
+  churchQuote?: string | null;
+  coreValues?:
+    | {
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  pastorName?: string | null;
+  pastorTitle?: string | null;
+  pastorPhoto?: (number | null) | Media;
+  pastorBio?: string | null;
+  pastorQuote?: string | null;
+  visitorNotes?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  worshipServices?:
+    | {
+        name: string;
+        time: string;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  worshipOrder?:
+    | {
+        title: string;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  address?: string | null;
+  addressDetail?: string | null;
+  transitInfo?: string | null;
+  parkingInfo?: string | null;
+  mapLat?: number | null;
+  mapLng?: number | null;
+  /**
+   * 색상 칸을 눌러 컬러피커로 선택하거나 HEX 값을 직접 입력할 수 있습니다.
+   */
+  design?: {
+    primaryColor?: string | null;
+    primaryLightColor?: string | null;
+    secondaryColor?: string | null;
+    backgroundColor?: string | null;
+    sectionBackgroundColor?: string | null;
+    darkSectionBackgroundColor?: string | null;
+    cardBackgroundColor?: string | null;
+    textColor?: string | null;
+    mutedTextColor?: string | null;
+    borderColor?: string | null;
+    headerBackgroundColor?: string | null;
+    footerBackgroundColor?: string | null;
+    heroOverlayColor?: string | null;
+    /**
+     * 0은 투명, 100은 완전 불투명입니다.
+     */
+    heroOverlayOpacity?: number | null;
+    showHeroPattern?: boolean | null;
+    /**
+     * 은은한 텍스처나 패턴용입니다. 비워두면 배경 컬러만 사용합니다.
+     */
+    pageBackgroundImage?: (number | null) | Media;
+    /**
+     * Instagram 같은 어두운 섹션에 사용할 배경 이미지입니다.
+     */
+    darkSectionBackgroundImage?: (number | null) | Media;
+  };
+  youtubeChannelUrl?: string | null;
+  /**
+   * 비워도 채널 URL에서 자동 해석을 시도합니다. UC로 시작하는 채널 ID를 넣으면 더 안정적입니다.
+   */
+  youtubeChannelId?: string | null;
+  youtubeVideoCount?: number | null;
+  instagramUrl?: string | null;
+  instagramHandle?: string | null;
+  /**
+   * Instagram API 제약 때문에 안정 운영은 게시물 ID를 관리자가 등록하는 방식으로 시작합니다.
+   */
+  instagramPosts?:
+    | {
+        type: 'p' | 'reel';
+        /**
+         * 예: https://www.instagram.com/p/POST_ID/ 에서 POST_ID 부분
+         */
+        postId: string;
+        id?: string | null;
+      }[]
+    | null;
+  offeringBankName?: string | null;
+  offeringAccountNumber?: string | null;
+  offeringAccountHolder?: string | null;
+  offeringKakaoPayQr?: (number | null) | Media;
+  offeringNotes?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * 사이트 상단 내비게이션 메뉴를 관리합니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
 export interface Header {
   id: number;
+  /**
+   * 상단에 보일 링크의 이름과 순서를 관리합니다. 링크 대상 페이지의 본문은 각 관리 화면에서 수정합니다. 예배 안내는 홈페이지 빌더의 예배/오시는 길, 최신 설교는 설교, 공지사항은 공지사항, 주보는 주보, 헌금 안내는 헌금 안내 페이지에서 관리합니다.
+   */
   navItems?:
     | {
         link: {
-          type?: ('reference' | 'custom') | null;
+          type?: ('internal' | 'reference' | 'custom') | null;
           newTab?: boolean | null;
+          /**
+           * 고정 페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배 안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.
+           */
+          internalPath?:
+            | ('/' | '/about' | '/worship' | '/sermon' | '/announcements' | '/bulletins' | '/newcomer' | '/offering')
+            | null;
           reference?:
             | ({
                 relationTo: 'pages';
@@ -1846,6 +2107,8 @@ export interface Header {
   createdAt?: string | null;
 }
 /**
+ * 사이트 하단 링크, 예배 시간, 주소, 연락처를 관리합니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "footer".
  */
@@ -1854,8 +2117,14 @@ export interface Footer {
   navItems?:
     | {
         link: {
-          type?: ('reference' | 'custom') | null;
+          type?: ('internal' | 'reference' | 'custom') | null;
           newTab?: boolean | null;
+          /**
+           * 고정 페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배 안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.
+           */
+          internalPath?:
+            | ('/' | '/about' | '/worship' | '/sermon' | '/announcements' | '/bulletins' | '/newcomer' | '/offering')
+            | null;
           reference?:
             | ({
                 relationTo: 'pages';
@@ -1874,62 +2143,53 @@ export interface Footer {
   worshipSchedule?: string | null;
   address?: string | null;
   churchPhone?: string | null;
+  legalText?: string | null;
+  showThemeSelector?: boolean | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
+ * 기간을 지정해 사이트 상단에 노출할 임시 안내 배너를 관리합니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings".
+ * via the `definition` "special-banner".
  */
-export interface SiteSetting {
+export interface SpecialBanner {
   id: number;
   /**
-   * 홈페이지 상단 배경 이미지. 권장 해상도: 1920x1080 이상
+   * 체크하면 배너가 표시됩니다
    */
-  heroImage?: (number | null) | Media;
-  heroTitle?: string | null;
-  heroSubtitle?: string | null;
+  enabled?: boolean | null;
   /**
-   * 예: 12:00 또는 오전 11시
+   * 배너에 표시될 주요 문구 (예: 🌟 부활절 특별예배)
    */
-  sundayServiceTime?: string | null;
+  text: string;
   /**
-   * 예: 20:00 또는 저녁 8시
+   * 추가 안내 문구 (예: 4월 5일 (토) 오전 10:30)
    */
-  fridayServiceTime?: string | null;
-  address?: string | null;
-  addressDetail?: string | null;
-  transitInfo?: string | null;
-  mapLat?: number | null;
-  mapLng?: number | null;
-  churchDescription?: string | null;
-  churchVision?: string | null;
-  churchQuote?: string | null;
-  denomination?: string | null;
+  subtext?: string | null;
   /**
-   * 헌금 계좌 은행 이름 (예: 국민은행)
+   * 색상 칸을 눌러 선택하거나 HEX 값을 직접 입력하세요.
    */
-  offeringBankName?: string | null;
+  backgroundColor?: string | null;
   /**
-   * 헌금 계좌번호 (예: 123-456-789012)
+   * 색상 칸을 눌러 선택하거나 HEX 값을 직접 입력하세요.
    */
-  offeringAccountNumber?: string | null;
+  textColor?: string | null;
   /**
-   * 헌금 계좌 예금주 이름 (예: 사랑하는교회)
+   * 배너 표시 시작일 (비워두면 즉시 표시)
    */
-  offeringAccountHolder?: string | null;
+  startDate?: string | null;
   /**
-   * 카카오페이 송금용 QR 코드 이미지 (선택 사항)
+   * 배너 표시 종료일 (이 날짜가 지나면 자동으로 숨겨집니다)
    */
-  offeringKakaoPayQr?: (number | null) | Media;
-  /**
-   * 헌금 관련 추가 안내 사항 (예: 입금 시 성명을 남겨주세요)
-   */
-  offeringNotes?: string | null;
+  endDate: string;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
+ * 헌금 안내 페이지의 문구, 계좌, 안내 사항을 관리합니다.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "offering-page".
  */
@@ -1965,40 +2225,118 @@ export interface OfferingPage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "special-banner".
+ * via the `definition` "site-settings_select".
  */
-export interface SpecialBanner {
-  id: number;
-  /**
-   * 체크하면 배너가 표시됩니다
-   */
-  enabled?: boolean | null;
-  /**
-   * 배너에 표시될 주요 문구 (예: 🌟 부활절 특별예배)
-   */
-  text: string;
-  /**
-   * 추가 안내 문구 (예: 4월 5일 (토) 오전 10:30)
-   */
-  subtext?: string | null;
-  /**
-   * CSS 색상값 (예: #1B3A2D, rgb(27,58,45))
-   */
-  backgroundColor?: string | null;
-  /**
-   * CSS 색상값 (예: white, #FFFFFF)
-   */
-  textColor?: string | null;
-  /**
-   * 배너 표시 시작일 (비워두면 즉시 표시)
-   */
-  startDate?: string | null;
-  /**
-   * 배너 표시 종료일 (이 날짜가 지나면 자동으로 숨겨집니다)
-   */
-  endDate: string;
-  updatedAt?: string | null;
-  createdAt?: string | null;
+export interface SiteSettingsSelect<T extends boolean = true> {
+  heroImage?: T;
+  heroEyebrow?: T;
+  heroTitle?: T;
+  heroSubtitle?: T;
+  heroPrimaryLabel?: T;
+  heroPrimaryUrl?: T;
+  heroSecondaryLabel?: T;
+  heroSecondaryUrl?: T;
+  homeSections?:
+    | T
+    | {
+        enabled?: T;
+        sectionType?: T;
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  churchName?: T;
+  englishName?: T;
+  tagline?: T;
+  subTagline?: T;
+  logo?: T;
+  headerLogoHeight?: T;
+  headerLogoInvert?: T;
+  denomination?: T;
+  churchDescription?: T;
+  churchVision?: T;
+  churchQuote?: T;
+  coreValues?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  pastorName?: T;
+  pastorTitle?: T;
+  pastorPhoto?: T;
+  pastorBio?: T;
+  pastorQuote?: T;
+  visitorNotes?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  worshipServices?:
+    | T
+    | {
+        name?: T;
+        time?: T;
+        description?: T;
+        id?: T;
+      };
+  worshipOrder?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  address?: T;
+  addressDetail?: T;
+  transitInfo?: T;
+  parkingInfo?: T;
+  mapLat?: T;
+  mapLng?: T;
+  design?:
+    | T
+    | {
+        primaryColor?: T;
+        primaryLightColor?: T;
+        secondaryColor?: T;
+        backgroundColor?: T;
+        sectionBackgroundColor?: T;
+        darkSectionBackgroundColor?: T;
+        cardBackgroundColor?: T;
+        textColor?: T;
+        mutedTextColor?: T;
+        borderColor?: T;
+        headerBackgroundColor?: T;
+        footerBackgroundColor?: T;
+        heroOverlayColor?: T;
+        heroOverlayOpacity?: T;
+        showHeroPattern?: T;
+        pageBackgroundImage?: T;
+        darkSectionBackgroundImage?: T;
+      };
+  youtubeChannelUrl?: T;
+  youtubeChannelId?: T;
+  youtubeVideoCount?: T;
+  instagramUrl?: T;
+  instagramHandle?: T;
+  instagramPosts?:
+    | T
+    | {
+        type?: T;
+        postId?: T;
+        id?: T;
+      };
+  offeringBankName?: T;
+  offeringAccountNumber?: T;
+  offeringAccountHolder?: T;
+  offeringKakaoPayQr?: T;
+  offeringNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2013,6 +2351,7 @@ export interface HeaderSelect<T extends boolean = true> {
           | {
               type?: T;
               newTab?: T;
+              internalPath?: T;
               reference?: T;
               url?: T;
               label?: T;
@@ -2036,6 +2375,7 @@ export interface FooterSelect<T extends boolean = true> {
           | {
               type?: T;
               newTab?: T;
+              internalPath?: T;
               reference?: T;
               url?: T;
               label?: T;
@@ -2045,34 +2385,24 @@ export interface FooterSelect<T extends boolean = true> {
   worshipSchedule?: T;
   address?: T;
   churchPhone?: T;
+  legalText?: T;
+  showThemeSelector?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings_select".
+ * via the `definition` "special-banner_select".
  */
-export interface SiteSettingsSelect<T extends boolean = true> {
-  heroImage?: T;
-  heroTitle?: T;
-  heroSubtitle?: T;
-  sundayServiceTime?: T;
-  fridayServiceTime?: T;
-  address?: T;
-  addressDetail?: T;
-  transitInfo?: T;
-  mapLat?: T;
-  mapLng?: T;
-  churchDescription?: T;
-  churchVision?: T;
-  churchQuote?: T;
-  denomination?: T;
-  offeringBankName?: T;
-  offeringAccountNumber?: T;
-  offeringAccountHolder?: T;
-  offeringKakaoPayQr?: T;
-  offeringNotes?: T;
+export interface SpecialBannerSelect<T extends boolean = true> {
+  enabled?: T;
+  text?: T;
+  subtext?: T;
+  backgroundColor?: T;
+  textColor?: T;
+  startDate?: T;
+  endDate?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2101,22 +2431,6 @@ export interface OfferingPageSelect<T extends boolean = true> {
         description?: T;
         id?: T;
       };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "special-banner_select".
- */
-export interface SpecialBannerSelect<T extends boolean = true> {
-  enabled?: T;
-  text?: T;
-  subtext?: T;
-  backgroundColor?: T;
-  textColor?: T;
-  startDate?: T;
-  endDate?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

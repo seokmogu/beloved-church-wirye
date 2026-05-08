@@ -1,8 +1,18 @@
 import type { GlobalConfig } from 'payload'
 
+const colorPickerField = {
+  components: {
+    Field: '@/components/admin/ColorPickerField#ColorPickerField',
+  },
+}
+
 export const SpecialBanner: GlobalConfig = {
   slug: 'special-banner',
-  label: '특별 배너',
+  label: '상단 알림 배너',
+  admin: {
+    description: '기간을 지정해 사이트 상단에 노출할 임시 안내 배너를 관리합니다.',
+    group: '1. 홈페이지 편집',
+  },
   access: {
     read: () => true,
     update: ({ req }) => Boolean(req.user),
@@ -40,16 +50,18 @@ export const SpecialBanner: GlobalConfig = {
       label: '배경색',
       defaultValue: '#1B3A2D',
       admin: {
-        description: 'CSS 색상값 (예: #1B3A2D, rgb(27,58,45))',
+        ...colorPickerField,
+        description: '색상 칸을 눌러 선택하거나 HEX 값을 직접 입력하세요.',
       },
     },
     {
       name: 'textColor',
       type: 'text',
       label: '글자색',
-      defaultValue: 'white',
+      defaultValue: '#ffffff',
       admin: {
-        description: 'CSS 색상값 (예: white, #FFFFFF)',
+        ...colorPickerField,
+        description: '색상 칸을 눌러 선택하거나 HEX 값을 직접 입력하세요.',
       },
     },
     {

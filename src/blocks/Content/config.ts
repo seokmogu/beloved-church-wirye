@@ -13,22 +13,23 @@ const columnFields: Field[] = [
   {
     name: 'size',
     type: 'select',
-    defaultValue: 'oneThird',
+    defaultValue: 'full',
+    label: '본문 폭',
     options: [
       {
-        label: 'One Third',
+        label: '좁게',
         value: 'oneThird',
       },
       {
-        label: 'Half',
+        label: '절반',
         value: 'half',
       },
       {
-        label: 'Two Thirds',
+        label: '넓게',
         value: 'twoThirds',
       },
       {
-        label: 'Full',
+        label: '전체',
         value: 'full',
       },
     ],
@@ -51,6 +52,7 @@ const columnFields: Field[] = [
   {
     name: 'enableLink',
     type: 'checkbox',
+    label: '버튼 링크 추가',
   },
   link({
     overrides: {
@@ -66,13 +68,18 @@ const columnFields: Field[] = [
 export const Content: Block = {
   slug: 'content',
   interfaceName: 'ContentBlock',
+  labels: {
+    singular: '본문 문단',
+    plural: '본문 문단',
+  },
   fields: [
     {
       name: 'columns',
       type: 'array',
       admin: {
-        initCollapsed: true,
+        initCollapsed: false,
       },
+      label: '본문',
       fields: columnFields,
     },
   ],
