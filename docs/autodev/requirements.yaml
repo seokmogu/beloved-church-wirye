@@ -1,0 +1,145 @@
+# Autodev Requirements Graph
+# Project: beloved-church-wirye
+# Purpose: Test-centered completion of a church-manager-friendly Payload CMS website.
+# Status values: implemented | partial | not_implemented | needs_human_input
+# Verification values: playwright | vitest | typecheck | lint | manual
+
+metadata:
+  project: beloved-church-wirye
+  korean_name: "사랑하는교회 위례 홈페이지"
+  current_state: "partial"
+  primary_strategy: "Playwright/E2E-driven CMS admin usability improvements"
+  product_goal: >-
+    Complete a church website whose public content can be maintained comfortably by a non-developer church administrator
+    through Payload CMS, with fixed church-specific workflows and guardrails rather than a generic freeform page builder.
+  deployment_goal_later:
+    database: "Supabase"
+    hosting: "Vercel"
+    rule: "Do not deploy, link, create, migrate, or configure Supabase/Vercel projects without explicit human approval and target account/project details."
+  tech_stack:
+    - "Next.js 16"
+    - "React 19"
+    - "Payload CMS 3"
+    - "TypeScript"
+    - "pnpm"
+    - "Vitest"
+    - "Playwright"
+  hard_rules:
+    - "Do not read, print, copy, or commit .admin.local.credentials or .env* contents."
+    - "Do not run Vercel or Supabase deploy/link/create/migration commands unless the user explicitly asks and provides the target account/project."
+    - "Default work should be test-centered: add or update Playwright/Vitest coverage before product code changes."
+    - "Prefer church-manager usability over broad feature expansion: clearer labels, guidance, fixed-page affordances, previews, safer defaults, and fewer confusing choices."
+    - "Do not hardcode public church content that should be editable from CMS globals/collections."
+    - "Use Payload Local API safely. When enforcing a user permission path with Local API, set overrideAccess: false."
+    - "When hooks perform nested Payload operations, pass req and guard against infinite hook loops."
+
+features:
+  - id: CMS-ADMIN-USABILITY
+    title: "교회 관리자 CMS 사용성"
+    phase: P0
+    status: partial
+    source_docs:
+      - "README.md#운영-원칙"
+      - "README.md#관리자-주요-메뉴"
+      - "e2e/admin-cms.spec.ts"
+      - "e2e/admin-persona-crud.spec.ts"
+    acceptance_criteria:
+      - id: CMS-ADMIN-USABILITY.AC1
+        description: "관리자 로그인 후 대시보드가 교회 관리자가 이해할 수 있는 메뉴 그룹과 안내 문구를 보여준다."
+        testable: true
+        verification: playwright
+        command: "RUN_ADMIN_CMS_TEST=1 E2E_BASE_URL=http://127.0.0.1:4001 pnpm exec playwright test e2e/admin-cms.spec.ts --reporter=line"
+      - id: CMS-ADMIN-USABILITY.AC2
+        description: "사이트 설정 Global에서 홈 빌더, 히어로, 섹션 순서/설명, 디자인, 교회 정보, 예배/오시는 길, SNS 설정을 찾기 쉽고 미리보기 가능한 방식으로 편집할 수 있다."
+        testable: true
+        verification: playwright
+        command: "RUN_ADMIN_CMS_TEST=1 E2E_BASE_URL=http://127.0.0.1:4001 pnpm exec playwright test e2e/admin-cms.spec.ts --reporter=line"
+      - id: CMS-ADMIN-USABILITY.AC3
+        description: "고정 페이지/콘텐츠 게시판의 역할을 관리자가 혼동하지 않도록 Pages, Header, Footer, Announcements, Bulletins, Sermons 화면에 적절한 안내와 연결 경로를 제공한다."
+        testable: true
+        verification: playwright
+      - id: CMS-ADMIN-USABILITY.AC4
+        description: "교회 관리자 페르소나가 공지 작성, 이미지 업로드, 주보/설교 등록, 홈 노출 확인을 한 흐름으로 수행할 수 있다."
+        testable: true
+        verification: playwright
+        command: "RUN_ADMIN_CMS_TEST=1 E2E_BASE_URL=http://127.0.0.1:4001 pnpm exec playwright test e2e/admin-persona-crud.spec.ts --reporter=line"
+    dependencies: []
+
+  - id: CMS-CONTENT-MODEL
+    title: "CMS 데이터 모델과 공개 콘텐츠 편집 가능성"
+    phase: P0
+    status: partial
+    source_docs:
+      - "README.md#운영-원칙"
+      - "src/globals"
+      - "src/collections"
+      - "src/blocks"
+    acceptance_criteria:
+      - id: CMS-CONTENT-MODEL.AC1
+        description: "교회명, 로고, 예배 시간, 주소, 지도, SNS, YouTube, Footer 문구가 코드가 아닌 Payload CMS 데이터에서 렌더링된다."
+        testable: true
+        verification: playwright
+        command: "pnpm exec playwright test e2e/church.spec.ts --reporter=line"
+      - id: CMS-CONTENT-MODEL.AC2
+        description: "공지사항, 주보, 설교, 새가족 등록은 각각 전용 컬렉션/폼 흐름으로 관리되고 공개 페이지와 연결된다."
+        testable: true
+        verification: playwright
+      - id: CMS-CONTENT-MODEL.AC3
+        description: "새 페이지 생성과 Header 메뉴 연결이 가능한 구조를 유지하되, 고정 페이지와 게시판을 중복 생성하지 않도록 안내한다."
+        testable: true
+        verification: playwright
+    dependencies: [CMS-ADMIN-USABILITY]
+
+  - id: PUBLIC-SITE-SMOKE
+    title: "공개 홈페이지 기본 품질"
+    phase: P0
+    status: partial
+    source_docs:
+      - "README.md#완결-기준"
+      - "README.md#디자인-기준"
+      - "e2e/church.spec.ts"
+    acceptance_criteria:
+      - id: PUBLIC-SITE-SMOKE.AC1
+        description: "홈, 예배 안내, 설교, 공지, 주보, 헌금, 새가족 페이지가 모바일/데스크톱에서 깨지지 않는다."
+        testable: true
+        verification: playwright
+        command: "pnpm exec playwright test e2e/church.spec.ts --reporter=line"
+      - id: PUBLIC-SITE-SMOKE.AC2
+        description: "CMS에 이미지나 지도 API 키가 없어도 빈 개발자 메시지/깨진 레이아웃이 보이지 않는다."
+        testable: true
+        verification: playwright
+      - id: PUBLIC-SITE-SMOKE.AC3
+        description: "주요 CTA와 Header/Footer 링크가 의도한 페이지로 이동한다."
+        testable: true
+        verification: playwright
+    dependencies: [CMS-CONTENT-MODEL]
+
+  - id: QUALITY-GATES
+    title: "타입/린트/단위·통합 테스트 품질 게이트"
+    phase: P0
+    status: partial
+    source_docs:
+      - "package.json"
+      - "vitest.config.mts"
+      - "playwright.config.ts"
+    acceptance_criteria:
+      - id: QUALITY-GATES.AC1
+        description: "TypeScript 타입 체크가 통과한다."
+        testable: true
+        verification: typecheck
+        command: "pnpm exec tsc --noEmit"
+      - id: QUALITY-GATES.AC2
+        description: "ESLint가 에러 없이 통과하고, 새 warning을 만들지 않는다."
+        testable: true
+        verification: lint
+        command: "pnpm run lint"
+      - id: QUALITY-GATES.AC3
+        description: "Vitest integration suite가 통과한다."
+        testable: true
+        verification: vitest
+        command: "pnpm run test:int"
+      - id: QUALITY-GATES.AC4
+        description: "Payload schema/field/global 변경 후 generate:types 및 필요 시 generate:importmap을 수행하고 관련 산출물을 커밋한다."
+        testable: true
+        verification: manual
+    dependencies: []
