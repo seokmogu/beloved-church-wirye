@@ -9,6 +9,11 @@ import React from 'react'
 import { importMap } from './admin/importMap.js'
 import './custom.scss'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+export const preferredRegion = 'syd1'
+
 type Args = {
   children: React.ReactNode
 }

@@ -15,6 +15,11 @@ type Args = {
   }>
 }
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+export const preferredRegion = 'syd1'
+
 export const generateMetadata = ({ params, searchParams }: Args): Promise<Metadata> =>
   generatePageMetadata({ config, params, searchParams })
 
