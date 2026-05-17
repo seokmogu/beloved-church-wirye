@@ -12,7 +12,7 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   : process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3000'
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["127.0.0.1", "100.94.135.5", "100.65.249.52"],
+  allowedDevOrigins: ['127.0.0.1', '100.94.135.5', '100.65.249.52'],
   images: {
     localPatterns: [
       {
@@ -42,4 +42,26 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+const payloadNextConfig = withPayload(nextConfig, { devBundleServerPackages: false })
+const payloadHeaders = payloadNextConfig.headers
+
+payloadNextConfig.headers = async () => {
+  const headerRoutes = payloadHeaders ? await payloadHeaders() : []
+
+  // Payload adds these theme client hints globally. On Vercel they trigger an HTTPS retry
+  // that can leave the admin RSC children unmounted even though the Flight payload is valid.
+  return headerRoutes.map((route) => ({
+    ...route,
+    headers: route.headers.filter(({ key, value }) => {
+      const lowerKey = key.toLowerCase()
+      const isThemeClientHint = value === 'Sec-CH-Prefers-Color-Scheme'
+
+      return !(
+        isThemeClientHint &&
+        (lowerKey === 'accept-ch' || lowerKey === 'critical-ch' || lowerKey === 'vary')
+      )
+    }),
+  }))
+}
+
+export default payloadNextConfig
