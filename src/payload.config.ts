@@ -2,7 +2,6 @@ import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
 import sharp from 'sharp'
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore – ko translations bundled at runtime
 import { ko } from '@payloadcms/translations/languages/ko'
 import { fileURLToPath } from 'url'
