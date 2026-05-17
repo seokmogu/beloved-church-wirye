@@ -90,7 +90,10 @@
       "sharp",
       "esbuild",
       "unrs-resolver"
-    ]
+    ],
+    "patchedDependencies": {
+      "@payloadcms/ui@3.84.1": "patches/@payloadcms__ui@3.84.1.patch"
+    }
   },
   "packageManager": "pnpm@10.32.1"
 }
