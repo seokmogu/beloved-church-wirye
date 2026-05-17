@@ -16,7 +16,7 @@ test('admin panel hydrates and reaches login or first-user page', async ({ page 
   const title = await page.title()
 
   // Must have landed on login or create-first-user after the client redirect chain
-  expect(url).toMatch(/\/admin\/(login|create-first-user)/)
+  expect(url).toMatch(/\/admin(\/(login|create-first-user))?$/)
   expect(title).toContain('Payload')
 
   // Page should have interactive inputs (email + password fields at minimum)

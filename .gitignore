@@ -24,6 +24,9 @@ node_modules/
 # Internal tool state
 .omc/
 .omx/
+.env.development
+.env.preview
+.env.production
 .env*.local
 .env.vercel
 .admin.local.credentials

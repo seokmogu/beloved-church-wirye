@@ -1,7 +1,5 @@
 # Church Deployment Notes
 
-This file records deployment targets and required access only. Do not store secret values here.
-
 ## Deployment Path
 
 - Development environment uses local services:
@@ -15,8 +13,9 @@ This file records deployment targets and required access only. Do not store secr
 
 Local `.env` must point to local Docker and local frontend URLs. Vercel Production/Preview env vars must point to Supabase and the Vercel production/preview URL. Do not mix local URLs into Vercel env vars.
 
-- `.env`: local development values; git ignored.
-- `.deploy/vercel.env.local`: local private copy of Vercel/Supabase production values if needed; git ignored and not auto-loaded by Next.
+- This repo does not keep a tracked `.env.example`; use the real project env files instead.
+- `.env`: canonical local development values; git ignored.
+- `.deploy/vercel.env.local`: private copy of Vercel/Supabase production values if needed; git ignored and not auto-loaded by Next.
 - `.deploy/supabase.env.local`: Supabase helper credentials and connection strings; git ignored.
 
 Do not create `.env.production.local` unless intentionally testing Vercel-like production env locally. Next.js auto-loads that file during `next build`, so empty or stale values can mask the local Docker `.env`.
@@ -85,7 +84,7 @@ Vercel Production and Preview should be checked for these names as applicable:
 - `OPENCLAW_API_URL`
 - `OPENCLAW_GATEWAY_TOKEN`
 
-Do not write secret values in Markdown, Git commits, issues, screenshots, terminal summaries, or tracked files. A private GitHub repository is not a secret store.
+Do not print secret values in Markdown, issues, screenshots, terminal summaries, or chat. For normal agent work, keep secret-containing env files git ignored; if the repo owner explicitly asks to commit a specific env file, confirm the exact file and scope first.
 
 ## Local-Only Storage Inside This Project
 
@@ -98,7 +97,7 @@ Suggested local files:
 - `.deploy/dumps/` for local database exports before migration.
 - `.deploy/checks/` for private command output that may include project metadata.
 
-Secret values may also live in `.env`, `.env.local`, or `.env.*.local`, which are git ignored. Keep all secret-containing files mode `600` when possible.
+Secret values may also live in `.env`, `.env.development`, `.env.preview`, `.env.production`, `.env.local`, or `.env.*.local`, which are git ignored. Keep all secret-containing files mode `600` when possible.
 
 ## Current Local Source Database
 
