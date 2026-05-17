@@ -26,3 +26,5 @@ node_modules/
 .omx/
 .env*.local
 .env.vercel
+.admin.local.credentials
+.deploy/

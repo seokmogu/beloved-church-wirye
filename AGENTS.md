@@ -1,5 +1,19 @@
 # Payload CMS Development Rules
 
+## Deployment Policy
+
+- Approved Vercel target: `seokmogus-projects/beloved-church-wirye`.
+- Vercel project ID: `prj_rlSbDEXCQBanqqOZorCnYKL6BTnH`.
+- Approved deployment path: GitHub -> Vercel Git integration. Use GitHub CLI to push/PR/merge `seokmogu/beloved-church-wirye`; Vercel should build from Git. Do not use direct `vercel deploy` for normal releases.
+- Production branch: `main` after Vercel Git settings confirm this repository and branch.
+- Approved Supabase target: `beloved-church-wirye` (`fpiqbslkwcyqpbrnbkhr`) under the church project's Supabase account. This is separate from `corp-screening` Supabase access.
+- Do not deploy this project with the Mac Studio `aktngroup-projects` / `info-64568325` Vercel context. A visible Vercel login, token, `.vercel/project.json`, dashboard URL, or `POSTGRES_URL` is not enough authorization to deploy.
+- Do not run `supabase link`, `supabase db push`, `supabase db reset`, `supabase db query --linked`, migrations, or seed commands unless the active Supabase account/token and target project ref are explicitly verified for `fpiqbslkwcyqpbrnbkhr`.
+- Before any production deploy, explicitly verify the Vercel scope/project, Git integration mode, production branch, required Vercel env vars, Supabase account/project ref, Supabase connection string, and Payload migrations. If any of these are unknown, stop and ask.
+- GitHub-to-Vercel auto-deploy only applies if the Vercel project has Git integration and automatic deployments enabled for the relevant branch. If that is not configured, configure/fix the Git integration rather than falling back to direct Vercel CLI deployment without explicit approval.
+- Required production env names include `POSTGRES_URL`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`, `PAYLOAD_SERVER_URL`, `PAYLOAD_PUBLIC_ORIGINS`, `CRON_SECRET`, `PREVIEW_SECRET`, and any enabled integration vars such as `BLOB_READ_WRITE_TOKEN`, `NEXT_PUBLIC_NAVER_MAP_CLIENT_ID`, `OPENCLAW_API_URL`, and `OPENCLAW_GATEWAY_TOKEN`. Do not print, commit, or copy secret values.
+- All other deployment destinations are on hold unless the user explicitly approves and this file is updated first.
+
 You are an expert Payload CMS developer. When working with Payload projects, follow these rules:
 
 ## Core Principles

@@ -7,7 +7,7 @@ test('admin panel hydrates and reaches login or first-user page', async ({ page 
     if (m.type() === 'error') errors.push('CONSOLE: ' + m.text())
   })
 
-  await page.goto('http://localhost:3000/admin', { waitUntil: 'networkidle' })
+  await page.goto('/admin', { waitUntil: 'networkidle' })
   // After hydration, Payload admin redirects to /admin/create-first-user if no users
   // or /admin/login otherwise. Both pages render via client-side navigation.
   await page.waitForTimeout(2000)
