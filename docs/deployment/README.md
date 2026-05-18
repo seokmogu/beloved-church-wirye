@@ -4,16 +4,18 @@
 
 - Development environment uses local services:
   - Frontend/admin: local Next.js dev server, normally `http://localhost:3000`.
-  - Payload admin: same app at `/admin`.
+  - Custom admin: same app at `/manage`; `/admin` redirects to `/manage`.
   - Database: local Docker Postgres from `docker-compose.yml`, port `54320`, database `beloved-church-wirye`.
 - Production environment uses Vercel + Supabase:
   - Frontend/admin: Vercel deployment under `seokmogus-projects/beloved-church-wirye`.
-  - Payload admin: same Vercel app at `/admin`.
+  - Custom admin: same Vercel app at `/manage`; `/admin` redirects to `/manage`.
+  - Admin auth: Supabase Auth in project `fpiqbslkwcyqpbrnbkhr`, restricted by `MANAGE_ADMIN_EMAILS`.
   - Database: Supabase Postgres project `fpiqbslkwcyqpbrnbkhr`.
 
 Local `.env` must point to local Docker and local frontend URLs. Vercel Production/Preview env vars must point to Supabase and the Vercel production/preview URL. Do not mix local URLs into Vercel env vars.
 
 - This repo does not keep a tracked `.env.example`; use the real project env files instead.
+- `.env.production` is intentionally tracked for non-secret production defaults required by Git builds, including the Supabase public URL, Supabase anon key, and admin email allowlist. Do not put passwords, service-role keys, database URLs, or private tokens in `.env.production`.
 - `.env`: canonical local development values; git ignored.
 - `.deploy/vercel.env.local`: private copy of Vercel/Supabase production values if needed; git ignored and not auto-loaded by Next.
 - `.deploy/supabase.env.local`: Supabase helper credentials and connection strings; git ignored.
@@ -80,6 +82,9 @@ Vercel Production and Preview should be checked for these names as applicable:
 - `PREVIEW_SECRET`
 - `BLOB_READ_WRITE_TOKEN`
 - `NEXT_PUBLIC_NAVER_MAP_CLIENT_ID`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` or `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `MANAGE_ADMIN_EMAILS`
 - `NEXT_PUBLIC_CHAT_ENABLED`
 - `OPENCLAW_API_URL`
 - `OPENCLAW_GATEWAY_TOKEN`

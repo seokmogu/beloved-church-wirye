@@ -32,5 +32,18 @@ export const redirects: NextConfig['redirects'] = async () => {
     },
   ]
 
-  return [internetExplorerRedirect, ...legacyRouteRedirects]
+  const adminRedirects = [
+    {
+      source: '/admin',
+      destination: '/manage',
+      permanent: false,
+    },
+    {
+      source: '/admin/:path*',
+      destination: '/manage',
+      permanent: false,
+    },
+  ]
+
+  return [internetExplorerRedirect, ...adminRedirects, ...legacyRouteRedirects]
 }

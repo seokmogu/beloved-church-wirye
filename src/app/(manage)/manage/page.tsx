@@ -1,0 +1,101 @@
+import Link from 'next/link'
+
+import { ManageShell, PageHeader } from '@/app/(manage)/manage/_components/ManageShell'
+import { requireManageUser } from '@/lib/manage/auth'
+import { formatKoreanDate } from '@/lib/manage/date'
+import { getManagePayload } from '@/lib/manage/payload'
+
+export default async function ManageDashboardPage() {
+  const user = await requireManageUser()
+  const payload = await getManagePayload()
+  const [announcements, sermons, bulletins] = await Promise.all([
+    payload.find({ collection: 'announcements', limit: 5, sort: '-publishedAt' }),
+    payload.find({ collection: 'sermons', limit: 5, sort: '-sermonDate' }),
+    payload.find({ collection: 'bulletins', limit: 5, sort: '-date' }),
+  ])
+
+  return (
+    <ManageShell active="dashboard" user={user}>
+      <PageHeader description="주요 콘텐츠를 빠르게 확인하고 수정합니다." title="대시보드" />
+      <section className="manage-grid cols-3">
+        <Link className="manage-card manage-stat" href="/manage/announcements">
+          <span>공지사항</span>
+          <strong>{announcements.totalDocs}</strong>
+        </Link>
+        <Link className="manage-card manage-stat" href="/manage/sermons">
+          <span>설교</span>
+          <strong>{sermons.totalDocs}</strong>
+        </Link>
+        <Link className="manage-card manage-stat" href="/manage/bulletins">
+          <span>주보</span>
+          <strong>{bulletins.totalDocs}</strong>
+        </Link>
+      </section>
+      <section className="manage-grid" style={{ marginTop: 18 }}>
+        <RecentList
+          hrefPrefix="/manage/announcements"
+          items={announcements.docs.map((doc) => ({
+            date: doc.publishedAt,
+            id: doc.id,
+            title: doc.title,
+          }))}
+          title="최근 공지"
+        />
+        <RecentList
+          hrefPrefix="/manage/sermons"
+          items={sermons.docs.map((doc) => ({
+            date: doc.sermonDate,
+            id: doc.id,
+            title: doc.title,
+          }))}
+          title="최근 설교"
+        />
+      </section>
+    </ManageShell>
+  )
+}
+
+function RecentList({
+  hrefPrefix,
+  items,
+  title,
+}: {
+  hrefPrefix: string
+  items: { date?: string | null; id: number; title?: string | null }[]
+  title: string
+}) {
+  return (
+    <div className="manage-table-wrap">
+      <table className="manage-table">
+        <thead>
+          <tr>
+            <th>{title}</th>
+            <th>날짜</th>
+            <th>작업</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.length ? (
+            items.map((item) => (
+              <tr key={item.id}>
+                <td className="manage-table-title">{item.title}</td>
+                <td>{formatKoreanDate(item.date)}</td>
+                <td>
+                  <Link className="manage-button secondary" href={`${hrefPrefix}/${item.id}`}>
+                    편집
+                  </Link>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td className="manage-empty" colSpan={3}>
+                표시할 항목이 없습니다.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
+}
