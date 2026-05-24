@@ -3,6 +3,7 @@ import * as migration_20260503_143752_cms_control_globals from './20260503_14375
 import * as migration_20260505_144109_cms_design_controls from './20260505_144109_cms_design_controls'
 import * as migration_20260506_141200_internal_link_type from './20260506_141200_internal_link_type'
 import * as migration_20260507_064900_header_logo_controls from './20260507_064900_header_logo_controls'
+import * as migration_20260525_002300_visual_editor_font_controls from './20260525_002300_visual_editor_font_controls'
 
 export const migrations = [
   {
@@ -29,5 +30,10 @@ export const migrations = [
     up: migration_20260507_064900_header_logo_controls.up,
     down: migration_20260507_064900_header_logo_controls.down,
     name: '20260507_064900_header_logo_controls',
+  },
+  {
+    up: migration_20260525_002300_visual_editor_font_controls.up,
+    down: migration_20260525_002300_visual_editor_font_controls.down,
+    name: '20260525_002300_visual_editor_font_controls',
   },
 ]

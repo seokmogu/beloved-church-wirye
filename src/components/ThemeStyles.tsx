@@ -3,6 +3,7 @@ import type { Media, SiteSetting } from '@/payload-types'
 
 const defaultTheme = {
   backgroundColor: '#f7f8f6',
+  bodyFontSize: 16,
   borderColor: '#d9ded6',
   cardBackgroundColor: '#ffffff',
   darkSectionBackgroundColor: '#143c2e',
@@ -10,11 +11,14 @@ const defaultTheme = {
   headerBackgroundColor: '#123125',
   heroOverlayColor: '#0a1c15',
   heroOverlayOpacity: 82,
+  heroSubtitleFontSize: 30,
+  heroTitleFontSize: 88,
   mutedTextColor: '#5d675f',
   primaryColor: '#123125',
   primaryLightColor: '#1c4938',
   secondaryColor: '#f3ead6',
   sectionBackgroundColor: '#f7f8f6',
+  sectionTitleFontSize: 48,
   showHeroPattern: true,
   textColor: '#171a17',
 }
@@ -43,9 +47,13 @@ function hexToRgb(value: string): [number, number, number] {
 }
 
 function normalizeOpacity(value: unknown, fallback: number): number {
+  return normalizeNumber(value, fallback, 0, 100)
+}
+
+function normalizeNumber(value: unknown, fallback: number, min: number, max: number): number {
   const numberValue = typeof value === 'number' ? value : Number(value)
   if (!Number.isFinite(numberValue)) return fallback
-  return Math.min(100, Math.max(0, numberValue))
+  return Math.min(max, Math.max(min, numberValue))
 }
 
 function getMediaUrl(media: Media | number | null | undefined): string | null {
@@ -99,6 +107,25 @@ function buildThemeCSS(settings: SiteSetting | null): string {
     design?.darkSectionBackgroundImage as Media | number | null | undefined,
   )
   const patternOpacity = design?.showHeroPattern === false ? 0 : 0.18
+  const heroTitleFontSize = normalizeNumber(
+    design?.heroTitleFontSize,
+    defaultTheme.heroTitleFontSize,
+    36,
+    128,
+  )
+  const heroSubtitleFontSize = normalizeNumber(
+    design?.heroSubtitleFontSize,
+    defaultTheme.heroSubtitleFontSize,
+    16,
+    64,
+  )
+  const sectionTitleFontSize = normalizeNumber(
+    design?.sectionTitleFontSize,
+    defaultTheme.sectionTitleFontSize,
+    24,
+    80,
+  )
+  const bodyFontSize = normalizeNumber(design?.bodyFontSize, defaultTheme.bodyFontSize, 13, 24)
 
   return `
 :root {
@@ -132,12 +159,17 @@ function buildThemeCSS(settings: SiteSetting | null): string {
   --church-hero-overlay-mid: rgba(${overlayR}, ${overlayG}, ${overlayB}, ${opacityMid});
   --church-hero-overlay-end: rgba(${overlayR}, ${overlayG}, ${overlayB}, ${opacityEnd});
   --church-hero-pattern-opacity: ${patternOpacity};
+  --church-hero-title-size: ${heroTitleFontSize}px;
+  --church-hero-subtitle-size: ${heroSubtitleFontSize}px;
+  --church-section-title-size: ${sectionTitleFontSize}px;
+  --church-body-size: ${bodyFontSize}px;
   --church-page-background-image: ${cssUrl(pageBackgroundImage)};
   --church-dark-section-background-image: ${cssUrl(darkSectionBackgroundImage)};
 }
 
 body {
   background-image: var(--church-page-background-image);
+  font-size: var(--church-body-size);
   background-position: center top;
   background-repeat: no-repeat;
   background-size: cover;

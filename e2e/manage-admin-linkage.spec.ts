@@ -153,9 +153,27 @@ test.describe('custom manage admin linkage', () => {
     await expect(page.getByRole('heading', { name: '홈 관리' })).toBeVisible()
     await page.fill('#heroTitle', `${runId} 히어로`)
     await page.fill('#heroSubtitle', `${runId} 히어로 부제목`)
+    await expect(page.locator('#heroImageFile')).toBeVisible()
+    await expect(page.locator('#pageBackgroundImageFile')).toBeVisible()
+    await page.locator('#primaryColor').evaluate((element) => {
+      const input = element as HTMLInputElement
+      input.value = '#24513b'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    await page.locator('#secondaryColor').evaluate((element) => {
+      const input = element as HTMLInputElement
+      input.value = '#efe1bd'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    await page.fill('#heroTitleFontSize', '72')
+    await page.fill('#sectionTitleFontSize', '44')
     await save(page)
     await page.goto(`${serverURL}/`, { waitUntil: 'networkidle' })
     await expect(page.locator('h1')).toContainText(`${runId} 히어로`)
+    const themeCSS = await page.locator('#church-theme').textContent()
+    expect(themeCSS).toContain('--primary: #24513b')
+    expect(themeCSS).toContain('--church-hero-title-size: 72px')
+    expect(themeCSS).toContain('--church-section-title-size: 44px')
 
     await page.goto(`${serverURL}/manage/worship`, { waitUntil: 'networkidle' })
     await page.fill('#worshipServiceName-0', `${runId} 예배`)

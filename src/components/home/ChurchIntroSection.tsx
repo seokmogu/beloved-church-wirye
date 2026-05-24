@@ -30,10 +30,10 @@ export function ChurchIntroSection({
             <p className="mb-3 text-sm font-semibold uppercase text-secondary">
               {section?.eyebrow ?? 'ABOUT US'}
             </p>
-            <h2 className="max-w-xl text-3xl font-bold leading-tight text-foreground md:text-5xl">
+            <h2 className="church-section-heading max-w-xl font-bold leading-tight text-foreground">
               {section?.title ?? settings?.tagline ?? '교회 소개'}
             </h2>
-            <div className="mt-6 max-w-xl space-y-4 text-base leading-relaxed text-muted-foreground">
+            <div className="church-body-copy mt-6 max-w-xl space-y-4 leading-relaxed text-muted-foreground">
               {description && <p>{description}</p>}
               {vision && (
                 <p>

@@ -623,6 +623,52 @@ export const SiteSettings: GlobalConfig = {
                   defaultValue: true,
                 },
                 {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'heroTitleFontSize',
+                      type: 'number',
+                      label: '히어로 제목 크기(px)',
+                      defaultValue: 88,
+                      min: 36,
+                      max: 128,
+                      admin: { width: '50%' },
+                    },
+                    {
+                      name: 'heroSubtitleFontSize',
+                      type: 'number',
+                      label: '히어로 부제목 크기(px)',
+                      defaultValue: 30,
+                      min: 16,
+                      max: 64,
+                      admin: { width: '50%' },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'sectionTitleFontSize',
+                      type: 'number',
+                      label: '섹션 제목 크기(px)',
+                      defaultValue: 48,
+                      min: 24,
+                      max: 80,
+                      admin: { width: '50%' },
+                    },
+                    {
+                      name: 'bodyFontSize',
+                      type: 'number',
+                      label: '본문 크기(px)',
+                      defaultValue: 16,
+                      min: 13,
+                      max: 24,
+                      admin: { width: '50%' },
+                    },
+                  ],
+                },
+                {
                   name: 'pageBackgroundImage',
                   type: 'upload',
                   relationTo: 'media',

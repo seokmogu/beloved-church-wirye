@@ -52,12 +52,12 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={logoUrl} alt={churchName} className="mb-7 h-16 w-auto object-contain brightness-0 invert md:h-20" />
           ) : (
-            <h1 className="mb-6 text-5xl font-bold leading-tight text-white md:text-7xl lg:text-8xl">{title}</h1>
+            <h1 className="church-hero-title mb-6 font-bold leading-tight text-white">{title}</h1>
           )}
 
           {logoUrl && <h1 className="sr-only">{title}</h1>}
-          {subtitle && <p className="max-w-2xl text-2xl font-semibold leading-snug text-white md:text-3xl">{subtitle}</p>}
-          {body && <p className="mt-5 max-w-xl text-base leading-relaxed text-white/72 md:text-lg">{body}</p>}
+          {subtitle && <p className="church-hero-subtitle max-w-2xl font-semibold leading-snug text-white">{subtitle}</p>}
+          {body && <p className="church-body-copy mt-5 max-w-xl leading-relaxed text-white/72">{body}</p>}
 
           {badges.length > 0 && (
             <div className="mt-8 flex flex-wrap gap-2.5">

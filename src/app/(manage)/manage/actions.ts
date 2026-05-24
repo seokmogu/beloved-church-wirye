@@ -1,5 +1,7 @@
 'use server'
 
+import { Buffer } from 'node:buffer'
+
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
@@ -187,12 +189,43 @@ export async function saveOfferingAction(formData: FormData) {
 export async function saveHomeSettingsAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
+  const currentSettings = (await payload.findGlobal({
+    slug: 'site-settings',
+    depth: 0,
+  })) as unknown as Record<string, unknown>
+  const currentDesign = currentSettings.design as Record<string, unknown> | null | undefined
+
+  const heroImageUpload = await uploadMediaFromForm(
+    payload,
+    formData,
+    'heroImageFile',
+    optionalString(formData, 'heroTitle') || '홈 히어로 배경 이미지',
+  )
+  const pageBackgroundUpload = await uploadMediaFromForm(
+    payload,
+    formData,
+    'pageBackgroundImageFile',
+    '전체 페이지 배경 이미지',
+  )
+  const darkSectionBackgroundUpload = await uploadMediaFromForm(
+    payload,
+    formData,
+    'darkSectionBackgroundImageFile',
+    '어두운 섹션 배경 이미지',
+  )
 
   await payload.updateGlobal({
     data: {
       churchName: optionalString(formData, 'churchName') || '사랑하는교회',
+      design: parseDesignSettings(formData, currentDesign, {
+        darkSectionBackgroundImage: darkSectionBackgroundUpload,
+        pageBackgroundImage: pageBackgroundUpload,
+      }),
       englishName: optionalString(formData, 'englishName'),
       heroEyebrow: optionalString(formData, 'heroEyebrow'),
+      heroImage: checkboxValue(formData, 'clearHeroImage')
+        ? null
+        : heroImageUpload || mediaRelationValue(currentSettings.heroImage),
       heroPrimaryLabel: optionalString(formData, 'heroPrimaryLabel'),
       heroPrimaryUrl: optionalString(formData, 'heroPrimaryUrl'),
       heroSecondaryLabel: optionalString(formData, 'heroSecondaryLabel'),
@@ -306,6 +339,123 @@ function requiredNumber(formData: FormData, key: string): number {
 
 function checkboxValue(formData: FormData, key: string): boolean {
   return formData.get(key) === 'on'
+}
+
+async function uploadMediaFromForm(
+  payload: Awaited<ReturnType<typeof getManagePayload>>,
+  formData: FormData,
+  key: string,
+  alt: string,
+): Promise<number | string | null> {
+  const value = formData.get(key)
+  if (!value || typeof value === 'string') return null
+
+  const file = value as File
+  if (!file.size) return null
+
+  const uploaded = await payload.create({
+    collection: 'media',
+    data: { alt },
+    file: {
+      data: Buffer.from(await file.arrayBuffer()),
+      mimetype: file.type || 'application/octet-stream',
+      name: file.name || `${key}.upload`,
+      size: file.size,
+    },
+  } as any)
+
+  return uploaded.id
+}
+
+function mediaRelationValue(value: unknown): number | string | null {
+  if (!value) return null
+  if (typeof value === 'number' || typeof value === 'string') return value
+  if (typeof value === 'object' && 'id' in value) {
+    const id = (value as { id?: number | string }).id
+    return id ?? null
+  }
+  return null
+}
+
+function currentNumber(value: unknown, fallback: number): number {
+  const numberValue = typeof value === 'number' ? value : Number(value)
+  return Number.isFinite(numberValue) ? numberValue : fallback
+}
+
+function currentString(value: unknown, fallback: string): string {
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback
+}
+
+function parseDesignSettings(
+  formData: FormData,
+  currentDesign: Record<string, unknown> | null | undefined,
+  uploads: { darkSectionBackgroundImage: number | string | null; pageBackgroundImage: number | string | null },
+) {
+  const current = currentDesign || {}
+
+  return {
+    ...current,
+    backgroundColor: optionalString(formData, 'backgroundColor') || currentString(current.backgroundColor, '#f7f8f6'),
+    bodyFontSize: clampNumber(formData, 'bodyFontSize', currentNumber(current.bodyFontSize, 16), 13, 24),
+    borderColor: optionalString(formData, 'borderColor') || currentString(current.borderColor, '#d9ded6'),
+    cardBackgroundColor:
+      optionalString(formData, 'cardBackgroundColor') || currentString(current.cardBackgroundColor, '#ffffff'),
+    darkSectionBackgroundColor:
+      optionalString(formData, 'darkSectionBackgroundColor') ||
+      currentString(current.darkSectionBackgroundColor, '#143c2e'),
+    darkSectionBackgroundImage: checkboxValue(formData, 'clearDarkSectionBackgroundImage')
+      ? null
+      : uploads.darkSectionBackgroundImage || mediaRelationValue(current.darkSectionBackgroundImage),
+    footerBackgroundColor:
+      optionalString(formData, 'footerBackgroundColor') ||
+      currentString(current.footerBackgroundColor, '#143c2e'),
+    headerBackgroundColor:
+      optionalString(formData, 'headerBackgroundColor') ||
+      currentString(current.headerBackgroundColor, '#123125'),
+    heroOverlayColor:
+      optionalString(formData, 'heroOverlayColor') || currentString(current.heroOverlayColor, '#0a1c15'),
+    heroOverlayOpacity: clampNumber(
+      formData,
+      'heroOverlayOpacity',
+      currentNumber(current.heroOverlayOpacity, 82),
+      0,
+      100,
+    ),
+    heroSubtitleFontSize: clampNumber(
+      formData,
+      'heroSubtitleFontSize',
+      currentNumber(current.heroSubtitleFontSize, 30),
+      16,
+      64,
+    ),
+    heroTitleFontSize: clampNumber(
+      formData,
+      'heroTitleFontSize',
+      currentNumber(current.heroTitleFontSize, 88),
+      36,
+      128,
+    ),
+    mutedTextColor: optionalString(formData, 'mutedTextColor') || currentString(current.mutedTextColor, '#5d675f'),
+    pageBackgroundImage: checkboxValue(formData, 'clearPageBackgroundImage')
+      ? null
+      : uploads.pageBackgroundImage || mediaRelationValue(current.pageBackgroundImage),
+    primaryColor: optionalString(formData, 'primaryColor') || currentString(current.primaryColor, '#123125'),
+    primaryLightColor:
+      optionalString(formData, 'primaryLightColor') || currentString(current.primaryLightColor, '#1c4938'),
+    secondaryColor: optionalString(formData, 'secondaryColor') || currentString(current.secondaryColor, '#f3ead6'),
+    sectionBackgroundColor:
+      optionalString(formData, 'sectionBackgroundColor') ||
+      currentString(current.sectionBackgroundColor, '#f7f8f6'),
+    sectionTitleFontSize: clampNumber(
+      formData,
+      'sectionTitleFontSize',
+      currentNumber(current.sectionTitleFontSize, 48),
+      24,
+      80,
+    ),
+    showHeroPattern: checkboxValue(formData, 'showHeroPattern'),
+    textColor: optionalString(formData, 'textColor') || currentString(current.textColor, '#171a17'),
+  }
 }
 
 function extractYouTubeId(url: string): string | undefined {

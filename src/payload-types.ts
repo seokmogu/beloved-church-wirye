@@ -2028,6 +2028,10 @@ export interface SiteSetting {
      */
     heroOverlayOpacity?: number | null;
     showHeroPattern?: boolean | null;
+    heroTitleFontSize?: number | null;
+    heroSubtitleFontSize?: number | null;
+    sectionTitleFontSize?: number | null;
+    bodyFontSize?: number | null;
     /**
      * 은은한 텍스처나 패턴용입니다. 비워두면 배경 컬러만 사용합니다.
      */
@@ -2314,6 +2318,10 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         heroOverlayColor?: T;
         heroOverlayOpacity?: T;
         showHeroPattern?: T;
+        heroTitleFontSize?: T;
+        heroSubtitleFontSize?: T;
+        sectionTitleFontSize?: T;
+        bodyFontSize?: T;
         pageBackgroundImage?: T;
         darkSectionBackgroundImage?: T;
       };

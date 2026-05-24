@@ -94,8 +94,8 @@ export function NaverMapSection({
           <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
             <div>
               <p className="mb-2 text-sm font-semibold uppercase text-secondary">{eyebrow ?? 'Location'}</p>
-              <h2 className="text-3xl font-bold text-foreground md:text-5xl">{title ?? '오시는 길'}</h2>
-              {description && <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">{description}</p>}
+              <h2 className="church-section-heading font-bold text-foreground">{title ?? '오시는 길'}</h2>
+              {description && <p className="church-body-copy mt-4 max-w-xl leading-relaxed text-muted-foreground">{description}</p>}
             </div>
 
             <div className="rounded-lg border border-border bg-card p-6 shadow-[0_18px_60px_rgba(20,42,33,0.08)]">
@@ -152,8 +152,8 @@ export function NaverMapSection({
         <div className="container">
           <div className="mb-10">
             <p className="mb-2 text-sm font-semibold uppercase text-secondary">{eyebrow ?? 'Location'}</p>
-            <h2 className="text-3xl font-bold text-foreground md:text-5xl">{title ?? '오시는 길'}</h2>
-            {description && <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">{description}</p>}
+            <h2 className="church-section-heading font-bold text-foreground">{title ?? '오시는 길'}</h2>
+            {description && <p className="church-body-copy mt-4 max-w-2xl leading-relaxed text-muted-foreground">{description}</p>}
           </div>
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">

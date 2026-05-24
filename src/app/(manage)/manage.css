@@ -290,6 +290,333 @@ textarea {
   gap: 18px;
   padding: 20px;
 }
+
+.manage-visual-form {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  display: grid;
+  gap: 18px;
+}
+.manage-editor-toolbar {
+  background: rgb(247 244 238 / 0.92);
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 10px;
+  position: sticky;
+  top: 12px;
+  z-index: 5;
+}
+.manage-editor-layout {
+  align-items: start;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) 320px;
+}
+.manage-site-preview {
+  background-color: var(--preview-background);
+  background-image: var(--preview-page-bg-image);
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgb(26 33 28 / 0.08);
+  color: var(--preview-text);
+  min-width: 0;
+  overflow: hidden;
+}
+.manage-preview-nav {
+  align-items: center;
+  background: var(--preview-primary);
+  color: #fff;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 16px 18px;
+}
+.manage-inline-field {
+  display: grid;
+  gap: 6px;
+}
+.manage-inline-field span,
+.manage-preview-link-row label,
+.manage-media-control label,
+.manage-color-control span,
+.manage-number-control span {
+  color: var(--manage-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.manage-preview-nav .manage-inline-field span,
+.manage-edit-hero .manage-inline-field span {
+  color: rgb(255 255 255 / 0.68);
+}
+.manage-inline-field input,
+.manage-inline-field textarea,
+.manage-preview-link-row input {
+  background: rgb(255 255 255 / 0.1);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: inherit;
+  min-width: 0;
+  outline: 0;
+  padding: 8px 10px;
+  width: 100%;
+}
+.manage-inline-field input:focus,
+.manage-inline-field textarea:focus,
+.manage-preview-link-row input:focus {
+  background: rgb(255 255 255 / 0.18);
+  border-color: color-mix(in srgb, var(--preview-secondary) 72%, white);
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.12);
+}
+.manage-inline-field.brand input {
+  font-size: 20px;
+  font-weight: 800;
+}
+.manage-inline-field.small {
+  max-width: 240px;
+}
+.manage-edit-hero {
+  background:
+    var(--preview-hero-bg-image),
+    linear-gradient(135deg, var(--preview-primary), var(--preview-primary-light));
+  background-position: center;
+  background-size: cover;
+  min-height: 520px;
+  position: relative;
+}
+.manage-edit-hero::before {
+  background: linear-gradient(90deg, var(--preview-hero-overlay), transparent);
+  content: '';
+  inset: 0;
+  opacity: var(--preview-hero-overlay-opacity);
+  pointer-events: none;
+  position: absolute;
+}
+.manage-edit-hero::after {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.1) 1px, transparent 1px);
+  background-size: 72px 72px;
+  content: '';
+  inset: 0;
+  opacity: 0.16;
+  pointer-events: none;
+  position: absolute;
+}
+.manage-visual-form[data-show-pattern='false'] .manage-edit-hero::after {
+  display: none;
+}
+.manage-edit-hero-content {
+  color: #fff;
+  display: grid;
+  gap: 14px;
+  max-width: 760px;
+  padding: 72px 44px;
+  position: relative;
+  z-index: 1;
+}
+.manage-inline-field.eyebrow input,
+.manage-inline-field.section-eyebrow input {
+  color: var(--preview-secondary);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.manage-inline-field.hero-title textarea,
+.manage-inline-field.section-title textarea {
+  font-weight: 900;
+  line-height: 1.08;
+  resize: vertical;
+}
+.manage-inline-field.hero-title textarea {
+  font-size: var(--preview-hero-title-size);
+  min-height: 150px;
+}
+.manage-inline-field.hero-subtitle textarea {
+  font-size: var(--preview-hero-subtitle-size);
+  font-weight: 700;
+  line-height: 1.25;
+  min-height: 94px;
+  resize: vertical;
+}
+.manage-inline-field.body-copy textarea {
+  color: var(--preview-muted);
+  font-size: var(--preview-body-size);
+  line-height: 1.55;
+  resize: vertical;
+}
+.manage-preview-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+.manage-inline-field.button-label {
+  background: var(--preview-secondary);
+  border-radius: 8px;
+  color: var(--preview-primary);
+  min-width: 180px;
+  padding: 10px;
+}
+.manage-inline-field.button-label.secondary {
+  background: rgb(255 255 255 / 0.12);
+  border: 1px solid rgb(255 255 255 / 0.24);
+  color: #fff;
+}
+.manage-inline-field.button-label span {
+  color: currentColor;
+  opacity: 0.72;
+}
+.manage-preview-link-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 620px;
+}
+.manage-preview-link-row label {
+  display: grid;
+  gap: 6px;
+}
+.manage-edit-intro-strip {
+  background: var(--preview-section-bg);
+  border-bottom: 1px solid var(--preview-border);
+  display: grid;
+  gap: 12px;
+  padding: 28px 34px;
+}
+.manage-inline-field.tagline input {
+  background: transparent;
+  border-color: var(--preview-border);
+  color: var(--preview-text);
+  font-size: clamp(22px, var(--preview-section-title-size), 48px);
+  font-weight: 900;
+}
+.manage-edit-sections {
+  background: var(--preview-section-bg);
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+}
+.manage-edit-section-card {
+  background: var(--preview-card-bg);
+  border: 1px solid var(--preview-border);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+}
+.manage-edit-section-card.dark {
+  background-color: var(--preview-dark-section-bg);
+  background-image:
+    linear-gradient(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.08)),
+    var(--preview-dark-section-bg-image);
+  background-position: center;
+  background-size: cover;
+  color: #fff;
+}
+.manage-edit-section-card.dark .manage-checkbox,
+.manage-edit-section-card.dark .manage-edit-section-card-top strong,
+.manage-edit-section-card.dark .manage-inline-field span,
+.manage-edit-section-card.dark .manage-inline-field.section-title textarea {
+  color: #fff;
+}
+.manage-edit-section-card.dark .manage-inline-field.body-copy textarea {
+  color: rgb(255 255 255 / 0.76);
+}
+.manage-edit-section-card.dark .manage-inline-field input,
+.manage-edit-section-card.dark .manage-inline-field textarea {
+  border-color: rgb(255 255 255 / 0.18);
+}
+.manage-edit-section-card-top {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+.manage-edit-section-card-top strong {
+  font-size: 14px;
+}
+.manage-inline-field.section-title textarea {
+  background: transparent;
+  border-color: var(--preview-border);
+  color: var(--preview-text);
+  font-size: clamp(24px, var(--preview-section-title-size), 80px);
+  min-height: 96px;
+}
+.manage-style-panel {
+  background: var(--manage-panel-strong);
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(26 33 28 / 0.06);
+  display: grid;
+  gap: 18px;
+  padding: 16px;
+  position: sticky;
+  top: 78px;
+}
+.manage-style-group {
+  display: grid;
+  gap: 12px;
+}
+.manage-style-group h2 {
+  font-size: 15px;
+  line-height: 1.25;
+  margin: 0;
+}
+.manage-media-control {
+  border: 1px solid #ebe0d0;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+.manage-media-thumb {
+  background: #f3eee6 center / cover no-repeat;
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+  height: 90px;
+  margin-top: 8px;
+}
+.manage-media-control input[type='file'] {
+  display: block;
+  font-size: 12px;
+  margin-top: 6px;
+  max-width: 100%;
+}
+.manage-color-control,
+.manage-number-control {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) 54px;
+}
+.manage-number-control {
+  grid-template-columns: minmax(0, 1fr) 76px 28px;
+}
+.manage-color-control input[type='color'] {
+  background: #fff;
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+  height: 38px;
+  padding: 2px;
+  width: 54px;
+}
+.manage-number-control input {
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+  min-height: 38px;
+  padding: 8px;
+  width: 76px;
+}
+.manage-number-control small {
+  color: var(--manage-muted);
+}
 .manage-section-title {
   font-size: 18px;
   line-height: 1.25;
@@ -391,8 +718,24 @@ textarea {
   .manage-page-header {
     display: grid;
   }
+  .manage-editor-layout,
+  .manage-preview-link-row,
   .manage-field-grid,
   .manage-grid.cols-3 {
     grid-template-columns: 1fr;
+  }
+  .manage-style-panel,
+  .manage-editor-toolbar {
+    position: static;
+  }
+  .manage-edit-hero-content {
+    padding: 42px 20px;
+  }
+  .manage-inline-field.hero-title textarea {
+    font-size: clamp(34px, var(--preview-hero-title-size), 64px);
+  }
+  .manage-preview-nav {
+    align-items: flex-start;
+    display: grid;
   }
 }

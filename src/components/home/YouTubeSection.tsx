@@ -29,11 +29,11 @@ export function YouTubeSection({ channelUrl, description, eyebrow, title, videos
             <p className="mb-2 text-sm font-semibold uppercase text-secondary">
               {eyebrow ?? 'Sermon'}
             </p>
-            <h2 className="text-3xl font-bold text-foreground md:text-5xl">
+            <h2 className="church-section-heading font-bold text-foreground">
               {title ?? '최신 설교'}
             </h2>
             {description && (
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
+              <p className="church-body-copy mt-4 max-w-2xl leading-relaxed text-muted-foreground">
                 {description}
               </p>
             )}

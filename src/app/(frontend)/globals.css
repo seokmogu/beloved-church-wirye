@@ -229,6 +229,22 @@
   background: linear-gradient(180deg, transparent, var(--church-section-bg));
 }
 
+.church-hero-title {
+  font-size: clamp(3rem, var(--church-hero-title-size), 8rem);
+}
+
+.church-hero-subtitle {
+  font-size: clamp(1.25rem, var(--church-hero-subtitle-size), 4rem);
+}
+
+.church-section-heading {
+  font-size: clamp(1.875rem, var(--church-section-title-size), 5rem);
+}
+
+.church-body-copy {
+  font-size: var(--church-body-size);
+}
+
 /* Hide scrollbar for carousel */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

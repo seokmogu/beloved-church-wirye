@@ -25,8 +25,8 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
         <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="mb-2 text-sm font-semibold uppercase text-secondary">{eyebrow ?? 'Instagram'}</p>
-            <h2 className="text-3xl font-bold md:text-5xl">{title ?? '인스타그램'}</h2>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/64">
+            <h2 className="church-section-heading font-bold">{title ?? '인스타그램'}</h2>
+            <p className="church-body-copy mt-4 max-w-2xl leading-relaxed text-white/64">
               {description ?? '사랑하는교회의 일상과 소식을 만나보세요'}
             </p>
           </div>
