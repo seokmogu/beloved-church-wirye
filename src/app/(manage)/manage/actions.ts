@@ -8,7 +8,15 @@ import { dateInputToISO } from '@/lib/manage/date'
 import { plaintextToLexical } from '@/lib/manage/lexical'
 import { getManagePayload } from '@/lib/manage/payload'
 
-const publicPaths = ['/', '/announcements', '/sermon', '/bulletins', '/offering']
+const publicPaths = [
+  '/',
+  '/about',
+  '/announcements',
+  '/sermon',
+  '/worship',
+  '/bulletins',
+  '/offering',
+]
 
 export async function saveAnnouncementAction(formData: FormData) {
   await requireManageActionUser()
@@ -66,6 +74,22 @@ export async function saveSermonAction(formData: FormData) {
   } else {
     await payload.create({ collection: 'sermons', data: data as any })
   }
+
+  revalidateManageAndPublic('/manage/sermons')
+  redirect('/manage/sermons')
+}
+
+export async function saveSermonSettingsAction(formData: FormData) {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+
+  await payload.updateGlobal({
+    data: {
+      youtubeChannelUrl: optionalString(formData, 'youtubeChannelUrl'),
+      youtubeVideoCount: clampNumber(formData, 'youtubeVideoCount', 4, 1, 12),
+    } as any,
+    slug: 'site-settings',
+  })
 
   revalidateManageAndPublic('/manage/sermons')
   redirect('/manage/sermons')
@@ -160,6 +184,87 @@ export async function saveOfferingAction(formData: FormData) {
   redirect('/manage/offering')
 }
 
+export async function saveHomeSettingsAction(formData: FormData) {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+
+  await payload.updateGlobal({
+    data: {
+      churchName: optionalString(formData, 'churchName') || '사랑하는교회',
+      englishName: optionalString(formData, 'englishName'),
+      heroEyebrow: optionalString(formData, 'heroEyebrow'),
+      heroPrimaryLabel: optionalString(formData, 'heroPrimaryLabel'),
+      heroPrimaryUrl: optionalString(formData, 'heroPrimaryUrl'),
+      heroSecondaryLabel: optionalString(formData, 'heroSecondaryLabel'),
+      heroSecondaryUrl: optionalString(formData, 'heroSecondaryUrl'),
+      heroSubtitle: optionalString(formData, 'heroSubtitle'),
+      heroTitle: optionalString(formData, 'heroTitle'),
+      homeSections: parseHomeSections(formData),
+      subTagline: optionalString(formData, 'subTagline'),
+      tagline: optionalString(formData, 'tagline'),
+    } as any,
+    slug: 'site-settings',
+  })
+
+  revalidateManageAndPublic('/manage/home')
+  redirect('/manage/home')
+}
+
+export async function saveWorshipSettingsAction(formData: FormData) {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+
+  await payload.updateGlobal({
+    data: {
+      address: optionalString(formData, 'address'),
+      addressDetail: optionalString(formData, 'addressDetail'),
+      mapLat: optionalNumber(formData, 'mapLat'),
+      mapLng: optionalNumber(formData, 'mapLng'),
+      parkingInfo: optionalString(formData, 'parkingInfo'),
+      transitInfo: optionalString(formData, 'transitInfo'),
+      visitorNotes: parseVisitorNotes(formData),
+      worshipOrder: parseWorshipOrder(formData),
+      worshipServices: parseWorshipServices(formData),
+    } as any,
+    slug: 'site-settings',
+  })
+
+  revalidateManageAndPublic('/manage/worship')
+  redirect('/manage/worship')
+}
+
+export async function saveInstagramSettingsAction(formData: FormData) {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+
+  await payload.updateGlobal({
+    data: {
+      instagramHandle: optionalString(formData, 'instagramHandle'),
+      instagramPosts: parseInstagramPosts(formData),
+      instagramUrl: optionalString(formData, 'instagramUrl'),
+    } as any,
+    slug: 'site-settings',
+  })
+
+  revalidateManageAndPublic('/manage/instagram')
+  redirect('/manage/instagram')
+}
+
+export async function saveMenuAction(formData: FormData) {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+
+  await payload.updateGlobal({
+    data: {
+      navItems: parseMenuItems(formData),
+    } as any,
+    slug: 'header',
+  })
+
+  revalidateManageAndPublic('/manage/menu')
+  redirect('/manage/menu')
+}
+
 function revalidateManageAndPublic(managePath: string) {
   revalidatePath(managePath)
   publicPaths.forEach((path) => revalidatePath(path))
@@ -186,6 +291,11 @@ function optionalNumber(formData: FormData, key: string): number | undefined {
   if (!value) return undefined
   const number = Number(value)
   return Number.isFinite(number) ? number : undefined
+}
+
+function clampNumber(formData: FormData, key: string, fallback: number, min: number, max: number) {
+  const number = optionalNumber(formData, key) ?? fallback
+  return Math.min(max, Math.max(min, number))
 }
 
 function requiredNumber(formData: FormData, key: string): number {
@@ -232,4 +342,100 @@ function parseOfferingTypes(formData: FormData) {
 
 function stringValues(formData: FormData, key: string): string[] {
   return formData.getAll(key).map((value) => (typeof value === 'string' ? value.trim() : ''))
+}
+
+function indexedString(formData: FormData, key: string, index: number): string {
+  const value = formData.get(`${key}-${index}`)
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function parseHomeSections(formData: FormData) {
+  const types = stringValues(formData, 'homeSectionType')
+
+  return types
+    .map((sectionType, index) => ({
+      description: indexedString(formData, 'homeSectionDescription', index) || null,
+      enabled: formData.get(`homeSectionEnabled-${index}`) === 'on',
+      eyebrow: indexedString(formData, 'homeSectionEyebrow', index) || null,
+      sectionType,
+      title: indexedString(formData, 'homeSectionTitle', index) || null,
+    }))
+    .filter((section) =>
+      ['intro', 'announcements', 'sermons', 'instagram', 'map'].includes(section.sectionType),
+    )
+}
+
+function parseWorshipServices(formData: FormData) {
+  const names = stringValues(formData, 'worshipServiceName')
+  const times = stringValues(formData, 'worshipServiceTime')
+  const descriptions = stringValues(formData, 'worshipServiceDescription')
+
+  return names
+    .map((name, index) => ({
+      description: descriptions[index] || null,
+      name,
+      time: times[index] || '',
+    }))
+    .filter((service) => service.name && service.time)
+}
+
+function parseWorshipOrder(formData: FormData) {
+  const titles = stringValues(formData, 'worshipOrderTitle')
+  const descriptions = stringValues(formData, 'worshipOrderDescription')
+
+  return titles
+    .map((title, index) => ({
+      description: descriptions[index] || null,
+      title,
+    }))
+    .filter((item) => item.title)
+}
+
+function parseVisitorNotes(formData: FormData) {
+  return stringValues(formData, 'visitorNote')
+    .filter(Boolean)
+    .map((text) => ({ text }))
+}
+
+function parseInstagramPosts(formData: FormData) {
+  const types = stringValues(formData, 'instagramPostType')
+  const postIds = stringValues(formData, 'instagramPostId')
+
+  return postIds
+    .map((postId, index) => ({
+      postId,
+      type: types[index] === 'reel' ? 'reel' : 'p',
+    }))
+    .filter((post) => post.postId)
+}
+
+function parseMenuItems(formData: FormData) {
+  const labels = stringValues(formData, 'menuLabel')
+  const types = stringValues(formData, 'menuType')
+  const internalPaths = stringValues(formData, 'menuInternalPath')
+  const urls = stringValues(formData, 'menuUrl')
+
+  return labels
+    .map((label, index) => {
+      const type = types[index] === 'custom' ? 'custom' : 'internal'
+      const link =
+        type === 'custom'
+          ? {
+              label,
+              newTab: formData.get(`menuNewTab-${index}`) === 'on',
+              type,
+              url: urls[index] || '',
+            }
+          : {
+              internalPath: internalPaths[index] || '/',
+              label,
+              newTab: formData.get(`menuNewTab-${index}`) === 'on',
+              type,
+            }
+
+      return { link }
+    })
+    .filter(
+      (item) => item.link.label && ('url' in item.link ? item.link.url : item.link.internalPath),
+    )
 }

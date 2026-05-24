@@ -18,6 +18,18 @@ export default async function ManageDashboardPage() {
     <ManageShell active="dashboard" user={user}>
       <PageHeader description="주요 콘텐츠를 빠르게 확인하고 수정합니다." title="대시보드" />
       <section className="manage-grid cols-3">
+        <Link className="manage-card manage-stat" href="/manage/home">
+          <span>홈 관리</span>
+          <strong>5</strong>
+        </Link>
+        <Link className="manage-card manage-stat" href="/manage/worship">
+          <span>예배 안내</span>
+          <strong>위치</strong>
+        </Link>
+        <Link className="manage-card manage-stat" href="/manage/instagram">
+          <span>인스타그램</span>
+          <strong>SNS</strong>
+        </Link>
         <Link className="manage-card manage-stat" href="/manage/announcements">
           <span>공지사항</span>
           <strong>{announcements.totalDocs}</strong>
@@ -29,6 +41,14 @@ export default async function ManageDashboardPage() {
         <Link className="manage-card manage-stat" href="/manage/bulletins">
           <span>주보</span>
           <strong>{bulletins.totalDocs}</strong>
+        </Link>
+        <Link className="manage-card manage-stat" href="/manage/offering">
+          <span>헌금 안내</span>
+          <strong>계좌</strong>
+        </Link>
+        <Link className="manage-card manage-stat" href="/manage/menu">
+          <span>메뉴 관리</span>
+          <strong>GNB</strong>
         </Link>
       </section>
       <section className="manage-grid" style={{ marginTop: 18 }}>

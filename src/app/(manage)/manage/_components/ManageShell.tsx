@@ -3,9 +3,13 @@ import {
   BookOpen,
   FileText,
   HandCoins,
+  Home,
+  Instagram,
   LayoutDashboard,
   LogOut,
+  MapPin,
   Megaphone,
+  Menu,
   Plus,
   Radio,
 } from 'lucide-react'
@@ -15,7 +19,17 @@ import type { ReactNode } from 'react'
 import { signOutAction } from '@/app/(manage)/manage/login/actions'
 import type { ManageUser } from '@/lib/manage/auth'
 
-type ActiveKey = 'announcements' | 'banner' | 'bulletins' | 'dashboard' | 'offering' | 'sermons'
+type ActiveKey =
+  | 'announcements'
+  | 'banner'
+  | 'bulletins'
+  | 'dashboard'
+  | 'home'
+  | 'instagram'
+  | 'menu'
+  | 'offering'
+  | 'sermons'
+  | 'worship'
 
 const navItems: {
   href: string
@@ -24,11 +38,15 @@ const navItems: {
   label: string
 }[] = [
   { href: '/manage', icon: LayoutDashboard, key: 'dashboard', label: '대시보드' },
-  { href: '/manage/announcements', icon: Bell, key: 'announcements', label: '공지사항' },
+  { href: '/manage/home', icon: Home, key: 'home', label: '홈 관리' },
+  { href: '/manage/worship', icon: MapPin, key: 'worship', label: '예배 안내' },
   { href: '/manage/sermons', icon: Radio, key: 'sermons', label: '설교' },
+  { href: '/manage/instagram', icon: Instagram, key: 'instagram', label: '인스타그램' },
+  { href: '/manage/announcements', icon: Bell, key: 'announcements', label: '공지사항' },
   { href: '/manage/bulletins', icon: FileText, key: 'bulletins', label: '주보' },
-  { href: '/manage/banner', icon: Megaphone, key: 'banner', label: '상단 배너' },
   { href: '/manage/offering', icon: HandCoins, key: 'offering', label: '헌금 안내' },
+  { href: '/manage/banner', icon: Megaphone, key: 'banner', label: '상단 배너' },
+  { href: '/manage/menu', icon: Menu, key: 'menu', label: '메뉴 관리' },
 ]
 
 export function ManageShell({

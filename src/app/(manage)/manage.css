@@ -254,6 +254,25 @@ textarea {
   gap: 18px;
   padding: 20px;
 }
+.manage-section-title {
+  font-size: 18px;
+  line-height: 1.25;
+  margin: 0;
+}
+.manage-subform {
+  background: #fffaf2;
+  border: 1px solid #ebe0d0;
+  border-radius: 8px;
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+.manage-subform-header {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
 .manage-field-grid {
   display: grid;
   gap: 16px;
@@ -294,6 +313,11 @@ textarea {
 .manage-checkbox input {
   height: 18px;
   width: 18px;
+}
+.manage-checkbox.compact,
+.manage-checkbox.menu-checkbox {
+  align-self: end;
+  min-height: 42px;
 }
 .manage-form-actions {
   display: flex;

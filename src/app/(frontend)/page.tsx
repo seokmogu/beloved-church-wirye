@@ -9,7 +9,7 @@ import { InstagramSection } from '@/components/home/InstagramSection'
 import { NaverMapSectionServer } from '@/components/home/NaverMapSection.server'
 import { YouTubeSection } from '@/components/home/YouTubeSection'
 import type { SiteSetting } from '@/payload-types'
-import { fetchLatestVideos } from '@/lib/youtube'
+import type { YouTubeVideo } from '@/lib/youtube'
 
 export const metadata = {
   title: '사랑하는교회 | Beloved Church Wirye',
@@ -22,7 +22,12 @@ type HomeSection = NonNullable<SiteSetting['homeSections']>[number]
 type SectionType = NonNullable<HomeSection['sectionType']>
 
 const defaultSections: HomeSection[] = [
-  { enabled: true, sectionType: 'intro', eyebrow: 'ABOUT US', title: '그리스도를 본받아 함께 사랑하는 공동체' },
+  {
+    enabled: true,
+    sectionType: 'intro',
+    eyebrow: 'ABOUT US',
+    title: '그리스도를 본받아 함께 사랑하는 공동체',
+  },
   { enabled: true, sectionType: 'announcements', eyebrow: 'NOTICE', title: '교회 소식' },
   { enabled: true, sectionType: 'sermons', eyebrow: 'SERMON', title: '최신 설교' },
   { enabled: true, sectionType: 'instagram', eyebrow: 'INSTAGRAM', title: '인스타그램' },
@@ -30,7 +35,9 @@ const defaultSections: HomeSection[] = [
 ]
 
 function getSections(settings: SiteSetting | null): HomeSection[] {
-  const sections = settings?.homeSections?.filter((section) => section?.enabled !== false && section?.sectionType)
+  const sections = settings?.homeSections?.filter(
+    (section) => section?.enabled !== false && section?.sectionType,
+  )
   return sections && sections.length > 0 ? sections : defaultSections
 }
 
@@ -51,9 +58,10 @@ export default async function HomePage() {
   const sections = getSections(settings)
   const showAnnouncements = hasSection(sections, 'announcements')
   const showSermons = hasSection(sections, 'sermons')
-  const videoCount = typeof settings?.youtubeVideoCount === 'number' ? settings.youtubeVideoCount : 4
+  const videoCount =
+    typeof settings?.youtubeVideoCount === 'number' ? settings.youtubeVideoCount : 4
 
-  const [announcementsResult, videos] = await Promise.all([
+  const [announcementsResult, sermonsResult] = await Promise.all([
     showAnnouncements
       ? payload
           .find({
@@ -67,8 +75,22 @@ export default async function HomePage() {
           })
       : Promise.resolve(null),
     showSermons
-      ? fetchLatestVideos(videoCount, settings?.youtubeChannelId ?? undefined, settings?.youtubeChannelUrl ?? undefined)
-      : Promise.resolve([]),
+      ? payload
+          .find({
+            collection: 'sermons',
+            where: {
+              status: {
+                equals: 'published',
+              },
+            },
+            limit: videoCount,
+            sort: '-sermonDate',
+          })
+          .catch((error) => {
+            console.error('Failed to fetch sermons:', error)
+            return null
+          })
+      : Promise.resolve(null),
   ])
 
   const announcements: AnnouncementItem[] = announcementsResult
@@ -79,6 +101,17 @@ export default async function HomePage() {
         isPinned: doc.isPinned as boolean | null,
       }))
     : []
+  const videos: YouTubeVideo[] = sermonsResult
+    ? sermonsResult.docs
+        .filter((doc) => doc.youtubeId)
+        .map((doc) => ({
+          id: doc.youtubeId as string,
+          publishedAt: doc.sermonDate,
+          thumbnail:
+            doc.thumbnail || `https://img.youtube.com/vi/${doc.youtubeId}/maxresdefault.jpg`,
+          title: doc.title,
+        }))
+    : []
 
   return (
     <main>
@@ -86,7 +119,13 @@ export default async function HomePage() {
       {sections.map((section) => {
         switch (section.sectionType) {
           case 'intro':
-            return <ChurchIntroSection key={section.id ?? section.sectionType} section={section} settings={settings} />
+            return (
+              <ChurchIntroSection
+                key={section.id ?? section.sectionType}
+                section={section}
+                settings={settings}
+              />
+            )
           case 'announcements':
             return (
               <AnnouncementsSection

@@ -10,6 +10,7 @@ let originalSiteSettings: Record<string, unknown> | null = null
 let originalHeader: Record<string, unknown> | null = null
 let pageId: number | string | null = null
 let announcementId: number | string | null = null
+let sermonId: number | string | null = null
 
 const runId = `e2e-${Date.now()}`
 const managedPageSlug = `${runId}-managed-page`
@@ -17,6 +18,8 @@ const managedPageTitle = `${runId} 신규 페이지`
 const hiddenAnnouncementTitle = `${runId} 숨김 공지`
 const heroTitle = `${runId} 히어로`
 const introTitle = `${runId} 소개`
+const sermonSectionTitle = `${runId} 최신 설교`
+const sermonTitle = `${runId} 동기화 설교`
 const worshipName = `${runId} 새벽예배`
 const disableRevalidate = { disableRevalidate: true }
 
@@ -68,6 +71,19 @@ test.describe('CMS controlled public behavior', () => {
     })
     announcementId = announcement.id
 
+    const sermon = await payload.create({
+      collection: 'sermons',
+      data: {
+        preacher: '사랑하는교회',
+        sermonDate: new Date().toISOString(),
+        status: 'published',
+        title: sermonTitle,
+        youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      },
+      context: disableRevalidate,
+    })
+    sermonId = sermon.id
+
     await payload.updateGlobal({
       slug: 'header',
       data: {
@@ -117,6 +133,12 @@ test.describe('CMS controlled public behavior', () => {
           },
           {
             enabled: true,
+            sectionType: 'sermons',
+            eyebrow: 'E2E SERMON',
+            title: sermonSectionTitle,
+          },
+          {
+            enabled: true,
             sectionType: 'map',
             eyebrow: 'E2E LOCATION',
             title: `${runId} 위치`,
@@ -151,6 +173,9 @@ test.describe('CMS controlled public behavior', () => {
     if (pageId) {
       await payload.delete({ collection: 'pages', id: pageId, context: disableRevalidate })
     }
+    if (sermonId) {
+      await payload.delete({ collection: 'sermons', id: sermonId, context: disableRevalidate })
+    }
   })
 
   test('renders CMS-managed hero, section visibility, and menu link on the homepage', async ({
@@ -169,6 +194,19 @@ test.describe('CMS controlled public behavior', () => {
 
     await expect(page).toHaveURL(`${serverURL}/${managedPageSlug}`)
     await expect(page.locator('body')).not.toContainText('This page could not be found')
+  })
+
+  test('renders the CMS sermon collection in the homepage latest sermon section', async ({
+    page,
+  }) => {
+    const response = await page.goto(`${serverURL}/`, { waitUntil: 'networkidle' })
+    expect(response?.status()).toBeLessThan(400)
+
+    await expect(page.getByRole('heading', { name: sermonSectionTitle })).toBeVisible()
+
+    const sermonLink = page.getByRole('link', { name: new RegExp(sermonTitle) }).first()
+    await expect(sermonLink).toBeVisible()
+    await expect(sermonLink).toHaveAttribute('href', /dQw4w9WgXcQ/)
   })
 
   test('renders CMS-managed worship service copy on the worship page', async ({ page }) => {
