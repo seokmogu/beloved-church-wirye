@@ -8,8 +8,10 @@ const serverURL = process.env.E2E_BASE_URL || 'http://localhost:3000'
 let payload: Payload
 let originalSiteSettings: Record<string, unknown> | null = null
 let originalHeader: Record<string, unknown> | null = null
+let originalOffering: Record<string, unknown> | null = null
 let pageId: number | string | null = null
 let announcementId: number | string | null = null
+let bulletinId: number | string | null = null
 let sermonId: number | string | null = null
 
 const runId = `e2e-${Date.now()}`
@@ -18,8 +20,13 @@ const managedPageTitle = `${runId} 신규 페이지`
 const hiddenAnnouncementTitle = `${runId} 숨김 공지`
 const heroTitle = `${runId} 히어로`
 const introTitle = `${runId} 소개`
+const instagramPostId = 'C7AdminLinkage'
+const instagramTitle = `${runId} 인스타그램`
+const offeringIntro = `${runId} 헌금 안내 문구`
+const offeringType = `${runId} 감사헌금`
 const sermonSectionTitle = `${runId} 최신 설교`
 const sermonTitle = `${runId} 동기화 설교`
+const bulletinTitle = `${runId} 주보`
 const worshipName = `${runId} 새벽예배`
 const disableRevalidate = { disableRevalidate: true }
 
@@ -46,6 +53,10 @@ test.describe('CMS controlled public behavior', () => {
       string,
       unknown
     >
+    originalOffering = (await payload.findGlobal({
+      slug: 'offering-page',
+      depth: 0,
+    })) as unknown as Record<string, unknown>
 
     const page = await payload.create({
       collection: 'pages',
@@ -83,6 +94,18 @@ test.describe('CMS controlled public behavior', () => {
       context: disableRevalidate,
     })
     sermonId = sermon.id
+
+    const bulletin = await payload.create({
+      collection: 'bulletins',
+      data: {
+        date: new Date().toISOString(),
+        description: `${runId} 주보 설명`,
+        isPublic: true,
+        title: bulletinTitle,
+      },
+      context: disableRevalidate,
+    })
+    bulletinId = bulletin.id
 
     await payload.updateGlobal({
       slug: 'header',
@@ -139,9 +162,42 @@ test.describe('CMS controlled public behavior', () => {
           },
           {
             enabled: true,
+            sectionType: 'instagram',
+            eyebrow: 'E2E INSTAGRAM',
+            title: instagramTitle,
+          },
+          {
+            enabled: true,
             sectionType: 'map',
             eyebrow: 'E2E LOCATION',
             title: `${runId} 위치`,
+          },
+        ],
+        instagramHandle: '@e2e-beloved',
+        instagramPosts: [{ postId: instagramPostId, type: 'p' }],
+        instagramUrl: 'https://www.instagram.com/e2e-beloved/',
+      },
+      context: disableRevalidate,
+    })
+
+    await payload.updateGlobal({
+      slug: 'offering-page',
+      data: {
+        bankAccounts: [
+          {
+            accountHolder: `${runId} 교회`,
+            accountNumber: '123-456-7890',
+            bankName: '테스트은행',
+          },
+        ],
+        bibleReference: '고린도후서 9:7',
+        bibleVerse: `${runId} 성경 구절`,
+        introText: offeringIntro,
+        notes: `${runId} 안내 사항`,
+        offeringTypes: [
+          {
+            description: `${runId} 헌금 설명`,
+            title: offeringType,
           },
         ],
       },
@@ -162,6 +218,11 @@ test.describe('CMS controlled public behavior', () => {
       data: stripSystemFields(originalHeader),
       context: disableRevalidate,
     })
+    await payload.updateGlobal({
+      slug: 'offering-page',
+      data: stripSystemFields(originalOffering),
+      context: disableRevalidate,
+    })
 
     if (announcementId) {
       await payload.delete({
@@ -175,6 +236,9 @@ test.describe('CMS controlled public behavior', () => {
     }
     if (sermonId) {
       await payload.delete({ collection: 'sermons', id: sermonId, context: disableRevalidate })
+    }
+    if (bulletinId) {
+      await payload.delete({ collection: 'bulletins', id: bulletinId, context: disableRevalidate })
     }
   })
 
@@ -209,12 +273,44 @@ test.describe('CMS controlled public behavior', () => {
     await expect(sermonLink).toHaveAttribute('href', /dQw4w9WgXcQ/)
   })
 
+  test('renders CMS-managed Instagram posts on the homepage', async ({ page }) => {
+    const response = await page.goto(`${serverURL}/`, { waitUntil: 'networkidle' })
+    expect(response?.status()).toBeLessThan(400)
+
+    await expect(page.getByRole('heading', { name: instagramTitle })).toBeVisible()
+    await expect(
+      page.locator('a[href="https://www.instagram.com/e2e-beloved/"]').first(),
+    ).toHaveAttribute('href', 'https://www.instagram.com/e2e-beloved/')
+    await expect(
+      page.locator(`a[href="https://www.instagram.com/p/${instagramPostId}/"]`),
+    ).toBeVisible()
+  })
+
   test('renders CMS-managed worship service copy on the worship page', async ({ page }) => {
     const response = await page.goto(`${serverURL}/worship`, { waitUntil: 'networkidle' })
     expect(response?.status()).toBeLessThan(400)
 
     await expect(page.getByRole('heading', { name: worshipName })).toBeVisible()
     await expect(page.getByText('화요일 오전 6시')).toBeVisible()
+  })
+
+  test('renders CMS-managed offering copy on the offering page', async ({ page }) => {
+    const response = await page.goto(`${serverURL}/offering`, { waitUntil: 'networkidle' })
+    expect(response?.status()).toBeLessThan(400)
+
+    await expect(page.getByText(offeringIntro)).toBeVisible()
+    await expect(page.getByText('테스트은행')).toBeVisible()
+    await expect(page.getByText('123-456-7890')).toBeVisible()
+    await expect(page.getByRole('heading', { name: offeringType })).toBeVisible()
+  })
+
+  test('renders public bulletins managed by the bulletin admin collection', async ({ page }) => {
+    const response = await page.goto(`${serverURL}/bulletins`, { waitUntil: 'networkidle' })
+    expect(response?.status()).toBeLessThan(400)
+
+    await expect(page.getByRole('heading', { exact: true, name: '주보' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: bulletinTitle })).toBeVisible()
+    await expect(page.getByText(`${runId} 주보 설명`)).toBeVisible()
   })
 
   test('renders announcements as a board page', async ({ page }) => {

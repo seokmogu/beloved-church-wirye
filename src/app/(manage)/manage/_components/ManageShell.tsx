@@ -3,6 +3,7 @@ import {
   BookOpen,
   FileText,
   HandCoins,
+  HelpCircle,
   Home,
   Instagram,
   LayoutDashboard,
@@ -24,6 +25,7 @@ type ActiveKey =
   | 'banner'
   | 'bulletins'
   | 'dashboard'
+  | 'guide'
   | 'home'
   | 'instagram'
   | 'menu'
@@ -38,6 +40,7 @@ const navItems: {
   label: string
 }[] = [
   { href: '/manage', icon: LayoutDashboard, key: 'dashboard', label: '대시보드' },
+  { href: '/manage/guide', icon: HelpCircle, key: 'guide', label: '관리 가이드' },
   { href: '/manage/home', icon: Home, key: 'home', label: '홈 관리' },
   { href: '/manage/worship', icon: MapPin, key: 'worship', label: '예배 안내' },
   { href: '/manage/sermons', icon: Radio, key: 'sermons', label: '설교' },

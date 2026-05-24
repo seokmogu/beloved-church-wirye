@@ -18,6 +18,10 @@ export default async function ManageDashboardPage() {
     <ManageShell active="dashboard" user={user}>
       <PageHeader description="주요 콘텐츠를 빠르게 확인하고 수정합니다." title="대시보드" />
       <section className="manage-grid cols-3">
+        <Link className="manage-card manage-stat" href="/manage/guide">
+          <span>관리 가이드</span>
+          <strong>안내</strong>
+        </Link>
         <Link className="manage-card manage-stat" href="/manage/home">
           <span>홈 관리</span>
           <strong>5</strong>

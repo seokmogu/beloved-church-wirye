@@ -202,6 +202,42 @@ textarea {
   font-size: 30px;
   line-height: 1;
 }
+.manage-guide-layout {
+  display: grid;
+  gap: 18px;
+}
+.manage-guide-card {
+  background: var(--manage-panel-strong);
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(26 33 28 / 0.06);
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+.manage-guide-card h2 {
+  font-size: 18px;
+  line-height: 1.25;
+  margin: 0;
+}
+.manage-guide-card p {
+  color: var(--manage-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+.manage-guide-steps {
+  margin: 0;
+  padding-left: 20px;
+}
+.manage-guide-steps li {
+  line-height: 1.6;
+  margin: 6px 0;
+}
+.manage-guide-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .manage-table-wrap {
   overflow: auto;
 }
