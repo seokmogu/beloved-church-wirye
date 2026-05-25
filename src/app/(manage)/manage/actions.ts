@@ -9,6 +9,7 @@ import { requireManageActionUser } from '@/lib/manage/auth'
 import { dateInputToISO } from '@/lib/manage/date'
 import { plaintextToLexical } from '@/lib/manage/lexical'
 import { getManagePayload } from '@/lib/manage/payload'
+import { createOfferingMenuItem, hasOfferingMenuLink } from '@/lib/offeringPublic'
 
 const publicPaths = [
   '/',
@@ -169,20 +170,33 @@ export async function saveBannerAction(formData: FormData) {
 export async function saveOfferingAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
+  const offeringData = {
+    bankAccounts: parseBankAccounts(formData),
+    bibleReference: optionalString(formData, 'bibleReference'),
+    bibleVerse: optionalString(formData, 'bibleVerse'),
+    introText: optionalString(formData, 'introText'),
+    notes: optionalString(formData, 'notes'),
+    offeringTypes: parseOfferingTypes(formData),
+  }
 
   await payload.updateGlobal({
-    data: {
-      bankAccounts: parseBankAccounts(formData),
-      bibleReference: optionalString(formData, 'bibleReference'),
-      bibleVerse: optionalString(formData, 'bibleVerse'),
-      introText: optionalString(formData, 'introText'),
-      notes: optionalString(formData, 'notes'),
-      offeringTypes: parseOfferingTypes(formData),
-    } as any,
+    data: offeringData as any,
     slug: 'offering-page',
   })
 
+  const header = await payload.findGlobal({ slug: 'header', depth: 0 })
+  const offeringMenuAdded = !hasOfferingMenuLink(header.navItems)
+  if (offeringMenuAdded) {
+    await payload.updateGlobal({
+      data: {
+        navItems: [...(header.navItems ?? []), createOfferingMenuItem()],
+      } as any,
+      slug: 'header',
+    })
+  }
+
   revalidateManageAndPublic('/manage/offering')
+  if (offeringMenuAdded) revalidatePath('/manage/menu')
   redirect('/manage/offering')
 }
 
@@ -269,11 +283,15 @@ export async function saveWorshipSettingsAction(formData: FormData) {
 export async function saveInstagramSettingsAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
+  const currentSettings = (await payload.findGlobal({
+    slug: 'site-settings',
+    depth: 0,
+  })) as { instagramPosts?: Array<{ thumbnail?: unknown } | null> | null }
 
   await payload.updateGlobal({
     data: {
       instagramHandle: optionalString(formData, 'instagramHandle'),
-      instagramPosts: parseInstagramPosts(formData),
+      instagramPosts: await parseInstagramPosts(payload, formData, currentSettings.instagramPosts),
       instagramUrl: optionalString(formData, 'instagramUrl'),
     } as any,
     slug: 'site-settings',
@@ -547,16 +565,39 @@ function parseVisitorNotes(formData: FormData) {
     .map((text) => ({ text }))
 }
 
-function parseInstagramPosts(formData: FormData) {
+async function parseInstagramPosts(
+  payload: Awaited<ReturnType<typeof getManagePayload>>,
+  formData: FormData,
+  currentPosts: Array<{ thumbnail?: unknown } | null> | null | undefined,
+) {
   const types = stringValues(formData, 'instagramPostType')
   const postIds = stringValues(formData, 'instagramPostId')
+  const posts = await Promise.all(
+    postIds.map(async (postId, index) => {
+      if (!postId) return null
 
-  return postIds
-    .map((postId, index) => ({
-      postId,
-      type: types[index] === 'reel' ? 'reel' : 'p',
-    }))
-    .filter((post) => post.postId)
+      const uploadedThumbnail = await uploadMediaFromForm(
+        payload,
+        formData,
+        `instagramPostThumbnailFile-${index}`,
+        `Instagram 게시물 ${postId} 썸네일`,
+      )
+      const currentThumbnail =
+        mediaRelationValue(indexedString(formData, 'instagramPostThumbnail', index)) ||
+        mediaRelationValue(currentPosts?.[index]?.thumbnail)
+      const thumbnail = checkboxValue(formData, `instagramPostClearThumbnail-${index}`)
+        ? null
+        : uploadedThumbnail || currentThumbnail
+
+      return {
+        postId,
+        thumbnail,
+        type: types[index] === 'reel' ? 'reel' : 'p',
+      }
+    }),
+  )
+
+  return posts.filter((post): post is NonNullable<typeof post> => Boolean(post))
 }
 
 function parseMenuItems(formData: FormData) {

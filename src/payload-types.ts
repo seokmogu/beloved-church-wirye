@@ -2059,6 +2059,10 @@ export interface SiteSetting {
          * 예: https://www.instagram.com/p/POST_ID/ 에서 POST_ID 부분
          */
         postId: string;
+        /**
+         * 홈 화면 Instagram 카드에 표시할 이미지입니다. 비워두면 기본 카드 디자인으로 표시됩니다.
+         */
+        thumbnail?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -2335,6 +2339,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         type?: T;
         postId?: T;
+        thumbnail?: T;
         id?: T;
       };
   offeringBankName?: T;

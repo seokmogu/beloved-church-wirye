@@ -9,7 +9,7 @@ import { InstagramSection } from '@/components/home/InstagramSection'
 import { NaverMapSectionServer } from '@/components/home/NaverMapSection.server'
 import { YouTubeSection } from '@/components/home/YouTubeSection'
 import type { SiteSetting } from '@/payload-types'
-import type { YouTubeVideo } from '@/lib/youtube'
+import { fetchLatestVideos, type YouTubeVideo } from '@/lib/youtube'
 
 export const metadata = {
   title: '사랑하는교회 | Beloved Church Wirye',
@@ -101,7 +101,7 @@ export default async function HomePage() {
         isPinned: doc.isPinned as boolean | null,
       }))
     : []
-  const videos: YouTubeVideo[] = sermonsResult
+  const cmsVideos: YouTubeVideo[] = sermonsResult
     ? sermonsResult.docs
         .filter((doc) => doc.youtubeId)
         .map((doc) => ({
@@ -112,6 +112,12 @@ export default async function HomePage() {
           title: doc.title,
         }))
     : []
+
+  const fallbackVideos =
+    showSermons && cmsVideos.length === 0
+      ? await fetchLatestVideos(videoCount, settings?.youtubeChannelId, settings?.youtubeChannelUrl)
+      : []
+  const videos = cmsVideos.length > 0 ? cmsVideos : fallbackVideos
 
   return (
     <main>

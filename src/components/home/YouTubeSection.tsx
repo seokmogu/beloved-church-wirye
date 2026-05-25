@@ -142,7 +142,7 @@ export function YouTubeSection({ channelUrl, description, eyebrow, title, videos
         ) : (
           <div className="rounded-lg border border-dashed border-border bg-card/70 px-6 py-10 text-center">
             <p className="text-base font-semibold text-foreground">
-              최근 설교를 불러오는 중입니다.
+              등록된 설교 영상이 없습니다.
             </p>
             {channelUrl && (
               <a

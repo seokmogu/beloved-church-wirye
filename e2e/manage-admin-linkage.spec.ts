@@ -7,6 +7,7 @@ const serverURL = process.env.E2E_BASE_URL || 'http://localhost:3000'
 const adminEmail = process.env.MANAGE_TEST_ADMIN_EMAIL
 const adminPassword = process.env.MANAGE_TEST_ADMIN_PASSWORD
 const runId = `manage-e2e-${Date.now()}`
+const instagramPostId = `C7${Date.now()}`
 const disableRevalidate = { disableRevalidate: true }
 
 let payload: Payload
@@ -36,6 +37,8 @@ async function login(page: Page) {
 
 async function save(page: Page) {
   const currentPath = new URL(page.url()).pathname
+  await page.getByRole('button', { name: /저장/ }).click()
+  await expect(page.getByRole('dialog', { name: '변경사항을 저장할까요?' })).toBeVisible()
   await Promise.all([
     page.waitForResponse(
       (response) =>
@@ -43,7 +46,7 @@ async function save(page: Page) {
         new URL(response.url()).pathname === currentPath &&
         response.status() < 400,
     ),
-    page.getByRole('button', { name: /저장/ }).click(),
+    page.getByRole('button', { name: '저장하기' }).click(),
   ])
   await page.waitForLoadState('networkidle')
 }
@@ -58,6 +61,20 @@ async function deleteByTitle(collection: 'announcements' | 'bulletins' | 'sermon
   await Promise.all(
     result.docs.map((doc) =>
       payload.delete({ collection, context: disableRevalidate, id: doc.id }),
+    ),
+  )
+}
+
+async function deleteMediaByAlt(alt: string) {
+  const result = await payload.find({
+    collection: 'media',
+    limit: 20,
+    where: { alt: { equals: alt } },
+  })
+
+  await Promise.all(
+    result.docs.map((doc) =>
+      payload.delete({ collection: 'media', context: disableRevalidate, id: doc.id }),
     ),
   )
 }
@@ -120,6 +137,7 @@ test.describe('custom manage admin linkage', () => {
     await deleteByTitle('sermons', `${runId} 설교`)
     await deleteByTitle('announcements', `${runId} 공지`)
     await deleteByTitle('bulletins', `${runId} 주보`)
+    await deleteMediaByAlt(`Instagram 게시물 ${instagramPostId} 썸네일`)
   })
 
   test('shows the admin guide and every page-specific manager route', async ({ page }) => {
@@ -188,13 +206,16 @@ test.describe('custom manage admin linkage', () => {
     await page.fill('#instagramUrl', 'https://www.instagram.com/manage-e2e/')
     await page.fill('#instagramHandle', '@manage-e2e')
     await page.selectOption('#instagramPostType-0', 'p')
-    await page.fill('#instagramPostId-0', 'C7ManageE2E')
+    await page.fill('#instagramPostId-0', instagramPostId)
+    await page.setInputFiles('#instagramPostThumbnailFile-0', 'public/logo-beloved.png')
     await save(page)
     await page.goto(`${serverURL}/`, { waitUntil: 'networkidle' })
     await expect(
       page.locator('a[href="https://www.instagram.com/manage-e2e/"]').first(),
     ).toHaveAttribute('href', 'https://www.instagram.com/manage-e2e/')
-    await expect(page.locator('a[href="https://www.instagram.com/p/C7ManageE2E/"]')).toBeVisible()
+    const instagramCard = page.locator(`a[href="https://www.instagram.com/p/${instagramPostId}/"]`)
+    await expect(instagramCard).toBeVisible()
+    await expect(instagramCard.locator('img')).toBeVisible()
 
     await page.goto(`${serverURL}/manage/offering`, { waitUntil: 'networkidle' })
     await page.fill('#introText', `${runId} 헌금 소개`)

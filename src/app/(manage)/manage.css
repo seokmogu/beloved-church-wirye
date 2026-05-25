@@ -171,6 +171,67 @@ textarea {
   cursor: not-allowed;
   opacity: 0.55;
 }
+.manage-spin {
+  animation: manage-spin 0.9s linear infinite;
+}
+.manage-confirm-backdrop {
+  align-items: center;
+  background: rgb(23 34 28 / 0.46);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 80;
+}
+.manage-confirm-dialog {
+  background: var(--manage-panel-strong);
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+  box-shadow: 0 24px 70px rgb(23 34 28 / 0.22);
+  display: grid;
+  gap: 12px;
+  max-width: 420px;
+  padding: 22px;
+  width: min(100%, 420px);
+}
+.manage-confirm-dialog h2 {
+  font-size: 20px;
+  line-height: 1.25;
+  margin: 0;
+}
+.manage-confirm-dialog p {
+  color: var(--manage-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+.manage-confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+.manage-saving-overlay {
+  align-items: center;
+  background: #fffdf9;
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+  bottom: 24px;
+  box-shadow: var(--manage-shadow);
+  color: var(--manage-ink);
+  display: inline-flex;
+  gap: 10px;
+  min-height: 46px;
+  padding: 11px 14px;
+  position: fixed;
+  right: 24px;
+  z-index: 90;
+}
+@keyframes manage-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 .manage-grid {
   display: grid;
   gap: 16px;

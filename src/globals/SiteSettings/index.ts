@@ -758,6 +758,16 @@ export const SiteSettings: GlobalConfig = {
                     description: '예: https://www.instagram.com/p/POST_ID/ 에서 POST_ID 부분',
                   },
                 },
+                {
+                  name: 'thumbnail',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: '썸네일 이미지',
+                  admin: {
+                    description:
+                      '홈 화면 Instagram 카드에 표시할 이미지입니다. 비워두면 기본 카드 디자인으로 표시됩니다.',
+                  },
+                },
               ],
               defaultValue: [
                 { type: 'reel', postId: 'DWbIfyUEd8c' },

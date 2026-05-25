@@ -15,7 +15,17 @@ export default async function ManageOfferingPage() {
 
   return (
     <ManageShell active="offering" user={user}>
-      <PageHeader title="헌금 안내" />
+      <PageHeader
+        description="저장하면 공개 헌금 안내 페이지에 반영되고, 상단 메뉴에 헌금 안내 링크가 없으면 자동으로 추가됩니다."
+        title="헌금 안내"
+      >
+        <Link className="manage-button secondary" href="/manage/menu">
+          메뉴 관리
+        </Link>
+        <Link className="manage-button" href="/offering" target="_blank">
+          공개 페이지 보기
+        </Link>
+      </PageHeader>
       <form action={saveOfferingAction} className="manage-form">
         <div className="manage-field">
           <label htmlFor="introText">소개 문구</label>
