@@ -21,7 +21,7 @@ export default async function ManageInstagramPage() {
         description="메인 화면 인스타그램 섹션의 계정 링크와 게시물 노출을 관리합니다."
         title="인스타그램"
       />
-      <form action={saveInstagramSettingsAction} className="manage-form" encType="multipart/form-data">
+      <form action={saveInstagramSettingsAction} className="manage-form">
         <div className="manage-field-grid">
           <div className="manage-field">
             <label htmlFor="instagramUrl">Instagram URL</label>
