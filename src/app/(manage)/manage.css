@@ -575,8 +575,7 @@ textarea {
 .manage-edit-section-card.dark {
   background-color: var(--preview-dark-section-bg);
   background-image:
-    linear-gradient(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.08)),
-    var(--preview-dark-section-bg-image);
+    linear-gradient(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.08)), var(--preview-dark-section-bg-image);
   background-position: center;
   background-size: cover;
   color: #fff;
@@ -649,6 +648,28 @@ textarea {
   font-size: 12px;
   margin-top: 6px;
   max-width: 100%;
+}
+.manage-sync-panel {
+  align-items: center;
+  background: var(--manage-panel-strong);
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(26 33 28 / 0.06);
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 18px;
+}
+.manage-sync-panel h2 {
+  font-size: 18px;
+  line-height: 1.25;
+  margin: 0 0 6px;
+}
+.manage-sync-panel p {
+  color: var(--manage-muted);
+  line-height: 1.55;
+  margin: 0;
 }
 .manage-color-control,
 .manage-number-control {
@@ -784,6 +805,10 @@ textarea {
   .manage-field-grid,
   .manage-grid.cols-3 {
     grid-template-columns: 1fr;
+  }
+  .manage-sync-panel {
+    align-items: stretch;
+    flex-direction: column;
   }
   .manage-style-panel,
   .manage-editor-toolbar {

@@ -768,6 +768,15 @@ export const SiteSettings: GlobalConfig = {
                       '홈 화면 Instagram 카드에 표시할 이미지입니다. 비워두면 기본 카드 디자인으로 표시됩니다.',
                   },
                 },
+                {
+                  name: 'thumbnailUrl',
+                  type: 'text',
+                  label: '자동 동기화 썸네일 URL',
+                  admin: {
+                    description:
+                      'Instagram 자동 동기화가 미디어 저장소에 이미지를 업로드할 수 없을 때 임시로 사용하는 외부 이미지 URL입니다.',
+                  },
+                },
               ],
               defaultValue: [
                 { type: 'reel', postId: 'DWbIfyUEd8c' },

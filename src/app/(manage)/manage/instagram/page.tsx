@@ -2,16 +2,29 @@ import Link from 'next/link'
 
 import { SaveButton } from '@/app/(manage)/manage/_components/FormButtons'
 import { ManageShell, PageHeader } from '@/app/(manage)/manage/_components/ManageShell'
-import { saveInstagramSettingsAction } from '@/app/(manage)/manage/actions'
+import {
+  saveInstagramSettingsAction,
+  syncInstagramSettingsAction,
+} from '@/app/(manage)/manage/actions'
+import { hasInstagramSyncConfig } from '@/lib/instagram'
 import { requireManageUser } from '@/lib/manage/auth'
 import { getManagePayload } from '@/lib/manage/payload'
 import type { Media, SiteSetting } from '@/payload-types'
 
 type InstagramPost = NonNullable<SiteSetting['instagramPosts']>[number]
+type InstagramSearchParams = Promise<Record<string, string | string[] | undefined>>
 
-export default async function ManageInstagramPage() {
+export default async function ManageInstagramPage({
+  searchParams,
+}: {
+  searchParams: InstagramSearchParams
+}) {
   const user = await requireManageUser()
   const payload = await getManagePayload()
+  const params = await searchParams
+  const syncStatus = getStringParam(params.sync)
+  const syncedCount = getStringParam(params.count)
+  const canSyncInstagram = hasInstagramSyncConfig()
   const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
   const posts = padPosts(settings.instagramPosts)
 
@@ -21,6 +34,35 @@ export default async function ManageInstagramPage() {
         description="메인 화면 인스타그램 섹션의 계정 링크와 게시물 노출을 관리합니다."
         title="인스타그램"
       />
+
+      {syncStatus ? (
+        <div
+          className={`manage-alert${syncStatus === 'failed' || syncStatus === 'missing-config' ? ' danger' : ''}`}
+          role="status"
+        >
+          {syncMessage(syncStatus, syncedCount)}
+        </div>
+      ) : null}
+
+      <section className="manage-sync-panel">
+        <div>
+          <h2>최신 게시물 자동 동기화</h2>
+          <p>
+            Instagram 공식 API로 최신 게시물을 가져와 홈 화면 카드와 썸네일을 최신순으로 갱신합니다.
+          </p>
+        </div>
+        <form action={syncInstagramSettingsAction}>
+          <SaveButton label={canSyncInstagram ? '최신 게시물 동기화' : '연동 설정 필요'} />
+        </form>
+      </section>
+
+      {!canSyncInstagram ? (
+        <div className="manage-alert" role="status">
+          자동 동기화에는 Vercel 환경 변수 <strong>INSTAGRAM_ACCESS_TOKEN</strong>이 필요합니다.
+          Instagram Business 또는 Creator 계정 토큰을 연결하면 이 버튼과 예약 동기화가 활성화됩니다.
+        </div>
+      ) : null}
+
       <form action={saveInstagramSettingsAction} className="manage-form">
         <div className="manage-field-grid">
           <div className="manage-field">
@@ -45,7 +87,10 @@ export default async function ManageInstagramPage() {
         <section className="manage-grid">
           <h2 className="manage-section-title">게시물</h2>
           {posts.map((post, index) => {
-            const thumbnailUrl = getMediaUrl(post.thumbnail as Media | number | null | undefined)
+            const externalThumbnailUrl = getOptionalString(post.thumbnailUrl)
+            const thumbnailUrl =
+              getMediaUrl(post.thumbnail as Media | number | null | undefined) ||
+              externalThumbnailUrl
             const thumbnailId = getMediaId(post.thumbnail as Media | number | null | undefined)
 
             return (
@@ -83,6 +128,11 @@ export default async function ManageInstagramPage() {
                     type="hidden"
                     value={thumbnailId ?? ''}
                   />
+                  <input
+                    name={`instagramPostThumbnailUrl-${index}`}
+                    type="hidden"
+                    value={externalThumbnailUrl ?? ''}
+                  />
                   <label htmlFor={`instagramPostThumbnailFile-${index}`}>
                     이미지 선택
                     <input
@@ -92,7 +142,10 @@ export default async function ManageInstagramPage() {
                       type="file"
                     />
                   </label>
-                  <label className="manage-checkbox compact" htmlFor={`instagramPostClearThumbnail-${index}`}>
+                  <label
+                    className="manage-checkbox compact"
+                    htmlFor={`instagramPostClearThumbnail-${index}`}
+                  >
                     <input
                       id={`instagramPostClearThumbnail-${index}`}
                       name={`instagramPostClearThumbnail-${index}`}
@@ -132,6 +185,24 @@ function getMediaId(media: Media | number | null | undefined): number | null {
   return media && typeof media === 'object' ? media.id : null
 }
 
+function getOptionalString(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
 function cssUrl(url: string) {
   return `url(${JSON.stringify(url)})`
+}
+
+function getStringParam(value: string | string[] | undefined): string {
+  return Array.isArray(value) ? (value[0] ?? '') : (value ?? '')
+}
+
+function syncMessage(status: string, count: string) {
+  if (status === 'success') {
+    return `${count || '0'}개 Instagram 게시물을 최신순으로 동기화했습니다.`
+  }
+  if (status === 'missing-config') {
+    return 'Instagram 자동 동기화 환경 변수가 아직 설정되지 않았습니다.'
+  }
+  return 'Instagram 최신 게시물 동기화에 실패했습니다. 토큰 권한과 계정 설정을 확인해 주세요.'
 }

@@ -8,6 +8,9 @@ declare global {
       CRON_SECRET?: string
       PREVIEW_SECRET?: string
       BLOB_READ_WRITE_TOKEN?: string
+      INSTAGRAM_ACCESS_TOKEN?: string
+      INSTAGRAM_API_VERSION?: string
+      INSTAGRAM_USER_ID?: string
       NEXT_PUBLIC_NAVER_MAP_CLIENT_ID?: string
       NEXT_PUBLIC_CHAT_ENABLED?: string
       OPENCLAW_API_URL?: string

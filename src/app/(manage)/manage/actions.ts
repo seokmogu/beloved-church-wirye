@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { requireManageActionUser } from '@/lib/manage/auth'
+import { InstagramSyncConfigError, syncInstagramPosts } from '@/lib/instagram'
 import { dateInputToISO } from '@/lib/manage/date'
 import { plaintextToLexical } from '@/lib/manage/lexical'
 import { getManagePayload } from '@/lib/manage/payload'
@@ -286,7 +287,9 @@ export async function saveInstagramSettingsAction(formData: FormData) {
   const currentSettings = (await payload.findGlobal({
     slug: 'site-settings',
     depth: 0,
-  })) as { instagramPosts?: Array<{ thumbnail?: unknown } | null> | null }
+  })) as {
+    instagramPosts?: Array<{ thumbnail?: unknown; thumbnailUrl?: unknown } | null> | null
+  }
 
   await payload.updateGlobal({
     data: {
@@ -299,6 +302,27 @@ export async function saveInstagramSettingsAction(formData: FormData) {
 
   revalidateManageAndPublic('/manage/instagram')
   redirect('/manage/instagram')
+}
+
+export async function syncInstagramSettingsAction() {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+  let syncedCount = 0
+
+  try {
+    const result = await syncInstagramPosts(payload)
+    syncedCount = result.count
+  } catch (error) {
+    if (error instanceof InstagramSyncConfigError) {
+      redirect('/manage/instagram?sync=missing-config')
+    }
+
+    console.error('Failed to sync Instagram posts:', error)
+    redirect('/manage/instagram?sync=failed')
+  }
+
+  revalidateManageAndPublic('/manage/instagram')
+  redirect(`/manage/instagram?sync=success&count=${syncedCount}`)
 }
 
 export async function saveMenuAction(formData: FormData) {
@@ -329,6 +353,10 @@ function stringValue(formData: FormData, key: string): string {
 function optionalString(formData: FormData, key: string): string | null {
   const value = stringValue(formData, key)
   return value || null
+}
+
+function stringOrNull(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null
 }
 
 function requiredString(formData: FormData, key: string): string {
@@ -407,23 +435,37 @@ function currentString(value: unknown, fallback: string): string {
 function parseDesignSettings(
   formData: FormData,
   currentDesign: Record<string, unknown> | null | undefined,
-  uploads: { darkSectionBackgroundImage: number | string | null; pageBackgroundImage: number | string | null },
+  uploads: {
+    darkSectionBackgroundImage: number | string | null
+    pageBackgroundImage: number | string | null
+  },
 ) {
   const current = currentDesign || {}
 
   return {
     ...current,
-    backgroundColor: optionalString(formData, 'backgroundColor') || currentString(current.backgroundColor, '#f7f8f6'),
-    bodyFontSize: clampNumber(formData, 'bodyFontSize', currentNumber(current.bodyFontSize, 16), 13, 24),
-    borderColor: optionalString(formData, 'borderColor') || currentString(current.borderColor, '#d9ded6'),
+    backgroundColor:
+      optionalString(formData, 'backgroundColor') ||
+      currentString(current.backgroundColor, '#f7f8f6'),
+    bodyFontSize: clampNumber(
+      formData,
+      'bodyFontSize',
+      currentNumber(current.bodyFontSize, 16),
+      13,
+      24,
+    ),
+    borderColor:
+      optionalString(formData, 'borderColor') || currentString(current.borderColor, '#d9ded6'),
     cardBackgroundColor:
-      optionalString(formData, 'cardBackgroundColor') || currentString(current.cardBackgroundColor, '#ffffff'),
+      optionalString(formData, 'cardBackgroundColor') ||
+      currentString(current.cardBackgroundColor, '#ffffff'),
     darkSectionBackgroundColor:
       optionalString(formData, 'darkSectionBackgroundColor') ||
       currentString(current.darkSectionBackgroundColor, '#143c2e'),
     darkSectionBackgroundImage: checkboxValue(formData, 'clearDarkSectionBackgroundImage')
       ? null
-      : uploads.darkSectionBackgroundImage || mediaRelationValue(current.darkSectionBackgroundImage),
+      : uploads.darkSectionBackgroundImage ||
+        mediaRelationValue(current.darkSectionBackgroundImage),
     footerBackgroundColor:
       optionalString(formData, 'footerBackgroundColor') ||
       currentString(current.footerBackgroundColor, '#143c2e'),
@@ -431,7 +473,8 @@ function parseDesignSettings(
       optionalString(formData, 'headerBackgroundColor') ||
       currentString(current.headerBackgroundColor, '#123125'),
     heroOverlayColor:
-      optionalString(formData, 'heroOverlayColor') || currentString(current.heroOverlayColor, '#0a1c15'),
+      optionalString(formData, 'heroOverlayColor') ||
+      currentString(current.heroOverlayColor, '#0a1c15'),
     heroOverlayOpacity: clampNumber(
       formData,
       'heroOverlayOpacity',
@@ -453,14 +496,20 @@ function parseDesignSettings(
       36,
       128,
     ),
-    mutedTextColor: optionalString(formData, 'mutedTextColor') || currentString(current.mutedTextColor, '#5d675f'),
+    mutedTextColor:
+      optionalString(formData, 'mutedTextColor') ||
+      currentString(current.mutedTextColor, '#5d675f'),
     pageBackgroundImage: checkboxValue(formData, 'clearPageBackgroundImage')
       ? null
       : uploads.pageBackgroundImage || mediaRelationValue(current.pageBackgroundImage),
-    primaryColor: optionalString(formData, 'primaryColor') || currentString(current.primaryColor, '#123125'),
+    primaryColor:
+      optionalString(formData, 'primaryColor') || currentString(current.primaryColor, '#123125'),
     primaryLightColor:
-      optionalString(formData, 'primaryLightColor') || currentString(current.primaryLightColor, '#1c4938'),
-    secondaryColor: optionalString(formData, 'secondaryColor') || currentString(current.secondaryColor, '#f3ead6'),
+      optionalString(formData, 'primaryLightColor') ||
+      currentString(current.primaryLightColor, '#1c4938'),
+    secondaryColor:
+      optionalString(formData, 'secondaryColor') ||
+      currentString(current.secondaryColor, '#f3ead6'),
     sectionBackgroundColor:
       optionalString(formData, 'sectionBackgroundColor') ||
       currentString(current.sectionBackgroundColor, '#f7f8f6'),
@@ -568,7 +617,7 @@ function parseVisitorNotes(formData: FormData) {
 async function parseInstagramPosts(
   payload: Awaited<ReturnType<typeof getManagePayload>>,
   formData: FormData,
-  currentPosts: Array<{ thumbnail?: unknown } | null> | null | undefined,
+  currentPosts: Array<{ thumbnail?: unknown; thumbnailUrl?: unknown } | null> | null | undefined,
 ) {
   const types = stringValues(formData, 'instagramPostType')
   const postIds = stringValues(formData, 'instagramPostId')
@@ -588,10 +637,16 @@ async function parseInstagramPosts(
       const thumbnail = checkboxValue(formData, `instagramPostClearThumbnail-${index}`)
         ? null
         : uploadedThumbnail || currentThumbnail
+      const thumbnailUrl =
+        !thumbnail && !checkboxValue(formData, `instagramPostClearThumbnail-${index}`)
+          ? indexedString(formData, 'instagramPostThumbnailUrl', index) ||
+            stringOrNull(currentPosts?.[index]?.thumbnailUrl)
+          : null
 
       return {
         postId,
         thumbnail,
+        thumbnailUrl,
         type: types[index] === 'reel' ? 'reel' : 'p',
       }
     }),
