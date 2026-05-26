@@ -30,15 +30,21 @@ type InstagramMediaResponse = {
 }
 
 type InstagramPostInput = {
+  caption: string | null
+  hashtags: string | null
   imageUrl: string
   postId: string
+  publishedAt: string | null
   type: 'p' | 'reel'
 }
 
 export type InstagramSyncResult = {
   count: number
   posts: Array<{
+    caption?: string | null
+    hashtags?: string | null
     postId: string
+    publishedAt?: string | null
     thumbnail?: number | string | null
     thumbnailUrl?: string | null
     type: 'p' | 'reel'
@@ -87,7 +93,10 @@ export async function syncInstagramPosts(
       const thumbnail = await ensureInstagramThumbnail(payload, post).catch(() => null)
 
       return {
+        caption: post.caption,
+        hashtags: post.hashtags,
         postId: post.postId,
+        publishedAt: post.publishedAt,
         thumbnail,
         thumbnailUrl: thumbnail ? null : post.imageUrl,
         type: post.type,
@@ -148,8 +157,11 @@ function toPostInput(media: InstagramMedia): InstagramPostInput | null {
   if (!permalink || !postId || !imageUrl) return null
 
   return {
+    caption: normalizeCaption(media.caption),
+    hashtags: extractHashtags(media.caption),
     imageUrl,
     postId,
+    publishedAt: normalizeTimestamp(media.timestamp),
     type: isReel(media) ? 'reel' : 'p',
   }
 }
@@ -177,6 +189,23 @@ function resolveMediaImageUrl(media: InstagramMedia) {
 
 function isReel(media: InstagramMedia) {
   return media.media_product_type === 'REELS' || media.permalink?.includes('/reel/') || false
+}
+
+function normalizeCaption(caption: string | undefined) {
+  const trimmed = caption?.trim()
+  return trimmed || null
+}
+
+function extractHashtags(caption: string | undefined) {
+  const tags = caption?.match(/#[^\s#]+/g) ?? []
+  return tags.length > 0 ? Array.from(new Set(tags)).join(' ') : null
+}
+
+function normalizeTimestamp(timestamp: string | undefined) {
+  if (!timestamp) return null
+
+  const date = new Date(timestamp)
+  return Number.isNaN(date.getTime()) ? null : date.toISOString()
 }
 
 async function ensureInstagramThumbnail(payload: Payload, post: InstagramPostInput) {

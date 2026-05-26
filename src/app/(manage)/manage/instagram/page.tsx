@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
 import { SaveButton } from '@/app/(manage)/manage/_components/FormButtons'
@@ -8,6 +9,7 @@ import {
 } from '@/app/(manage)/manage/actions'
 import { hasInstagramSyncConfig } from '@/lib/instagram'
 import { requireManageUser } from '@/lib/manage/auth'
+import { toDateInputValue } from '@/lib/manage/date'
 import { getManagePayload } from '@/lib/manage/payload'
 import type { Media, SiteSetting } from '@/payload-types'
 
@@ -48,7 +50,8 @@ export default async function ManageInstagramPage({
         <div>
           <h2>최신 게시물 자동 동기화</h2>
           <p>
-            Instagram 공식 API로 최신 게시물을 가져와 홈 화면 카드와 썸네일을 최신순으로 갱신합니다.
+            Instagram 공식 API는 개인 계정 자동 피드를 지원하지 않습니다. Business 또는 Creator 계정
+            토큰이 있으면 최신 게시물, 캡션, 날짜, 썸네일을 최신순으로 갱신합니다.
           </p>
         </div>
         <form action={syncInstagramSettingsAction}>
@@ -59,7 +62,7 @@ export default async function ManageInstagramPage({
       {!canSyncInstagram ? (
         <div className="manage-alert" role="status">
           자동 동기화에는 Vercel 환경 변수 <strong>INSTAGRAM_ACCESS_TOKEN</strong>이 필요합니다.
-          Instagram Business 또는 Creator 계정 토큰을 연결하면 이 버튼과 예약 동기화가 활성화됩니다.
+          개인 계정은 공식 자동 연동이 막혀 있어, 계정 전환 전에는 아래 수동 입력으로 운영합니다.
         </div>
       ) : null}
 
@@ -114,14 +117,42 @@ export default async function ManageInstagramPage({
                     name="instagramPostId"
                   />
                 </div>
+                <div className="manage-field" style={{ gridColumn: '1 / -1' }}>
+                  <label htmlFor={`instagramPostCaption-${index}`}>캡션/제목</label>
+                  <textarea
+                    defaultValue={post.caption || ''}
+                    id={`instagramPostCaption-${index}`}
+                    name="instagramPostCaption"
+                    placeholder="게시물의 첫 문장, 안내 문구, 또는 짧은 제목"
+                    rows={3}
+                  />
+                </div>
+                <div className="manage-field">
+                  <label htmlFor={`instagramPostPublishedAt-${index}`}>게시일</label>
+                  <input
+                    defaultValue={post.publishedAt ? toDateInputValue(post.publishedAt) : ''}
+                    id={`instagramPostPublishedAt-${index}`}
+                    name="instagramPostPublishedAt"
+                    type="date"
+                  />
+                </div>
+                <div className="manage-field">
+                  <label htmlFor={`instagramPostHashtags-${index}`}>해시태그</label>
+                  <input
+                    defaultValue={post.hashtags || ''}
+                    id={`instagramPostHashtags-${index}`}
+                    name="instagramPostHashtags"
+                    placeholder="#주일예배 #사랑하는교회"
+                  />
+                </div>
                 <div className="manage-media-control" style={{ gridColumn: '1 / -1' }}>
                   <div>
                     <strong>썸네일 이미지</strong>
-                    <div
-                      aria-hidden="true"
-                      className="manage-media-thumb"
-                      style={thumbnailUrl ? { backgroundImage: cssUrl(thumbnailUrl) } : undefined}
-                    />
+                    <div aria-hidden="true" className="manage-media-thumb">
+                      {thumbnailUrl ? (
+                        <Image alt="" height={90} src={thumbnailUrl} unoptimized width={96} />
+                      ) : null}
+                    </div>
                   </div>
                   <input
                     name={`instagramPostThumbnail-${index}`}
@@ -187,10 +218,6 @@ function getMediaId(media: Media | number | null | undefined): number | null {
 
 function getOptionalString(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null
-}
-
-function cssUrl(url: string) {
-  return `url(${JSON.stringify(url)})`
 }
 
 function getStringParam(value: string | string[] | undefined): string {

@@ -6,6 +6,7 @@ import * as migration_20260507_064900_header_logo_controls from './20260507_0649
 import * as migration_20260525_002300_visual_editor_font_controls from './20260525_002300_visual_editor_font_controls'
 import * as migration_20260525_233607_instagram_post_thumbnails from './20260525_233607_instagram_post_thumbnails'
 import * as migration_20260526_231800_instagram_thumbnail_urls from './20260526_231800_instagram_thumbnail_urls'
+import * as migration_20260527_000100_instagram_post_metadata from './20260527_000100_instagram_post_metadata'
 
 export const migrations = [
   {
@@ -47,5 +48,10 @@ export const migrations = [
     up: migration_20260526_231800_instagram_thumbnail_urls.up,
     down: migration_20260526_231800_instagram_thumbnail_urls.down,
     name: '20260526_231800_instagram_thumbnail_urls',
+  },
+  {
+    up: migration_20260527_000100_instagram_post_metadata.up,
+    down: migration_20260527_000100_instagram_post_metadata.down,
+    name: '20260527_000100_instagram_post_metadata',
   },
 ]

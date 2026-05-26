@@ -5,7 +5,10 @@ import Image from 'next/image'
 import type { Media } from '@/payload-types'
 
 type InstagramPost = {
+  caption?: string | null
+  hashtags?: string | null
   postId?: string | null
+  publishedAt?: string | null
   thumbnail?: (number | null) | Media
   thumbnailUrl?: string | null
   type?: 'p' | 'reel' | null
@@ -51,55 +54,62 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {visiblePosts.map(
-            ({ postId, thumbnail, thumbnailUrl: externalThumbnailUrl, type }, index) => {
-              const postUrl = `https://www.instagram.com/${type ?? 'p'}/${postId}/`
-              const thumbnailUrl = getMediaUrl(thumbnail) || externalThumbnailUrl
+          {visiblePosts.map((post, index) => {
+            const postUrl = `https://www.instagram.com/${post.type ?? 'p'}/${post.postId}/`
+            const thumbnailUrl = getMediaUrl(post.thumbnail) || post.thumbnailUrl
+            const displayDate = formatPostDate(post.publishedAt)
+            const tags = getDisplayHashtags(post.hashtags, post.caption)
+            const summary = getCaptionSummary(post.caption)
 
-              return (
-                <a
-                  key={postId}
-                  href={postUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative min-h-[320px] overflow-hidden rounded-lg border border-white/10 bg-primary/55 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-secondary/40"
-                >
+            return (
+              <a
+                key={post.postId}
+                href={postUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-all duration-300 hover:-translate-y-1 hover:border-secondary/40 hover:bg-white/[0.09]"
+              >
+                <div className="relative aspect-square overflow-hidden bg-primary/45">
                   {thumbnailUrl ? (
-                    <>
-                      <Image
-                        src={thumbnailUrl}
-                        alt={`${handle ?? 'Instagram'} 게시물 썸네일`}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                      />
-                      <div className="absolute inset-0 bg-primary/58" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-primary/92 via-primary/24 to-primary/20" />
-                    </>
+                    <Image
+                      src={thumbnailUrl}
+                      alt={`${handle ?? 'Instagram'} 게시물 썸네일`}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                    />
                   ) : (
                     <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:44px_44px]" />
                   )}
-                  <div className="relative flex h-full flex-col justify-between">
-                    <div className="flex items-center justify-between text-sm text-white/70">
-                      <span>{handle ?? 'Instagram'}</span>
+                </div>
+                <div className="flex min-h-[180px] flex-col gap-4 p-5">
+                  <div className="flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-white/58">
+                    <span>{post.type === 'reel' ? 'Reel' : 'Post'}</span>
+                    {displayDate ? (
+                      <time dateTime={post.publishedAt ?? undefined}>{displayDate}</time>
+                    ) : (
                       <span>{String(index + 1).padStart(2, '0')}</span>
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold leading-tight text-white">
-                        사랑하는교회의 최근 소식
-                      </p>
-                      <p className="mt-4 text-sm leading-relaxed text-white/72">
-                        Instagram에서 게시물과 릴스를 확인하세요.
-                      </p>
-                    </div>
-                    <span className="inline-flex text-sm font-semibold text-secondary transition-transform group-hover:translate-x-1">
-                      게시물 보기 &rarr;
-                    </span>
+                    )}
                   </div>
-                </a>
-              )
-            },
-          )}
+                  {summary ? (
+                    <p className="text-base font-semibold leading-relaxed text-white [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] [overflow:hidden]">
+                      {summary}
+                    </p>
+                  ) : null}
+                  {tags.length > 0 ? (
+                    <div className="flex flex-wrap gap-2 text-xs font-semibold text-secondary/90">
+                      {tags.map((tag) => (
+                        <span key={tag}>{tag}</span>
+                      ))}
+                    </div>
+                  ) : null}
+                  <span className="mt-auto inline-flex text-sm font-semibold text-secondary transition-transform group-hover:translate-x-1">
+                    게시물 보기 &rarr;
+                  </span>
+                </div>
+              </a>
+            )
+          })}
         </div>
       </div>
     </section>
@@ -108,4 +118,45 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
 
 function getMediaUrl(media: Media | number | null | undefined): string | null {
   return media && typeof media === 'object' && media.url ? media.url : null
+}
+
+function getCaptionSummary(caption: string | null | undefined): string | null {
+  if (!caption) return null
+
+  const text = caption
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('#'))
+    .join(' ')
+    .replace(/#[^\s#]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  return text || null
+}
+
+function getDisplayHashtags(
+  hashtags: string | null | undefined,
+  caption: string | null | undefined,
+) {
+  const source = hashtags || caption || ''
+  const explicit = source
+    .split(/[\s,]+/)
+    .map((tag) => tag.trim())
+    .filter((tag) => tag.startsWith('#'))
+
+  const extracted = source.match(/#[^\s#]+/g) ?? []
+  return Array.from(new Set([...explicit, ...extracted])).slice(0, 3)
+}
+
+function formatPostDate(value: string | null | undefined): string | null {
+  if (!value) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    day: '2-digit',
+    month: 'short',
+    timeZone: 'Asia/Seoul',
+  }).format(date)
 }

@@ -759,6 +759,35 @@ export const SiteSettings: GlobalConfig = {
                   },
                 },
                 {
+                  name: 'caption',
+                  type: 'textarea',
+                  label: '캡션/제목',
+                  admin: {
+                    description:
+                      '홈 카드에 표시할 게시물 설명입니다. 공식 API 동기화 시 Instagram 캡션을 저장합니다.',
+                  },
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'publishedAt',
+                      type: 'date',
+                      label: '게시일',
+                      admin: { width: '50%' },
+                    },
+                    {
+                      name: 'hashtags',
+                      type: 'text',
+                      label: '해시태그',
+                      admin: {
+                        description: '예: #주일예배 #사랑하는교회',
+                        width: '50%',
+                      },
+                    },
+                  ],
+                },
+                {
                   name: 'thumbnail',
                   type: 'upload',
                   relationTo: 'media',

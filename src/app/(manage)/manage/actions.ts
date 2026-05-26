@@ -288,7 +288,13 @@ export async function saveInstagramSettingsAction(formData: FormData) {
     slug: 'site-settings',
     depth: 0,
   })) as {
-    instagramPosts?: Array<{ thumbnail?: unknown; thumbnailUrl?: unknown } | null> | null
+    instagramPosts?: Array<{
+      caption?: unknown
+      hashtags?: unknown
+      publishedAt?: unknown
+      thumbnail?: unknown
+      thumbnailUrl?: unknown
+    } | null> | null
   }
 
   await payload.updateGlobal({
@@ -617,10 +623,22 @@ function parseVisitorNotes(formData: FormData) {
 async function parseInstagramPosts(
   payload: Awaited<ReturnType<typeof getManagePayload>>,
   formData: FormData,
-  currentPosts: Array<{ thumbnail?: unknown; thumbnailUrl?: unknown } | null> | null | undefined,
+  currentPosts:
+    | Array<{
+        caption?: unknown
+        hashtags?: unknown
+        publishedAt?: unknown
+        thumbnail?: unknown
+        thumbnailUrl?: unknown
+      } | null>
+    | null
+    | undefined,
 ) {
   const types = stringValues(formData, 'instagramPostType')
   const postIds = stringValues(formData, 'instagramPostId')
+  const captions = stringValues(formData, 'instagramPostCaption')
+  const dates = stringValues(formData, 'instagramPostPublishedAt')
+  const hashtags = stringValues(formData, 'instagramPostHashtags')
   const posts = await Promise.all(
     postIds.map(async (postId, index) => {
       if (!postId) return null
@@ -644,7 +662,13 @@ async function parseInstagramPosts(
           : null
 
       return {
+        caption:
+          optionalIndexedString(captions, index) || stringOrNull(currentPosts?.[index]?.caption),
+        hashtags:
+          optionalIndexedString(hashtags, index) || stringOrNull(currentPosts?.[index]?.hashtags),
         postId,
+        publishedAt:
+          optionalDateInputToISO(dates[index]) || stringOrNull(currentPosts?.[index]?.publishedAt),
         thumbnail,
         thumbnailUrl,
         type: types[index] === 'reel' ? 'reel' : 'p',
@@ -653,6 +677,15 @@ async function parseInstagramPosts(
   )
 
   return posts.filter((post): post is NonNullable<typeof post> => Boolean(post))
+}
+
+function optionalDateInputToISO(value: string | undefined): string | null {
+  return value ? dateInputToISO(value) : null
+}
+
+function optionalIndexedString(values: string[], index: number): string | null {
+  const value = values[index]?.trim()
+  return value || null
 }
 
 function parseMenuItems(formData: FormData) {

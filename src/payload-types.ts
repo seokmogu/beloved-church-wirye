@@ -2073,6 +2073,15 @@ export interface SiteSetting {
          */
         postId: string;
         /**
+         * 홈 카드에 표시할 게시물 설명입니다. 공식 API 동기화 시 Instagram 캡션을 저장합니다.
+         */
+        caption?: string | null;
+        publishedAt?: string | null;
+        /**
+         * 예: #주일예배 #사랑하는교회
+         */
+        hashtags?: string | null;
+        /**
          * 홈 화면 Instagram 카드에 표시할 이미지입니다. 비워두면 기본 카드 디자인으로 표시됩니다.
          */
         thumbnail?: (number | null) | Media;
@@ -2374,6 +2383,9 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         type?: T;
         postId?: T;
+        caption?: T;
+        publishedAt?: T;
+        hashtags?: T;
         thumbnail?: T;
         thumbnailUrl?: T;
         id?: T;
