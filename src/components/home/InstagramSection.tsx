@@ -84,8 +84,8 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
                     <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:44px_44px]" />
                   )}
                 </div>
-                <div className="flex flex-col gap-2.5 p-4">
-                  <div className="flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-white/58">
+                <div className="flex flex-col gap-1.5 p-3">
+                  <div className="flex items-center justify-between gap-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/58">
                     <span>{post.type === 'reel' ? 'Reel' : 'Post'}</span>
                     {displayDate ? (
                       <time dateTime={post.publishedAt ?? undefined}>{displayDate}</time>
@@ -94,16 +94,14 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
                     )}
                   </div>
                   {summary ? (
-                    <p className="text-sm font-semibold leading-relaxed text-white [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [overflow:hidden]">
+                    <p className="text-sm font-semibold leading-snug text-white [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1] [overflow:hidden]">
                       {summary}
                     </p>
                   ) : null}
                   {tags.length > 0 ? (
-                    <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs font-semibold text-secondary/90">
-                      {tags.map((tag) => (
-                        <span key={tag}>{tag}</span>
-                      ))}
-                    </div>
+                    <p className="truncate text-xs font-semibold text-secondary/90">
+                      {tags.join(' ')}
+                    </p>
                   ) : null}
                 </div>
               </a>
