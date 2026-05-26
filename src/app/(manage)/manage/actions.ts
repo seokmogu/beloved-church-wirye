@@ -10,7 +10,6 @@ import { InstagramSyncConfigError, syncInstagramPosts } from '@/lib/instagram'
 import { dateInputToISO } from '@/lib/manage/date'
 import { plaintextToLexical } from '@/lib/manage/lexical'
 import { getManagePayload } from '@/lib/manage/payload'
-import { createOfferingMenuItem, hasOfferingMenuLink } from '@/lib/offeringPublic'
 
 const publicPaths = [
   '/',
@@ -185,19 +184,7 @@ export async function saveOfferingAction(formData: FormData) {
     slug: 'offering-page',
   })
 
-  const header = await payload.findGlobal({ slug: 'header', depth: 0 })
-  const offeringMenuAdded = !hasOfferingMenuLink(header.navItems)
-  if (offeringMenuAdded) {
-    await payload.updateGlobal({
-      data: {
-        navItems: [...(header.navItems ?? []), createOfferingMenuItem()],
-      } as any,
-      slug: 'header',
-    })
-  }
-
   revalidateManageAndPublic('/manage/offering')
-  if (offeringMenuAdded) revalidatePath('/manage/menu')
   redirect('/manage/offering')
 }
 
