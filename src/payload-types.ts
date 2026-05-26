@@ -121,6 +121,7 @@ export interface Config {
     footer: Footer;
     'special-banner': SpecialBanner;
     'offering-page': OfferingPage;
+    'payload-jobs-stats': PayloadJobsStat;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
@@ -128,6 +129,7 @@ export interface Config {
     footer: FooterSelect<false> | FooterSelect<true>;
     'special-banner': SpecialBannerSelect<false> | SpecialBannerSelect<true>;
     'offering-page': OfferingPageSelect<false> | OfferingPageSelect<true>;
+    'payload-jobs-stats': PayloadJobsStatsSelect<false> | PayloadJobsStatsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -136,6 +138,7 @@ export interface Config {
   user: User;
   jobs: {
     tasks: {
+      syncInstagramPosts: TaskSyncInstagramPosts;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -1115,7 +1118,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'schedulePublish';
+        taskSlug: 'inline' | 'syncInstagramPosts' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -1148,10 +1151,19 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'syncInstagramPosts' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
+  meta?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1859,6 +1871,7 @@ export interface PayloadJobsSelect<T extends boolean = true> {
   queue?: T;
   waitUntil?: T;
   processing?: T;
+  meta?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2237,6 +2250,24 @@ export interface OfferingPage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs-stats".
+ */
+export interface PayloadJobsStat {
+  id: number;
+  stats?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -2455,6 +2486,16 @@ export interface OfferingPageSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs-stats_select".
+ */
+export interface PayloadJobsStatsSelect<T extends boolean = true> {
+  stats?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -2462,6 +2503,16 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSyncInstagramPosts".
+ */
+export interface TaskSyncInstagramPosts {
+  input?: unknown;
+  output: {
+    count?: number | null;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

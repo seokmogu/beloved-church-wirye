@@ -1,7 +1,7 @@
 import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
 import sharp from 'sharp'
 import path from 'path'
-import { buildConfig, PayloadRequest } from 'payload'
+import { buildConfig, PayloadRequest, type TaskConfig } from 'payload'
 // @ts-ignore – ko translations bundled at runtime
 import { ko } from '@payloadcms/translations/languages/ko'
 import { fileURLToPath } from 'url'
@@ -23,11 +23,41 @@ import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getPayloadAllowedOrigins, getPayloadServerURL } from './utilities/getURL'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { syncInstagramPosts } from './lib/instagram'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const allowedOrigins = getPayloadAllowedOrigins()
 const serverURL = getPayloadServerURL()
+
+const syncInstagramPostsTask: TaskConfig<{
+  input: Record<string, never>
+  output: { count: number }
+}> = {
+  handler: async ({ req }) => {
+    const result = await syncInstagramPosts(req.payload)
+
+    return {
+      output: {
+        count: result.count,
+      },
+    }
+  },
+  label: 'Instagram 최신 게시물 동기화',
+  outputSchema: [
+    {
+      name: 'count',
+      type: 'number',
+    },
+  ],
+  schedule: [
+    {
+      cron: '0 0 */6 * * *',
+      queue: 'default',
+    },
+  ],
+  slug: 'syncInstagramPosts',
+}
 
 export default buildConfig({
   i18n: {
@@ -120,6 +150,6 @@ export default buildConfig({
         return authHeader === `Bearer ${secret}`
       },
     },
-    tasks: [],
+    tasks: [syncInstagramPostsTask],
   },
 })
