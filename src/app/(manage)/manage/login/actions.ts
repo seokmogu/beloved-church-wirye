@@ -2,13 +2,14 @@
 
 import { redirect } from 'next/navigation'
 
-import { isManageAdminEmail } from '@/lib/manage/env'
+import { isManageAdminEmail, resolveManageLoginIdentifier } from '@/lib/manage/env'
 import { createManageSupabaseServerClient } from '@/lib/manage/supabase/server'
 
 export async function signInAction(formData: FormData) {
-  const email = String(formData.get('email') || '')
+  const login = String(formData.get('login') || formData.get('email') || '')
     .trim()
     .toLowerCase()
+  const email = resolveManageLoginIdentifier(login)
   const password = String(formData.get('password') || '')
   const next = sanitizeNext(String(formData.get('next') || '/manage'))
   const supabase = await createManageSupabaseServerClient()

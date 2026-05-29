@@ -29,6 +29,30 @@ export function getManageAdminEmails(): string[] {
     .filter(Boolean)
 }
 
+export function getManageAdminLoginAliases(): Record<string, string> {
+  return (process.env.MANAGE_ADMIN_LOGIN_ALIASES || '')
+    .split(',')
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean)
+    .reduce<Record<string, string>>((aliases, entry) => {
+      const separator = entry.indexOf('=')
+      if (separator <= 0) return aliases
+
+      const alias = entry.slice(0, separator).trim()
+      const email = entry.slice(separator + 1).trim()
+      if (alias && email) aliases[alias] = email
+
+      return aliases
+    }, {})
+}
+
+export function resolveManageLoginIdentifier(identifier: string): string {
+  const normalized = identifier.trim().toLowerCase()
+  if (!normalized) return normalized
+
+  return getManageAdminLoginAliases()[normalized] || normalized
+}
+
 export function getManageMissingEnv(): string[] {
   const { key, url } = getManageSupabaseConfig()
   const missing: string[] = []

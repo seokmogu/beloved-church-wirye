@@ -28,7 +28,7 @@ async function login(page: Page) {
 
   if (page.url().replace(/\/$/, '') === `${serverURL}/manage`) return
 
-  await page.fill('input[name=email]', adminEmail || '')
+  await page.fill('input[name=login]', adminEmail || '')
   await page.fill('input[name=password]', adminPassword || '')
   await page.getByRole('button', { name: '로그인' }).click()
   await page.waitForURL(/\/manage$/)

@@ -6,8 +6,8 @@ import { signInAction } from './actions'
 
 const errorMessages: Record<string, string> = {
   config: 'Supabase Auth 설정이 아직 완료되지 않았습니다.',
-  forbidden: '허용된 관리자 이메일이 아닙니다.',
-  invalid: '이메일 또는 비밀번호를 확인해 주세요.',
+  forbidden: '허용된 관리자 계정이 아닙니다.',
+  invalid: '아이디 또는 비밀번호를 확인해 주세요.',
 }
 
 type LoginSearchParams = Promise<Record<string, string | string[] | undefined>>
@@ -47,8 +47,8 @@ export default async function ManageLoginPage({
           <form action={signInAction} className="manage-form">
             <input name="next" type="hidden" value={sanitizeNext(next)} />
             <div className="manage-field">
-              <label htmlFor="email">이메일</label>
-              <input autoComplete="email" id="email" name="email" required type="email" />
+              <label htmlFor="login">아이디 또는 이메일</label>
+              <input autoComplete="username" id="login" name="login" required type="text" />
             </div>
             <div className="manage-field">
               <label htmlFor="password">비밀번호</label>
