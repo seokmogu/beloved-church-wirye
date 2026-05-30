@@ -15,6 +15,8 @@ type MenuRow = {
   url: string
 }
 
+type MenuSearchParams = Promise<Record<string, string | string[] | undefined>>
+
 const internalPathOptions = [
   { label: '홈', value: '/' },
   { label: '교회 소개', value: '/about' },
@@ -27,9 +29,15 @@ const internalPathOptions = [
   { label: '헌금 안내', value: '/offering' },
 ]
 
-export default async function ManageMenuPage() {
+export default async function ManageMenuPage({
+  searchParams,
+}: {
+  searchParams: MenuSearchParams
+}) {
   const user = await requireManageUser()
   const payload = await getManagePayload()
+  const params = await searchParams
+  const error = getStringParam(params.error)
   const header = await payload.findGlobal({ slug: 'header', depth: 0 })
   const rows = padMenuRows(header.navItems)
 
@@ -39,6 +47,11 @@ export default async function ManageMenuPage() {
         description="공개 사이트 상단 내비게이션에 표시되는 메뉴를 관리합니다."
         title="메뉴 관리"
       />
+      {error === 'save' ? (
+        <div className="manage-alert danger" role="alert">
+          메뉴를 저장하지 못했습니다. 입력한 메뉴 항목을 확인한 뒤 다시 저장해 주세요.
+        </div>
+      ) : null}
       <form action={saveMenuAction} className="manage-form">
         <section className="manage-grid">
           {rows.map((row, index) => (
@@ -98,6 +111,11 @@ export default async function ManageMenuPage() {
       </form>
     </ManageShell>
   )
+}
+
+function getStringParam(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) return value[0]
+  return value
 }
 
 function padMenuRows(items: Header['navItems']): MenuRow[] {

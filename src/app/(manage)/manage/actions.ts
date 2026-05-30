@@ -144,25 +144,31 @@ export async function saveChurchNewsAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
   const id = optionalNumber(formData, 'id')
-  const title = optionalString(formData, 'title')
-  const uploadedImages = await uploadMediaFilesFromForm(
-    payload,
-    formData,
-    'imageFiles',
-    title || '교회소식 이미지',
-  )
-  const data = {
-    date: dateInputToISO(stringValue(formData, 'date')),
-    description: optionalString(formData, 'description'),
-    images: parseChurchNewsImages(formData, uploadedImages),
-    isPublic: checkboxValue(formData, 'isPublic'),
-    title,
-  }
 
-  if (id) {
-    await payload.update({ collection: 'church-news', data: data as any, id })
-  } else {
-    await payload.create({ collection: 'church-news', data: data as any })
+  try {
+    const title = optionalString(formData, 'title')
+    const uploadedImages = await uploadMediaFilesFromForm(
+      payload,
+      formData,
+      'imageFiles',
+      title || '교회소식 이미지',
+    )
+    const data = {
+      date: dateInputToISO(stringValue(formData, 'date')),
+      description: optionalString(formData, 'description'),
+      images: parseChurchNewsImages(formData, uploadedImages),
+      isPublic: checkboxValue(formData, 'isPublic'),
+      title,
+    }
+
+    if (id) {
+      await payload.update({ collection: 'church-news', data: data as any, id })
+    } else {
+      await payload.create({ collection: 'church-news', data: data as any })
+    }
+  } catch (error) {
+    console.error('Failed to save church news:', error)
+    redirect(churchNewsErrorPath(id, isUploadStorageError(error) ? 'storage' : 'upload'))
   }
 
   revalidateManageAndPublic('/manage/church-news')
@@ -362,12 +368,17 @@ export async function saveMenuAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
 
-  await payload.updateGlobal({
-    data: {
-      navItems: parseMenuItems(formData),
-    } as any,
-    slug: 'header',
-  })
+  try {
+    await payload.updateGlobal({
+      data: {
+        navItems: parseMenuItems(formData),
+      } as any,
+      slug: 'header',
+    })
+  } catch (error) {
+    console.error('Failed to save menu:', error)
+    redirect('/manage/menu?error=save')
+  }
 
   revalidateManageAndPublic('/manage/menu')
   redirect('/manage/menu')
@@ -454,6 +465,7 @@ async function uploadMediaFilesFromForm(
 ): Promise<Array<{ caption: null; image: number | string }>> {
   const files = formData.getAll(key).filter(isUploadableFile).filter((file) => file.size > 0)
   const uploadedImages: Array<{ caption: null; image: number | string }> = []
+  assertUploadStorageConfigured(files.length)
 
   for (const [index, file] of files.entries()) {
     const uploaded = await payload.create({
@@ -471,6 +483,22 @@ async function uploadMediaFilesFromForm(
   }
 
   return uploadedImages
+}
+
+function assertUploadStorageConfigured(fileCount: number) {
+  if (fileCount === 0) return
+  if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error('UPLOAD_STORAGE_NOT_CONFIGURED')
+  }
+}
+
+function isUploadStorageError(error: unknown): boolean {
+  return error instanceof Error && error.message === 'UPLOAD_STORAGE_NOT_CONFIGURED'
+}
+
+function churchNewsErrorPath(id: number | undefined, error: 'storage' | 'upload'): string {
+  const path = id ? `/manage/church-news/${id}` : '/manage/church-news/new'
+  return `${path}?error=${error}`
 }
 
 function isUploadableFile(value: FormDataEntryValue): value is File {

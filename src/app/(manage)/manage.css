@@ -737,6 +737,9 @@ textarea {
   gap: 6px;
   margin: 0;
 }
+.manage-new-image-preview-frame {
+  position: relative;
+}
 .manage-new-image-preview-thumb {
   aspect-ratio: 4 / 5;
   background-color: #f3eee6;
@@ -745,6 +748,29 @@ textarea {
   background-size: cover;
   border: 1px solid var(--manage-border);
   border-radius: 8px;
+}
+.manage-new-image-remove {
+  align-items: center;
+  background: rgb(24 31 27 / 0.86);
+  border: 1px solid rgb(255 255 255 / 0.3);
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  height: 28px;
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 28px;
+}
+.manage-new-image-remove:hover {
+  background: rgb(24 31 27 / 0.96);
+}
+.manage-new-image-remove svg {
+  height: 15px;
+  width: 15px;
 }
 .manage-new-image-preview-item figcaption {
   color: var(--manage-muted);

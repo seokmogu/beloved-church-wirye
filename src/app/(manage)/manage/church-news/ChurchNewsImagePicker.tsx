@@ -1,14 +1,17 @@
 'use client'
 
-import { ImagePlus } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { ImagePlus, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 type PreviewImage = {
+  file: File
   id: string
+  name: string
   url: string
 }
 
 export function ChurchNewsImagePicker() {
+  const inputRef = useRef<HTMLInputElement>(null)
   const [previews, setPreviews] = useState<PreviewImage[]>([])
 
   useEffect(
@@ -24,6 +27,7 @@ export function ChurchNewsImagePicker() {
       <input
         accept="image/*"
         id="imageFiles"
+        ref={inputRef}
         multiple
         name="imageFiles"
         onChange={(event) => {
@@ -31,7 +35,9 @@ export function ChurchNewsImagePicker() {
           setPreviews((current) => {
             current.forEach((preview) => URL.revokeObjectURL(preview.url))
             return files.map((file, index) => ({
+              file,
               id: `${file.name}-${file.size}-${index}`,
+              name: file.name,
               url: URL.createObjectURL(file),
             }))
           })
@@ -50,13 +56,23 @@ export function ChurchNewsImagePicker() {
           <div className="manage-new-image-preview-grid">
             {previews.map((preview, index) => (
               <figure className="manage-new-image-preview-item" key={preview.id}>
-                <div
-                  aria-label={`${index + 1}번째 선택 이미지 미리보기`}
-                  className="manage-new-image-preview-thumb"
-                  role="img"
-                  style={{ backgroundImage: `url(${preview.url})` }}
-                />
-                <figcaption>{index + 1}</figcaption>
+                <div className="manage-new-image-preview-frame">
+                  <div
+                    aria-label={`${index + 1}번째 선택 이미지 미리보기`}
+                    className="manage-new-image-preview-thumb"
+                    role="img"
+                    style={{ backgroundImage: `url(${preview.url})` }}
+                  />
+                  <button
+                    aria-label={`${index + 1}번째 선택 이미지 제거`}
+                    className="manage-new-image-remove"
+                    onClick={() => removePreview(index)}
+                    type="button"
+                  >
+                    <X aria-hidden="true" />
+                  </button>
+                </div>
+                <figcaption title={preview.name}>{index + 1}</figcaption>
               </figure>
             ))}
           </div>
@@ -69,4 +85,21 @@ export function ChurchNewsImagePicker() {
       )}
     </div>
   )
+
+  function removePreview(removeIndex: number) {
+    setPreviews((current) => {
+      const next = current.filter((_, index) => index !== removeIndex)
+      current[removeIndex]?.url && URL.revokeObjectURL(current[removeIndex].url)
+      syncInputFiles(next.map((preview) => preview.file))
+      return next
+    })
+  }
+
+  function syncInputFiles(files: File[]) {
+    if (!inputRef.current) return
+
+    const transfer = new DataTransfer()
+    files.forEach((file) => transfer.items.add(file))
+    inputRef.current.files = transfer.files
+  }
 }

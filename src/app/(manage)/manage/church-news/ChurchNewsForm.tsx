@@ -10,7 +10,14 @@ import { ChurchNewsImagePicker } from './ChurchNewsImagePicker'
 
 type ChurchNewsImage = NonNullable<ChurchNew['images']>[number]
 
-export function ChurchNewsForm({ doc }: { doc?: ChurchNew }) {
+const errorMessages: Record<string, string> = {
+  generic: '교회소식을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+  storage:
+    '이미지 저장소 설정이 필요합니다. 운영 Vercel 환경 변수 BLOB_READ_WRITE_TOKEN을 확인해 주세요.',
+  upload: '이미지를 저장하지 못했습니다. 이미지 파일을 다시 선택해서 저장해 주세요.',
+}
+
+export function ChurchNewsForm({ doc, error }: { doc?: ChurchNew; error?: string }) {
   const images = doc?.images || []
 
   return (
@@ -38,6 +45,12 @@ export function ChurchNewsForm({ doc }: { doc?: ChurchNew }) {
           </label>
         </div>
         <ChurchNewsImagePicker />
+
+        {error ? (
+          <div className="manage-alert danger" role="alert">
+            {errorMessages[error] || errorMessages.generic}
+          </div>
+        ) : null}
 
         {images.length ? (
           <section className="manage-image-list" aria-label="등록된 이미지">

@@ -21,6 +21,7 @@ export const internalLinkOptions = [
   { label: '예배 안내 - 홈/디자인/교회 정보 > 예배와 위치에서 관리', value: '/worship' },
   { label: '최신 설교 - 설교에서 관리', value: '/sermon' },
   { label: '공지사항 - 공지사항에서 관리', value: '/announcements' },
+  { label: '교회소식 - 교회소식에서 관리', value: '/church-news' },
   { label: '주보 - 주보에서 관리', value: '/bulletins' },
   { label: '새가족 등록 - 신청 내역은 새가족에서 확인', value: '/newcomer' },
   { label: '헌금 안내 - 헌금 안내 페이지에서 관리', value: '/offering' },
