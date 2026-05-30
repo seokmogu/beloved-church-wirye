@@ -713,6 +713,13 @@ textarea {
   height: 20px;
   width: 20px;
 }
+.manage-new-image-status {
+  color: #5f6a61;
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+}
 .manage-new-image-preview {
   background: #fffaf2;
   border: 1px solid #ebe0d0;
@@ -736,6 +743,12 @@ textarea {
   display: grid;
   gap: 6px;
   margin: 0;
+}
+.manage-new-image-preview-item.is-error .manage-new-image-preview-thumb {
+  border-color: #c2410c;
+}
+.manage-new-image-preview-item.is-uploading .manage-new-image-preview-thumb {
+  opacity: 0.72;
 }
 .manage-new-image-preview-frame {
   position: relative;
@@ -773,9 +786,21 @@ textarea {
   width: 15px;
 }
 .manage-new-image-preview-item figcaption {
+  align-items: center;
   color: var(--manage-muted);
+  display: flex;
   font-size: 12px;
+  gap: 4px;
+  justify-content: center;
   text-align: center;
+}
+.manage-new-image-preview-item figcaption small {
+  color: #5f6a61;
+  font-size: 11px;
+  font-weight: 700;
+}
+.manage-new-image-preview-item.is-error figcaption small {
+  color: #c2410c;
 }
 .manage-sync-panel {
   align-items: center;

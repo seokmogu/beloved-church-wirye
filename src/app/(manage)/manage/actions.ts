@@ -518,6 +518,12 @@ function parseChurchNewsImages(
   const rowIds = stringValues(formData, 'churchNewsImageRowId')
   const imageIds = stringValues(formData, 'churchNewsImageId')
   const captions = stringValues(formData, 'churchNewsImageCaption')
+  const preUploadedImages = stringValues(formData, 'uploadedChurchNewsImageId')
+    .filter(Boolean)
+    .map((imageId) => ({
+      caption: null,
+      image: relationValueFromString(imageId),
+    }))
   const existingImages = imageIds
     .map((imageId, index) => {
       if (!imageId || formData.get(`churchNewsRemoveImage-${index}`) === 'on') return null
@@ -538,7 +544,7 @@ function parseChurchNewsImages(
       Boolean(item),
     )
 
-  return [...existingImages, ...uploadedImages]
+  return [...existingImages, ...preUploadedImages, ...uploadedImages]
 }
 
 function relationValueFromString(value: string): number | string {
