@@ -2,7 +2,9 @@ import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import Image from 'next/image'
-import type { Sermon, SiteSetting } from '@/payload-types'
+import { ExternalLink, MoreVertical, Play, Youtube } from 'lucide-react'
+import { fetchLatestVideos, type YouTubeVideo } from '@/lib/youtube'
+import type { SiteSetting } from '@/payload-types'
 
 export const metadata: Metadata = {
   title: '설교 | 사랑하는교회',
@@ -13,6 +15,10 @@ export const metadata: Metadata = {
 // This allows Payload CMS to run migrations on first admin access
 export const dynamic = 'force-dynamic'
 
+const SERMON_PAGE_VIDEO_COUNT = 12
+
+type HomeSection = NonNullable<SiteSetting['homeSections']>[number]
+
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleDateString('ko-KR', {
@@ -22,15 +28,169 @@ function formatDate(dateString: string): string {
   })
 }
 
+function formatRelativeDate(dateString: string): string {
+  const published = new Date(dateString).getTime()
+  if (Number.isNaN(published)) return ''
+
+  const days = Math.max(0, Math.floor((Date.now() - published) / 86_400_000))
+  if (days < 1) return '오늘'
+  if (days < 7) return `${days}일 전`
+  if (days < 35) return `${Math.floor(days / 7)}주 전`
+  if (days < 365) return `${Math.floor(days / 30)}개월 전`
+  return `${Math.floor(days / 365)}년 전`
+}
+
+function getSermonsSection(settings: SiteSetting | null): Partial<HomeSection> {
+  return (
+    settings?.homeSections?.find(
+      (section) => section?.enabled !== false && section?.sectionType === 'sermons',
+    ) ?? {
+      description: null,
+      eyebrow: 'SERMON',
+      title: '최신 설교',
+    }
+  )
+}
+
+function SermonArchiveSection({
+  channelUrl,
+  description,
+  eyebrow,
+  title,
+  videos,
+}: {
+  channelUrl?: string | null
+  description?: string | null
+  eyebrow?: string | null
+  title?: string | null
+  videos: YouTubeVideo[]
+}) {
+  return (
+    <section className="bg-white py-16 md:py-20">
+      <div className="container">
+        <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="mb-2 text-sm font-semibold uppercase text-secondary">
+              {eyebrow ?? 'SERMON'}
+            </p>
+            <h2 className="church-section-heading font-bold text-foreground">
+              {title ?? '최신 설교'}
+            </h2>
+            {description && (
+              <p className="church-body-copy mt-4 max-w-2xl leading-relaxed text-muted-foreground">
+                {description}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground">
+              최신순
+            </span>
+            {channelUrl && (
+              <a
+                href={channelUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-fit items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary/30 hover:bg-primary/5"
+              >
+                <Youtube className="h-4 w-4" aria-hidden="true" />
+                YouTube 채널
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </a>
+            )}
+          </div>
+        </div>
+
+        {videos.length > 0 ? (
+          <div className="grid gap-x-6 gap-y-10 md:grid-cols-2 xl:grid-cols-3">
+            {videos.map((video, index) => {
+              const relativeDate = formatRelativeDate(video.publishedAt)
+
+              return (
+                <a
+                  key={video.id}
+                  href={`https://www.youtube.com/watch?v=${video.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block"
+                >
+                  <div className="relative aspect-video overflow-hidden rounded-lg bg-muted">
+                    <Image
+                      src={video.thumbnail}
+                      alt={video.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      loading={index < 6 ? 'eager' : 'lazy'}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    />
+                    <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
+                    <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded bg-black/80 px-2 py-1 text-xs font-semibold text-white">
+                      <Play className="h-3 w-3 fill-current" aria-hidden="true" />
+                      보기
+                    </span>
+                  </div>
+                  <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-3">
+                    <div>
+                      <h3 className="line-clamp-2 text-lg font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
+                        {video.title}
+                      </h3>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {relativeDate ? `${formatDate(video.publishedAt)} · ${relativeDate}` : formatDate(video.publishedAt)}
+                      </p>
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      className="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors group-hover:bg-primary/5 group-hover:text-primary"
+                    >
+                      <MoreVertical className="h-5 w-5" />
+                    </span>
+                  </div>
+                </a>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="rounded-lg border border-dashed border-border bg-card/70 px-6 py-12 text-center">
+            <p className="text-base font-semibold text-foreground">
+              등록된 설교 영상이 없습니다.
+            </p>
+            {channelUrl && (
+              <a
+                href={channelUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary/30 hover:bg-primary/5"
+              >
+                <Youtube className="h-4 w-4" aria-hidden="true" />
+                YouTube 채널
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
 export default async function SermonPage() {
   const payload = await getPayload({ config })
 
-  let sermons: Sermon[] = []
   let settings: SiteSetting | null = null
+  let cmsVideos: YouTubeVideo[] = []
 
   try {
-    settings = await payload.findGlobal({ slug: 'site-settings' })
-    // Fetch published sermons from CMS, sorted by date (latest first)
+    settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
+  } catch (error) {
+    console.error('Failed to fetch site settings:', error)
+  }
+
+  const videoCount = Math.max(
+    typeof settings?.youtubeVideoCount === 'number' ? settings.youtubeVideoCount : 4,
+    SERMON_PAGE_VIDEO_COUNT,
+  )
+
+  try {
     const sermonsData = await payload.find({
       collection: 'sermons',
       where: {
@@ -38,15 +198,28 @@ export default async function SermonPage() {
           equals: 'published',
         },
       },
-      limit: 12,
+      limit: videoCount,
       sort: '-sermonDate',
     })
-    sermons = sermonsData.docs
+    cmsVideos = sermonsData.docs
+      .filter((sermon) => sermon.youtubeId)
+      .map((sermon) => ({
+        id: sermon.youtubeId as string,
+        publishedAt: sermon.sermonDate,
+        thumbnail:
+          sermon.thumbnail || `https://img.youtube.com/vi/${sermon.youtubeId}/maxresdefault.jpg`,
+        title: sermon.title,
+      }))
   } catch (error) {
-    // Log the error but don't crash the page - show empty state instead
-    // This handles cases where the sermons table hasn't been migrated yet
     console.error('Failed to fetch sermons:', error)
   }
+
+  const fallbackVideos =
+    cmsVideos.length === 0
+      ? await fetchLatestVideos(videoCount, settings?.youtubeChannelId, settings?.youtubeChannelUrl)
+      : []
+  const videos = cmsVideos.length > 0 ? cmsVideos : fallbackVideos
+  const section = getSermonsSection(settings)
 
   return (
     <article className="pt-16 pb-24">
@@ -67,196 +240,13 @@ export default async function SermonPage() {
         </div>
       </section>
 
-      {/* Latest Sermon Section */}
-      {sermons.length > 0 && (
-        <section className="py-16">
-          <div className="container">
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                최신 설교
-              </h2>
-              <p className="text-muted-foreground">
-                가장 최근 설교 말씀을 확인하세요
-              </p>
-            </div>
-
-            {/* Featured Video (First/Latest) */}
-            <div className="mb-16">
-              <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-muted mb-6">
-                <iframe
-                  src={`https://www.youtube.com/embed/${sermons[0].youtubeId}`}
-                  title={sermons[0].title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="absolute inset-0 h-full w-full"
-                />
-              </div>
-              <div className="max-w-3xl">
-                <h3 className="text-2xl font-semibold text-foreground mb-2">
-                  {sermons[0].title}
-                </h3>
-                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-3">
-                  <time dateTime={sermons[0].sermonDate}>
-                    {formatDate(sermons[0].sermonDate)}
-                  </time>
-                  <span>•</span>
-                  <span>{sermons[0].preacher}</span>
-                  <span>•</span>
-                  <span className="font-medium text-primary">{sermons[0].scriptureRef}</span>
-                </div>
-                {sermons[0].description && (
-                  <p className="text-muted-foreground">{sermons[0].description}</p>
-                )}
-                {sermons[0].sermonSeries && (
-                  <div className="mt-3">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-secondary/10 text-secondary">
-                      시리즈: {sermons[0].sermonSeries}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Previous Sermons Grid */}
-            {sermons.length > 1 && (
-              <>
-                <div className="mb-10">
-                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                    이전 설교
-                  </h2>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sermons.slice(1).map((sermon: Sermon) => (
-                    <a
-                      key={sermon.id}
-                      href={`https://www.youtube.com/watch?v=${sermon.youtubeId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group block bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all duration-300"
-                    >
-                      {/* Thumbnail */}
-                      <div className="relative aspect-video overflow-hidden">
-                        {sermon.thumbnail ? (
-                          <Image
-                            src={sermon.thumbnail}
-                            alt={sermon.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 bg-muted flex items-center justify-center">
-                            <svg className="w-12 h-12 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                          </div>
-                        )}
-                        {/* Play icon overlay */}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors">
-                          <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                            <svg
-                              className="w-6 h-6 text-primary ml-1"
-                              fill="currentColor"
-                              viewBox="0 0 24 24"
-                              aria-hidden="true"
-                            >
-                              <path d="M8 5v14l11-7z" />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Info */}
-                      <div className="p-5">
-                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2">
-                          {sermon.title}
-                        </h3>
-                        <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-                          <time dateTime={sermon.sermonDate}>
-                            {formatDate(sermon.sermonDate)}
-                          </time>
-                          <div className="flex items-center gap-2">
-                            <span>{sermon.preacher}</span>
-                            <span>•</span>
-                            <span className="text-primary font-medium">{sermon.scriptureRef}</span>
-                          </div>
-                        </div>
-                        {sermon.sermonSeries && (
-                          <div className="mt-3">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-secondary/10 text-secondary">
-                              {sermon.sermonSeries}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {/* YouTube Channel Link */}
-            <div className="mt-12 text-center">
-              <a
-                href={settings?.youtubeChannelUrl ?? '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                </svg>
-                YouTube 채널에서 더 많은 설교 보기
-              </a>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Empty State */}
-      {sermons.length === 0 && (
-        <section className="py-16">
-          <div className="container">
-            <div className="text-center max-w-md mx-auto">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                <svg
-                  className="w-8 h-8 text-muted-foreground"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
-                설교 영상이 없습니다
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                CMS에서 설교 콘텐츠를 추가하거나 YouTube 채널에서 최신 설교를 확인해보세요.
-              </p>
-              <a
-                href={settings?.youtubeChannelUrl ?? '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-primary hover:underline"
-              >
-                YouTube 채널 방문하기 &rarr;
-              </a>
-            </div>
-          </div>
-        </section>
-      )}
+      <SermonArchiveSection
+        channelUrl={settings?.youtubeChannelUrl}
+        description={section.description}
+        eyebrow={section.eyebrow}
+        title={section.title}
+        videos={videos}
+      />
     </article>
   )
 }
