@@ -8,8 +8,9 @@ import { getManagePayload } from '@/lib/manage/payload'
 export default async function ManageDashboardPage() {
   const user = await requireManageUser()
   const payload = await getManagePayload()
-  const [announcements, sermons, bulletins] = await Promise.all([
+  const [announcements, churchNews, sermons, bulletins] = await Promise.all([
     payload.find({ collection: 'announcements', limit: 5, sort: '-publishedAt' }),
+    payload.find({ collection: 'church-news', limit: 5, sort: '-date' }),
     payload.find({ collection: 'sermons', limit: 5, sort: '-sermonDate' }),
     payload.find({ collection: 'bulletins', limit: 5, sort: '-date' }),
   ])
@@ -38,6 +39,10 @@ export default async function ManageDashboardPage() {
           <span>공지사항</span>
           <strong>{announcements.totalDocs}</strong>
         </Link>
+        <Link className="manage-card manage-stat" href="/manage/church-news">
+          <span>교회소식</span>
+          <strong>{churchNews.totalDocs}</strong>
+        </Link>
         <Link className="manage-card manage-stat" href="/manage/sermons">
           <span>설교</span>
           <strong>{sermons.totalDocs}</strong>
@@ -64,6 +69,15 @@ export default async function ManageDashboardPage() {
             title: doc.title,
           }))}
           title="최근 공지"
+        />
+        <RecentList
+          hrefPrefix="/manage/church-news"
+          items={churchNews.docs.map((doc) => ({
+            date: doc.date,
+            id: doc.id,
+            title: doc.title,
+          }))}
+          title="최근 교회소식"
         />
         <RecentList
           hrefPrefix="/manage/sermons"

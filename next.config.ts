@@ -13,6 +13,11 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['127.0.0.1', '100.94.135.5', '100.65.249.52'],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '32mb',
+    },
+  },
   images: {
     localPatterns: [
       {

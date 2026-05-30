@@ -659,6 +659,98 @@ textarea {
   margin-top: 6px;
   max-width: 100%;
 }
+
+.manage-image-list {
+  display: grid;
+  gap: 12px;
+}
+.manage-image-row {
+  align-items: center;
+  background: #fffaf2;
+  border: 1px solid #ebe0d0;
+  border-radius: 8px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 96px auto;
+  justify-content: space-between;
+  padding: 12px;
+}
+.manage-image-preview {
+  align-items: center;
+  background: #f3eee6;
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+  display: flex;
+  min-height: 120px;
+  justify-content: center;
+  overflow: hidden;
+}
+.manage-image-preview img {
+  height: auto;
+  object-fit: cover;
+  width: 100%;
+}
+.manage-image-preview span {
+  color: var(--manage-muted);
+  font-size: 12px;
+  padding: 8px;
+  text-align: center;
+}
+.manage-new-image-empty {
+  align-items: center;
+  background: #fffaf2;
+  border: 1px dashed #d8cbb8;
+  border-radius: 8px;
+  color: var(--manage-muted);
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  min-height: 78px;
+  padding: 14px;
+}
+.manage-new-image-empty svg {
+  color: #6d7d70;
+  height: 20px;
+  width: 20px;
+}
+.manage-new-image-preview {
+  background: #fffaf2;
+  border: 1px solid #ebe0d0;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 12px;
+}
+.manage-new-image-preview-header {
+  color: #344238;
+  font-size: 13px;
+  font-weight: 700;
+}
+.manage-new-image-preview-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+}
+.manage-new-image-preview-item {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.manage-new-image-preview-thumb {
+  aspect-ratio: 4 / 5;
+  background-color: #f3eee6;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+}
+.manage-new-image-preview-item figcaption {
+  color: var(--manage-muted);
+  font-size: 12px;
+  text-align: center;
+}
 .manage-sync-panel {
   align-items: center;
   background: var(--manage-panel-strong);
@@ -812,6 +904,7 @@ textarea {
   }
   .manage-editor-layout,
   .manage-preview-link-row,
+  .manage-image-row,
   .manage-field-grid,
   .manage-grid.cols-3 {
     grid-template-columns: 1fr;

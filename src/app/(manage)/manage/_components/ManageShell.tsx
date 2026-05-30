@@ -11,6 +11,7 @@ import {
   MapPin,
   Megaphone,
   Menu,
+  Newspaper,
   Plus,
   Radio,
 } from 'lucide-react'
@@ -24,6 +25,7 @@ type ActiveKey =
   | 'announcements'
   | 'banner'
   | 'bulletins'
+  | 'churchNews'
   | 'dashboard'
   | 'guide'
   | 'home'
@@ -46,6 +48,7 @@ const navItems: {
   { href: '/manage/sermons', icon: Radio, key: 'sermons', label: '설교' },
   { href: '/manage/instagram', icon: Instagram, key: 'instagram', label: '인스타그램' },
   { href: '/manage/announcements', icon: Bell, key: 'announcements', label: '공지사항' },
+  { href: '/manage/church-news', icon: Newspaper, key: 'churchNews', label: '교회소식' },
   { href: '/manage/bulletins', icon: FileText, key: 'bulletins', label: '주보' },
   { href: '/manage/offering', icon: HandCoins, key: 'offering', label: '헌금 안내' },
   { href: '/manage/banner', icon: Megaphone, key: 'banner', label: '상단 배너' },

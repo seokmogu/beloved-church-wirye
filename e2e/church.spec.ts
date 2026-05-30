@@ -41,6 +41,11 @@ test.describe('Desktop tests (1280x800)', () => {
     await page.goto('/bulletins')
     await expect(page.locator('h1', { hasText: '주보' })).toBeVisible()
   })
+
+  test('Church news (/church-news) page loads', async ({ page }) => {
+    await page.goto('/church-news')
+    await expect(page.locator('h1', { hasText: '교회소식' })).toBeVisible()
+  })
 })
 
 test.describe('Mobile tests (375x667 - iPhone SE)', () => {

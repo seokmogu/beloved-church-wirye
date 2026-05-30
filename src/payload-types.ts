@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     pages: Page;
     announcements: Announcement;
+    'church-news': ChurchNew;
     bulletins: Bulletin;
     sermons: Sermon;
     posts: Post;
@@ -94,6 +95,7 @@ export interface Config {
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
+    'church-news': ChurchNewsSelect<false> | ChurchNewsSelect<true>;
     bulletins: BulletinsSelect<false> | BulletinsSelect<true>;
     sermons: SermonsSelect<false> | SermonsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -664,6 +666,37 @@ export interface Announcement {
   createdAt: string;
 }
 /**
+ * 카카오톡으로 공유되는 주간 교회소식 이미지를 묶어서 등록합니다.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "church-news".
+ */
+export interface ChurchNew {
+  id: number;
+  /**
+   * 비워두면 날짜 기준으로 자동 생성됩니다.
+   */
+  title?: string | null;
+  date: string;
+  /**
+   * 체크하면 로그인 없이도 교회소식 페이지에 표시됩니다.
+   */
+  isPublic?: boolean | null;
+  description?: string | null;
+  /**
+   * 카카오톡에서 받은 이미지를 순서대로 등록합니다.
+   */
+  images?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * 주보 파일만 올려도 날짜와 제목은 자동으로 채워집니다.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1183,6 +1216,10 @@ export interface PayloadLockedDocument {
         value: number | Announcement;
       } | null)
     | ({
+        relationTo: 'church-news';
+        value: number | ChurchNew;
+      } | null)
+    | ({
         relationTo: 'bulletins';
         value: number | Bulletin;
       } | null)
@@ -1442,6 +1479,25 @@ export interface AnnouncementsSelect<T extends boolean = true> {
   publishedAt?: T;
   isPinned?: T;
   googleDriveLink?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "church-news_select".
+ */
+export interface ChurchNewsSelect<T extends boolean = true> {
+  title?: T;
+  date?: T;
+  isPublic?: T;
+  description?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

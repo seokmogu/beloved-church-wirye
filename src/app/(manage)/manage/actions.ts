@@ -15,6 +15,7 @@ const publicPaths = [
   '/',
   '/about',
   '/announcements',
+  '/church-news',
   '/sermon',
   '/worship',
   '/bulletins',
@@ -137,6 +138,45 @@ export async function deleteBulletinAction(formData: FormData) {
   await payload.delete({ collection: 'bulletins', id })
   revalidateManageAndPublic('/manage/bulletins')
   redirect('/manage/bulletins')
+}
+
+export async function saveChurchNewsAction(formData: FormData) {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+  const id = optionalNumber(formData, 'id')
+  const title = optionalString(formData, 'title')
+  const uploadedImages = await uploadMediaFilesFromForm(
+    payload,
+    formData,
+    'imageFiles',
+    title || '교회소식 이미지',
+  )
+  const data = {
+    date: dateInputToISO(stringValue(formData, 'date')),
+    description: optionalString(formData, 'description'),
+    images: parseChurchNewsImages(formData, uploadedImages),
+    isPublic: checkboxValue(formData, 'isPublic'),
+    title,
+  }
+
+  if (id) {
+    await payload.update({ collection: 'church-news', data: data as any, id })
+  } else {
+    await payload.create({ collection: 'church-news', data: data as any })
+  }
+
+  revalidateManageAndPublic('/manage/church-news')
+  redirect('/manage/church-news')
+}
+
+export async function deleteChurchNewsAction(formData: FormData) {
+  await requireManageActionUser()
+  const id = requiredNumber(formData, 'id')
+  const payload = await getManagePayload()
+
+  await payload.delete({ collection: 'church-news', id })
+  revalidateManageAndPublic('/manage/church-news')
+  redirect('/manage/church-news')
 }
 
 export async function saveBannerAction(formData: FormData) {
@@ -404,6 +444,78 @@ async function uploadMediaFromForm(
   } as any)
 
   return uploaded.id
+}
+
+async function uploadMediaFilesFromForm(
+  payload: Awaited<ReturnType<typeof getManagePayload>>,
+  formData: FormData,
+  key: string,
+  altPrefix: string,
+): Promise<Array<{ caption: null; image: number | string }>> {
+  const files = formData.getAll(key).filter(isUploadableFile).filter((file) => file.size > 0)
+  const uploadedImages: Array<{ caption: null; image: number | string }> = []
+
+  for (const [index, file] of files.entries()) {
+    const uploaded = await payload.create({
+      collection: 'media',
+      data: { alt: `${altPrefix} ${index + 1}` },
+      file: {
+        data: Buffer.from(await file.arrayBuffer()),
+        mimetype: file.type || 'application/octet-stream',
+        name: file.name || `${key}-${index + 1}.upload`,
+        size: file.size,
+      },
+    } as any)
+
+    uploadedImages.push({ caption: null, image: uploaded.id })
+  }
+
+  return uploadedImages
+}
+
+function isUploadableFile(value: FormDataEntryValue): value is File {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'arrayBuffer' in value &&
+    'size' in value &&
+    'name' in value
+  )
+}
+
+function parseChurchNewsImages(
+  formData: FormData,
+  uploadedImages: Array<{ caption: null; image: number | string }>,
+) {
+  const rowIds = stringValues(formData, 'churchNewsImageRowId')
+  const imageIds = stringValues(formData, 'churchNewsImageId')
+  const captions = stringValues(formData, 'churchNewsImageCaption')
+  const existingImages = imageIds
+    .map((imageId, index) => {
+      if (!imageId || formData.get(`churchNewsRemoveImage-${index}`) === 'on') return null
+
+      const item: {
+        caption: string | null
+        id?: string
+        image: number | string
+      } = {
+        caption: captions[index] || null,
+        image: relationValueFromString(imageId),
+      }
+
+      if (rowIds[index]) item.id = rowIds[index]
+      return item
+    })
+    .filter((item): item is { caption: string | null; id?: string; image: number | string } =>
+      Boolean(item),
+    )
+
+  return [...existingImages, ...uploadedImages]
+}
+
+function relationValueFromString(value: string): number | string {
+  const numberValue = Number(value)
+  return Number.isInteger(numberValue) ? numberValue : value
 }
 
 function mediaRelationValue(value: unknown): number | string | null {

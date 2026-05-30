@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 
 import { Announcements } from './collections/Announcements'
 import { Bulletins } from './collections/Bulletins'
+import { ChurchNews } from './collections/ChurchNews'
 import { Media } from './collections/Media'
 import { Newcomers } from './collections/Newcomers'
 import { Pages } from './collections/Pages'
@@ -111,7 +112,7 @@ export default buildConfig({
     },
     push: false,
   }),
-  collections: [Pages, Announcements, Bulletins, Sermons, Posts, Newcomers, Media, Users],
+  collections: [Pages, Announcements, ChurchNews, Bulletins, Sermons, Posts, Newcomers, Media, Users],
   serverURL,
   csrf: [],
   cors: allowedOrigins,

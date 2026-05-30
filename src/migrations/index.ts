@@ -7,6 +7,7 @@ import * as migration_20260525_002300_visual_editor_font_controls from './202605
 import * as migration_20260525_233607_instagram_post_thumbnails from './20260525_233607_instagram_post_thumbnails'
 import * as migration_20260526_231800_instagram_thumbnail_urls from './20260526_231800_instagram_thumbnail_urls'
 import * as migration_20260527_000100_instagram_post_metadata from './20260527_000100_instagram_post_metadata'
+import * as migration_20260530_165500_church_news from './20260530_165500_church_news'
 
 export const migrations = [
   {
@@ -53,5 +54,10 @@ export const migrations = [
     up: migration_20260527_000100_instagram_post_metadata.up,
     down: migration_20260527_000100_instagram_post_metadata.down,
     name: '20260527_000100_instagram_post_metadata',
+  },
+  {
+    up: migration_20260530_165500_church_news.up,
+    down: migration_20260530_165500_church_news.down,
+    name: '20260530_165500_church_news',
   },
 ]

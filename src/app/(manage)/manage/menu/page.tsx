@@ -21,6 +21,7 @@ const internalPathOptions = [
   { label: '예배 안내', value: '/worship' },
   { label: '최신 설교', value: '/sermon' },
   { label: '공지사항', value: '/announcements' },
+  { label: '교회소식', value: '/church-news' },
   { label: '주보', value: '/bulletins' },
   { label: '새가족 등록', value: '/newcomer' },
   { label: '헌금 안내', value: '/offering' },

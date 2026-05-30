@@ -51,7 +51,10 @@ async function save(page: Page) {
   await page.waitForLoadState('networkidle')
 }
 
-async function deleteByTitle(collection: 'announcements' | 'bulletins' | 'sermons', title: string) {
+async function deleteByTitle(
+  collection: 'announcements' | 'bulletins' | 'church-news' | 'sermons',
+  title: string,
+) {
   const result = await payload.find({
     collection,
     limit: 20,
@@ -136,7 +139,9 @@ test.describe('custom manage admin linkage', () => {
 
     await deleteByTitle('sermons', `${runId} 설교`)
     await deleteByTitle('announcements', `${runId} 공지`)
+    await deleteByTitle('church-news', `${runId} 교회소식`)
     await deleteByTitle('bulletins', `${runId} 주보`)
+    await deleteMediaByAlt(`${runId} 교회소식 1`)
     await deleteMediaByAlt(`Instagram 게시물 ${instagramPostId} 썸네일`)
   })
 
@@ -155,6 +160,7 @@ test.describe('custom manage admin linkage', () => {
       '설교',
       '인스타그램',
       '공지사항',
+      '교회소식',
       '주보',
       '헌금 안내',
       '상단 배너',
@@ -263,6 +269,18 @@ test.describe('custom manage admin linkage', () => {
     await save(page)
     await page.goto(`${serverURL}/announcements`, { waitUntil: 'networkidle' })
     await expect(page.getByRole('link', { name: `${runId} 공지` })).toBeVisible()
+
+    await page.goto(`${serverURL}/manage/church-news/new`, { waitUntil: 'networkidle' })
+    await page.fill('#title', `${runId} 교회소식`)
+    await page.fill('#date', '2026-05-24')
+    await page.setInputFiles('#imageFiles', 'public/logo-beloved.png')
+    await expect(page.getByText('선택한 이미지 1장')).toBeVisible()
+    await save(page)
+    await page.goto(`${serverURL}/church-news`, { waitUntil: 'networkidle' })
+    await page.getByRole('link', { name: new RegExp(`${runId} 교회소식`) }).click()
+    await expect(page).toHaveURL(/\/church-news\/\d+$/)
+    await expect(page.getByRole('heading', { name: `${runId} 교회소식` })).toBeVisible()
+    await expect(page.getByLabel(`${runId} 교회소식 이미지 갤러리`)).toBeVisible()
 
     await page.goto(`${serverURL}/manage/bulletins/new`, { waitUntil: 'networkidle' })
     await page.fill('#title', `${runId} 주보`)

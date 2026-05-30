@@ -65,6 +65,18 @@ const guideSections = [
     ],
   },
   {
+    adminHref: '/manage/church-news',
+    adminLabel: '교회소식',
+    publicHref: '/church-news',
+    publicLabel: '교회소식 페이지',
+    summary: '카카오톡으로 공유되는 주간 교회소식 이미지를 묶어서 등록합니다.',
+    steps: [
+      '교회소식 추가에서 날짜와 공개 여부를 확인하고 이미지를 여러 장 선택합니다.',
+      '공개를 체크한 항목만 공개 교회소식 페이지에 표시됩니다.',
+      '상단 메뉴에 노출하려면 메뉴 관리에서 교회소식 링크를 직접 추가합니다.',
+    ],
+  },
+  {
     adminHref: '/manage/bulletins',
     adminLabel: '주보',
     publicHref: '/bulletins',
