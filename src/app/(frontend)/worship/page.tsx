@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 
 import config from '@payload-config'
+import { NaverMapSectionServer } from '@/components/home/NaverMapSection.server'
 import { PageHero } from '@/components/PageHero'
 import type { SiteSetting } from '@/payload-types'
 
@@ -34,9 +35,9 @@ export default async function WorshipPage() {
   const settings = await getSettings()
   const services = settings?.worshipServices ?? []
   const order = settings?.worshipOrder ?? []
-  const transitLines = splitLines(settings?.transitInfo)
   const parkingLines = splitLines(settings?.parkingInfo)
   const visitorNotes = settings?.visitorNotes ?? []
+  const hasVisitNotes = parkingLines.length > 0 || visitorNotes.length > 0
 
   return (
     <main className="min-h-screen bg-background">
@@ -101,72 +102,56 @@ export default async function WorshipPage() {
         </section>
       )}
 
-      <section className="py-16">
-        <div className="container max-w-5xl">
-          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-            <div>
-              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">Visit</p>
-              <h2 className="text-3xl font-bold text-foreground">찾아오시는 길</h2>
-            </div>
+      <NaverMapSectionServer
+        eyebrow="VISIT"
+        settings={settings}
+        title="찾아오시는 길"
+      />
 
-            <div className="space-y-5">
-              {(settings?.address || settings?.addressDetail) && (
-                <div className="rounded-lg border border-border bg-card p-6">
-                  <h3 className="font-semibold text-foreground">주소</h3>
-                  <p className="mt-2 text-muted-foreground">
-                    {settings.address}
-                    {settings.addressDetail && (
-                      <>
-                        <br />
-                        {settings.addressDetail}
-                      </>
-                    )}
-                  </p>
-                </div>
-              )}
+      {hasVisitNotes && (
+        <section className="border-t border-border py-16">
+          <div className="container max-w-5xl">
+            <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+              <div>
+                <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
+                  Visitor
+                </p>
+                <h2 className="text-3xl font-bold text-foreground">방문 안내</h2>
+              </div>
 
-              {transitLines.length > 0 && (
-                <div className="rounded-lg border border-border bg-card p-6">
-                  <h3 className="font-semibold text-foreground">교통편</h3>
-                  <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                    {transitLines.map((line) => (
-                      <p key={line}>{line}</p>
-                    ))}
+              <div className="space-y-5">
+                {parkingLines.length > 0 && (
+                  <div className="rounded-lg border border-border bg-card p-6">
+                    <h3 className="font-semibold text-foreground">주차 안내</h3>
+                    <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+                      {parkingLines.map((line) => (
+                        <p key={line}>{line}</p>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {parkingLines.length > 0 && (
-                <div className="rounded-lg border border-border bg-card p-6">
-                  <h3 className="font-semibold text-foreground">주차 안내</h3>
-                  <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                    {parkingLines.map((line) => (
-                      <p key={line}>{line}</p>
-                    ))}
+                {visitorNotes.length > 0 && (
+                  <div className="rounded-lg border border-secondary/30 bg-secondary/10 p-6">
+                    <h3 className="text-xl font-bold text-foreground">처음 오시는 분들께</h3>
+                    <ul className="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+                      {visitorNotes.map((note) => (
+                        <li key={note.id ?? note.text}>- {note.text}</li>
+                      ))}
+                    </ul>
+                    <Link
+                      href="/newcomer"
+                      className="mt-6 inline-flex rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
+                    >
+                      새가족 등록하기
+                    </Link>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
-
-          {visitorNotes.length > 0 && (
-            <div className="mt-12 rounded-lg border border-secondary/30 bg-secondary/10 p-6">
-              <h2 className="text-xl font-bold text-foreground">처음 오시는 분들께</h2>
-              <ul className="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-                {visitorNotes.map((note) => (
-                  <li key={note.id ?? note.text}>- {note.text}</li>
-                ))}
-              </ul>
-              <Link
-                href="/newcomer"
-                className="mt-6 inline-flex rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
-              >
-                새가족 등록하기
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
+        </section>
+      )}
     </main>
   )
 }
