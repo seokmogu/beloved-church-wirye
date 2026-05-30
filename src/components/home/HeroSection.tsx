@@ -31,7 +31,7 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
       : (settings?.worshipServices ?? []).filter((item) => item?.name && item?.time)
 
   return (
-    <section className="relative min-h-[82svh] overflow-hidden bg-primary text-white">
+    <section className="relative min-h-[72svh] overflow-hidden bg-primary text-white md:min-h-[82svh]">
       <div className="church-hero-gradient absolute inset-0" />
       {heroImageUrl && (
         <Image
@@ -47,9 +47,11 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
       <div className="church-hero-pattern absolute inset-0" />
       <div className="church-hero-fade absolute bottom-0 left-0 right-0 h-28" />
 
-      <div className="container relative z-10 grid min-h-[82svh] items-center gap-12 py-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.65fr)] lg:py-24">
-        <div className="max-w-3xl">
-          <p className="mb-5 text-sm font-semibold uppercase text-secondary">{eyebrow}</p>
+      <div className="container relative z-10 grid min-h-[72svh] items-center gap-10 py-14 md:min-h-[82svh] md:py-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.65fr)] lg:py-24">
+        <div className="min-w-0 max-w-3xl">
+          <p className="mb-4 max-w-full text-sm font-semibold uppercase text-secondary [overflow-wrap:anywhere] md:mb-5">
+            {eyebrow}
+          </p>
 
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -59,7 +61,9 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
               className="mb-7 h-16 w-auto object-contain brightness-0 invert md:h-20"
             />
           ) : (
-            <h1 className="church-hero-title mb-6 font-bold leading-tight text-white">{title}</h1>
+            <h1 className="church-hero-title mb-5 font-bold leading-tight text-white md:mb-6">
+              {title}
+            </h1>
           )}
 
           {logoUrl && <h1 className="sr-only">{title}</h1>}
@@ -77,7 +81,7 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
               {badges.map((item) => (
                 <span
                   key={`${item.name}-${item.time}`}
-                  className="inline-flex items-center gap-2 rounded-md border border-white/18 bg-white/12 px-4 py-2 text-sm text-white backdrop-blur-sm"
+                  className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-md border border-white/18 bg-white/12 px-4 py-2 text-sm text-white backdrop-blur-sm [overflow-wrap:anywhere]"
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
                   <span>{item.name}</span>
@@ -87,11 +91,11 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
             </div>
           )}
 
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row">
             {primaryLabel && primaryUrl && (
               <Link
                 href={primaryUrl}
-                className="inline-flex min-h-12 items-center justify-center rounded-md bg-secondary px-6 py-3 text-sm font-semibold text-primary transition-colors hover:bg-secondary-dark"
+                className="inline-flex min-h-12 w-full max-w-full items-center justify-center rounded-md bg-secondary px-6 py-3 text-center text-sm font-semibold text-primary transition-colors hover:bg-secondary-dark sm:w-auto"
               >
                 {primaryLabel}
               </Link>
@@ -99,7 +103,7 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
             {secondaryLabel && secondaryUrl && (
               <Link
                 href={secondaryUrl}
-                className="inline-flex min-h-12 items-center justify-center rounded-md border border-white/28 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/18"
+                className="inline-flex min-h-12 w-full max-w-full items-center justify-center rounded-md border border-white/28 bg-white/10 px-6 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/18 sm:w-auto"
               >
                 {secondaryLabel}
               </Link>

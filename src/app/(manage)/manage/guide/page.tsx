@@ -31,14 +31,27 @@ const guideSections = [
   },
   {
     adminHref: '/manage/sermons',
-    adminLabel: '설교',
+    adminLabel: '설교영상',
     publicHref: '/sermon',
-    publicLabel: '최신 설교 페이지',
-    summary: '설교 목록을 등록하고 메인 최신 설교 섹션에 표시할 개수를 설정합니다.',
+    publicLabel: '설교영상 페이지',
+    summary: '설교영상 목록을 등록하고 메인 최신 설교 섹션에 표시할 개수를 설정합니다.',
     steps: [
       '설교 추가에서 제목과 YouTube URL, 설교 날짜를 입력합니다.',
       '상태가 공개인 설교만 메인 최신 설교와 최신 설교 페이지에 표시됩니다.',
-      '메인 노출 개수와 YouTube 채널 버튼 링크는 설교 관리 상단 설정에서 수정합니다.',
+      '설교영상은 YouTube 채널 설정을 기준으로 자동 최신 영상도 함께 보완 표시됩니다.',
+      '메인 노출 개수와 YouTube 채널 버튼 링크는 설교영상 관리 상단 설정에서 수정합니다.',
+    ],
+  },
+  {
+    adminHref: '/manage/videos',
+    adminLabel: '동영상',
+    publicHref: '/church-news/videos',
+    publicLabel: '동영상 페이지',
+    summary: '교회소식 하위 동영상 페이지에 노출할 YouTube 영상을 직접 등록합니다.',
+    steps: [
+      '동영상 추가에서 제목, YouTube URL, 영상 날짜를 입력합니다.',
+      '자동 채널 수집은 사용하지 않으며, 상태가 공개인 항목만 동영상 페이지에 표시됩니다.',
+      '설교영상과 별도 목록이므로 일반 교회 행사나 소식 영상만 등록합니다.',
     ],
   },
   {

@@ -11,6 +11,7 @@ import * as migration_20260530_165500_church_news from './20260530_165500_church
 import * as migration_20260531_010000_header_submenus from './20260531_010000_header_submenus'
 import * as migration_20260531_020000_media_content_hash from './20260531_020000_media_content_hash'
 import * as migration_20260531_030000_compact_korean_menu_labels from './20260531_030000_compact_korean_menu_labels'
+import * as migration_20260531_040000_church_videos from './20260531_040000_church_videos'
 
 export const migrations = [
   {
@@ -77,5 +78,10 @@ export const migrations = [
     up: migration_20260531_030000_compact_korean_menu_labels.up,
     down: migration_20260531_030000_compact_korean_menu_labels.down,
     name: '20260531_030000_compact_korean_menu_labels',
+  },
+  {
+    up: migration_20260531_040000_church_videos.up,
+    down: migration_20260531_040000_church_videos.down,
+    name: '20260531_040000_church_videos',
   },
 ]

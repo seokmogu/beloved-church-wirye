@@ -70,6 +70,7 @@ export interface Config {
     pages: Page;
     announcements: Announcement;
     'church-news': ChurchNew;
+    'church-videos': ChurchVideo;
     bulletins: Bulletin;
     sermons: Sermon;
     posts: Post;
@@ -96,6 +97,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     'church-news': ChurchNewsSelect<false> | ChurchNewsSelect<true>;
+    'church-videos': ChurchVideosSelect<false> | ChurchVideosSelect<true>;
     bulletins: BulletinsSelect<false> | BulletinsSelect<true>;
     sermons: SermonsSelect<false> | SermonsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -722,6 +724,40 @@ export interface ChurchNew {
   createdAt: string;
 }
 /**
+ * 교회소식 하위 동영상페이지에 수동으로 노출할 YouTube 영상을 관리합니다.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "church-videos".
+ */
+export interface ChurchVideo {
+  id: number;
+  title: string;
+  /**
+   * 제목을 기준으로 자동 생성됩니다. 필요하면 직접 수정할 수 있습니다.
+   */
+  slug?: string | null;
+  /**
+   * 동영상 YouTube URL을 직접 입력합니다. 채널 자동 수집은 사용하지 않습니다.
+   */
+  youtubeUrl: string;
+  videoDate: string;
+  description?: string | null;
+  /**
+   * YouTube URL에서 자동 추출됩니다.
+   */
+  youtubeId?: string | null;
+  /**
+   * YouTube ID로부터 자동 생성됩니다. 필요하면 직접 수정할 수 있습니다.
+   */
+  thumbnail?: string | null;
+  /**
+   * 공개 상태인 영상만 동영상페이지에 표시됩니다.
+   */
+  status: 'draft' | 'published';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * 주보 파일만 올려도 날짜와 제목은 자동으로 채워집니다.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1245,6 +1281,10 @@ export interface PayloadLockedDocument {
         value: number | ChurchNew;
       } | null)
     | ({
+        relationTo: 'church-videos';
+        value: number | ChurchVideo;
+      } | null)
+    | ({
         relationTo: 'bulletins';
         value: number | Bulletin;
       } | null)
@@ -1523,6 +1563,22 @@ export interface ChurchNewsSelect<T extends boolean = true> {
         caption?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "church-videos_select".
+ */
+export interface ChurchVideosSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  youtubeUrl?: T;
+  videoDate?: T;
+  description?: T;
+  youtubeId?: T;
+  thumbnail?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }

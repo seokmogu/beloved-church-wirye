@@ -8,9 +8,10 @@ import { getManagePayload } from '@/lib/manage/payload'
 export default async function ManageDashboardPage() {
   const user = await requireManageUser()
   const payload = await getManagePayload()
-  const [announcements, churchNews, sermons, bulletins] = await Promise.all([
+  const [announcements, churchNews, churchVideos, sermons, bulletins] = await Promise.all([
     payload.find({ collection: 'announcements', limit: 5, sort: '-publishedAt' }),
     payload.find({ collection: 'church-news', limit: 5, sort: '-date' }),
+    payload.find({ collection: 'church-videos', limit: 5, sort: '-videoDate' }),
     payload.find({ collection: 'sermons', limit: 5, sort: '-sermonDate' }),
     payload.find({ collection: 'bulletins', limit: 5, sort: '-date' }),
   ])
@@ -49,10 +50,10 @@ export default async function ManageDashboardPage() {
         </Link>
         <Link className="manage-card manage-stat" href="/manage/videos">
           <span>동영상</span>
-          <strong>채널</strong>
+          <strong>{churchVideos.totalDocs}</strong>
         </Link>
         <Link className="manage-card manage-stat" href="/manage/sermons">
-          <span>설교</span>
+          <span>설교영상</span>
           <strong>{sermons.totalDocs}</strong>
         </Link>
         <Link className="manage-card manage-stat" href="/manage/bulletins">
@@ -94,7 +95,16 @@ export default async function ManageDashboardPage() {
             id: doc.id,
             title: doc.title,
           }))}
-          title="최근 설교"
+          title="최근 설교영상"
+        />
+        <RecentList
+          hrefPrefix="/manage/videos"
+          items={churchVideos.docs.map((doc) => ({
+            date: doc.videoDate,
+            id: doc.id,
+            title: doc.title,
+          }))}
+          title="최근 동영상"
         />
       </section>
     </ManageShell>

@@ -26,12 +26,20 @@ const fixedPages = [
     publicHref: '/worship',
   },
   {
-    title: '최신 설교',
+    title: '설교영상',
     type: '콘텐츠 게시판',
     path: '/sermon',
-    editLabel: '설교를 작성하면 자동 표시',
+    editLabel: '설교영상 작성과 자동 채널 설정',
     editHref: '/admin/collections/sermons',
     publicHref: '/sermon',
+  },
+  {
+    title: '동영상',
+    type: '콘텐츠 게시판',
+    path: '/church-news/videos',
+    editLabel: '동영상을 수동 등록하면 표시',
+    editHref: '/admin/collections/church-videos',
+    publicHref: '/church-news/videos',
   },
   {
     title: '공지사항',
@@ -98,8 +106,8 @@ export function FixedPagesPanel() {
               maxWidth: 760,
             }}
           >
-            아래 URL은 사이트에 기본으로 존재합니다. 공지사항/설교/주보는 페이지를 새로 만드는 것이
-            아니라 해당 콘텐츠를 작성하면 게시판에 자동으로 쌓입니다.
+            아래 URL은 사이트에 기본으로 존재합니다. 공지사항/설교영상/동영상/주보는 페이지를 새로
+            만드는 것이 아니라 해당 콘텐츠를 작성하면 게시판에 쌓입니다.
           </p>
         </div>
         <Link

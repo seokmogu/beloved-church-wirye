@@ -31,10 +31,10 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
   const accountUrl = url ?? 'https://www.instagram.com/'
 
   return (
-    <section className="church-dark-section py-20 text-white md:py-24">
+    <section className="church-dark-section py-14 text-white md:py-24">
       <div className="container">
         <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
+          <div className="min-w-0">
             <p className="mb-2 text-sm font-semibold uppercase text-secondary">
               {eyebrow ?? 'Instagram'}
             </p>
@@ -48,7 +48,7 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
               href={accountUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 rounded-md border border-white/18 px-4 py-2 text-sm font-semibold text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+              className="max-w-full shrink-0 rounded-md border border-white/18 px-4 py-2 text-sm font-semibold text-white/80 transition-colors [overflow-wrap:anywhere] hover:bg-white/10 hover:text-white"
             >
               {handle ?? 'Instagram'} &rarr;
             </a>
@@ -69,9 +69,9 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
                 href={postUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-all duration-300 hover:-translate-y-1 hover:border-secondary/40 hover:bg-white/[0.09]"
+                className="group min-w-0 overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-all duration-300 hover:-translate-y-1 hover:border-secondary/40 hover:bg-white/[0.09]"
               >
-                <div className="relative aspect-[4/5] overflow-hidden bg-primary/70">
+                <div className="relative aspect-[16/10] overflow-hidden bg-primary/70 sm:aspect-[4/5]">
                   {thumbnailUrl ? (
                     <Image
                       src={thumbnailUrl}

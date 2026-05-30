@@ -20,7 +20,7 @@ export interface PageHeroProps {
 export function PageHero({ label, title, subtitle, className = '', children }: PageHeroProps) {
   return (
     <div
-      className={`relative bg-gradient-to-br from-primary via-primary to-primary-dark py-16 overflow-hidden ${className}`}
+      className={`relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-dark py-12 md:py-16 ${className}`}
     >
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-5">
@@ -29,12 +29,16 @@ export function PageHero({ label, title, subtitle, className = '', children }: P
       </div>
 
       {/* Content */}
-      <div className="container text-center relative z-10">
-        <p className="text-secondary text-base md:text-lg font-semibold tracking-[0.2em] uppercase mb-3">
+      <div className="container relative z-10 min-w-0 text-center">
+        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.14em] text-secondary [overflow-wrap:anywhere] md:text-lg md:tracking-[0.2em]">
           {label}
         </p>
-        <h1 className="text-3xl md:text-4xl font-bold text-white">{title}</h1>
-        <p className="text-white/80 font-medium mt-2">{subtitle}</p>
+        <h1 className="text-3xl font-bold leading-tight text-white [overflow-wrap:anywhere] md:text-4xl">
+          {title}
+        </h1>
+        <p className="mx-auto mt-2 max-w-3xl font-medium leading-relaxed text-white/80 [overflow-wrap:anywhere]">
+          {subtitle}
+        </p>
         {children}
       </div>
     </div>

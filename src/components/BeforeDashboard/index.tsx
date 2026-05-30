@@ -48,7 +48,8 @@ const secondaryLinks = [
   { href: '/admin/globals/special-banner', label: '상단 알림 배너' },
   { href: '/admin/globals/offering-page', label: '헌금안내페이지' },
   { href: '/admin/collections/bulletins', label: '주보' },
-  { href: '/admin/collections/sermons', label: '설교' },
+  { href: '/admin/collections/sermons', label: '설교영상' },
+  { href: '/admin/collections/church-videos', label: '동영상' },
   { href: '/', label: '사이트 열기' },
 ]
 
@@ -69,9 +70,14 @@ const fixedPageLinks = [
     label: '예배/오시는 길',
   },
   {
-    description: '최신 설교 페이지에 노출되는 설교영상',
+    description: '설교영상 페이지에 자동 보완 노출되는 설교영상',
     href: '/admin/collections/sermons',
-    label: '최신 설교',
+    label: '설교영상',
+  },
+  {
+    description: '교회소식 하위 동영상 페이지에 수동으로 노출되는 영상',
+    href: '/admin/collections/church-videos',
+    label: '동영상',
   },
   {
     description: '공지사항 목록과 상세 페이지',

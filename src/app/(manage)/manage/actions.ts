@@ -102,18 +102,38 @@ export async function saveSermonSettingsAction(formData: FormData) {
   redirect('/manage/sermons')
 }
 
-export async function saveVideoSettingsAction(formData: FormData) {
+export async function saveChurchVideoAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
+  const id = optionalNumber(formData, 'id')
+  const youtubeUrl = requiredString(formData, 'youtubeUrl')
+  const youtubeId = extractYouTubeId(youtubeUrl)
+  const data = {
+    description: optionalString(formData, 'description'),
+    status: stringValue(formData, 'status') === 'draft' ? 'draft' : 'published',
+    thumbnail: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : undefined,
+    title: requiredString(formData, 'title'),
+    videoDate: dateInputToISO(stringValue(formData, 'videoDate')),
+    youtubeId,
+    youtubeUrl,
+  }
 
-  await payload.updateGlobal({
-    data: {
-      youtubeChannelUrl: optionalString(formData, 'youtubeChannelUrl'),
-      youtubeVideoCount: clampNumber(formData, 'youtubeVideoCount', 8, 1, 24),
-    } as any,
-    slug: 'site-settings',
-  })
+  if (id) {
+    await payload.update({ collection: 'church-videos', data: data as any, id })
+  } else {
+    await payload.create({ collection: 'church-videos', data: data as any })
+  }
 
+  revalidateManageAndPublic('/manage/videos')
+  redirect('/manage/videos')
+}
+
+export async function deleteChurchVideoAction(formData: FormData) {
+  await requireManageActionUser()
+  const id = requiredNumber(formData, 'id')
+  const payload = await getManagePayload()
+
+  await payload.delete({ collection: 'church-videos', id })
   revalidateManageAndPublic('/manage/videos')
   redirect('/manage/videos')
 }

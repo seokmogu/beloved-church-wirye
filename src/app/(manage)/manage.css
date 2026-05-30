@@ -22,6 +22,7 @@ body {
   background: var(--manage-bg);
   color: var(--manage-ink);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
 }
 a {
   color: inherit;
@@ -36,7 +37,7 @@ textarea {
 .manage-login-page {
   display: grid;
   min-height: 100vh;
-  padding: 32px 16px;
+  padding: 24px 16px;
   place-items: center;
 }
 .manage-login-panel {
@@ -45,8 +46,9 @@ textarea {
   border-radius: 8px;
   box-shadow: var(--manage-shadow);
   max-width: 420px;
-  padding: 28px;
-  width: 100%;
+  max-width: calc(100vw - 32px);
+  padding: clamp(20px, 6vw, 28px);
+  width: min(100%, 420px);
 }
 .manage-login-panel h1,
 .manage-page-title h1 {
@@ -99,7 +101,12 @@ textarea {
   display: flex;
   gap: 10px;
   min-height: 42px;
+  min-width: 0;
   padding: 10px 12px;
+}
+.manage-nav-link span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .manage-nav-link:hover,
 .manage-nav-link.is-active {
@@ -134,6 +141,7 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  min-width: 0;
 }
 .manage-button {
   align-items: center;
@@ -146,7 +154,9 @@ textarea {
   gap: 8px;
   justify-content: center;
   min-height: 40px;
+  min-width: 0;
   padding: 9px 14px;
+  text-align: center;
   white-space: nowrap;
 }
 .manage-button:hover {
@@ -250,6 +260,7 @@ textarea {
 }
 .manage-card {
   padding: 18px;
+  min-width: 0;
 }
 .manage-stat {
   display: grid;
@@ -258,10 +269,12 @@ textarea {
 .manage-stat span {
   color: var(--manage-muted);
   font-size: 13px;
+  overflow-wrap: anywhere;
 }
 .manage-stat strong {
   font-size: 30px;
   line-height: 1;
+  overflow-wrap: anywhere;
 }
 .manage-guide-layout {
   display: grid;
@@ -275,6 +288,7 @@ textarea {
   display: grid;
   gap: 14px;
   padding: 18px;
+  min-width: 0;
 }
 .manage-guide-card h2 {
   font-size: 18px;
@@ -285,6 +299,7 @@ textarea {
   color: var(--manage-muted);
   line-height: 1.55;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 .manage-guide-steps {
   margin: 0;
@@ -325,6 +340,7 @@ textarea {
 .manage-table-title {
   font-weight: 700;
   max-width: 380px;
+  overflow-wrap: anywhere;
 }
 .manage-badge {
   background: #eef3ee;
@@ -334,6 +350,8 @@ textarea {
   display: inline-flex;
   font-size: 12px;
   line-height: 1;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   padding: 5px 8px;
 }
 .manage-badge.draft {
@@ -924,6 +942,8 @@ textarea {
   border-radius: 8px;
   color: var(--manage-ink);
   min-height: 42px;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 10px 12px;
   width: 100%;
 }
@@ -959,6 +979,7 @@ textarea {
   color: #6b4618;
   margin: 18px 0;
   padding: 14px;
+  overflow-wrap: anywhere;
 }
 .manage-alert.danger {
   background: #fff1ef;
@@ -973,14 +994,35 @@ textarea {
   .manage-shell {
     grid-template-columns: 1fr;
   }
+  .manage-sidebar {
+    gap: 14px;
+    padding: 18px 14px;
+  }
   .manage-nav {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .manage-nav-link {
+    min-height: 40px;
+    padding: 9px 10px;
+  }
   .manage-main {
-    padding: 22px 16px;
+    padding: 18px 12px;
   }
   .manage-page-header {
     display: grid;
+    gap: 12px;
+  }
+  .manage-page-title h1,
+  .manage-login-panel h1 {
+    font-size: 22px;
+  }
+  .manage-page-title p,
+  .manage-login-panel p {
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+  }
+  .manage-button {
+    white-space: normal;
   }
   .manage-editor-layout,
   .manage-preview-link-row,
@@ -1006,5 +1048,30 @@ textarea {
   .manage-preview-nav {
     align-items: flex-start;
     display: grid;
+  }
+}
+
+@media (max-width: 520px) {
+  .manage-grid,
+  .manage-guide-layout {
+    gap: 12px;
+  }
+  .manage-card,
+  .manage-form,
+  .manage-guide-card {
+    padding: 16px;
+  }
+  .manage-table {
+    min-width: 620px;
+  }
+  .manage-table th,
+  .manage-table td {
+    padding: 11px 12px;
+  }
+  .manage-form-actions {
+    justify-content: stretch;
+  }
+  .manage-form-actions .manage-button {
+    flex: 1 1 140px;
   }
 }

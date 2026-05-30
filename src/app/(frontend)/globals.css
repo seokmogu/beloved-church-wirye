@@ -231,20 +231,51 @@
 
 .church-hero-title {
   font-size: clamp(3rem, var(--church-hero-title-size), 8rem);
+  overflow-wrap: anywhere;
 }
 
 .church-hero-subtitle {
   font-size: clamp(1.25rem, var(--church-hero-subtitle-size), 4rem);
+  overflow-wrap: anywhere;
 }
 
 .church-section-heading {
   font-size: clamp(1.875rem, var(--church-section-title-size), 5rem);
+  overflow-wrap: anywhere;
 }
 
 .church-body-copy {
   font-size: var(--church-body-size);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .church-hero-title {
+    font-size: clamp(2.25rem, var(--church-hero-title-size), 2.85rem);
+    line-height: 1.08;
+  }
+
+  .church-hero-subtitle {
+    font-size: clamp(1.1rem, var(--church-hero-subtitle-size), 1.45rem);
+    line-height: 1.28;
+  }
+
+  .church-section-heading {
+    font-size: clamp(1.75rem, var(--church-section-title-size), 2.25rem);
+    line-height: 1.14;
+  }
+
+  .church-body-copy {
+    font-size: clamp(0.95rem, var(--church-body-size), 1.05rem);
+    line-height: 1.65;
+  }
 }
 
 /* Hide scrollbar for carousel */
-.scrollbar-hide::-webkit-scrollbar { display: none; }
-.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
