@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import Image from 'next/image'
 import { ExternalLink, MoreVertical, Play, Youtube } from 'lucide-react'
+import { PageHero } from '@/components/PageHero'
 import { fetchLatestVideos, type YouTubeVideo } from '@/lib/youtube'
 import type { SiteSetting } from '@/payload-types'
 
@@ -222,23 +223,8 @@ export default async function SermonPage() {
   const section = getSermonsSection(settings)
 
   return (
-    <article className="pt-16 pb-24">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-primary/5 to-background py-16">
-        <div className="container">
-          <div className="max-w-3xl">
-            <p className="text-secondary text-sm font-medium tracking-wider uppercase mb-3">
-              Sermon
-            </p>
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              설교
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              하나님의 말씀을 나눕니다.
-            </p>
-          </div>
-        </div>
-      </section>
+    <main className="min-h-screen bg-background">
+      <PageHero label="SERMON" title="설교" subtitle="하나님의 말씀을 나눕니다." />
 
       <SermonArchiveSection
         channelUrl={settings?.youtubeChannelUrl}
@@ -247,6 +233,6 @@ export default async function SermonPage() {
         title={section.title}
         videos={videos}
       />
-    </article>
+    </main>
   )
 }
