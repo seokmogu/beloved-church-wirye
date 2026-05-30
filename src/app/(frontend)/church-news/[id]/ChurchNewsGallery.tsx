@@ -1,12 +1,14 @@
 'use client'
 
 import { ChevronLeft, ChevronRight, Images } from 'lucide-react'
-import Image from 'next/image'
 import { useMemo, useState } from 'react'
+
+import { ChurchNewsImage } from '../ChurchNewsImage'
 
 export type ChurchNewsGalleryImage = {
   alt: string
   caption?: string | null
+  fallbackSrc?: string
   height: number
   src: string
   width: number
@@ -78,11 +80,12 @@ export function ChurchNewsGallery({ images, title }: Props) {
                 aria-hidden={index !== activeIndex}
                 className="min-w-full"
                 key={`${image.src}-${index}`}
-              >
-                <div className="relative aspect-[4/5] bg-muted">
-                  <Image
+                >
+                  <div className="relative aspect-[4/5] bg-muted">
+                  <ChurchNewsImage
                     alt={image.alt}
                     className="object-contain"
+                    fallbackSrc={image.fallbackSrc}
                     fill
                     priority={index === 0}
                     sizes="(max-width: 768px) 100vw, 768px"
@@ -138,9 +141,10 @@ export function ChurchNewsGallery({ images, title }: Props) {
               onClick={() => goTo(index)}
               type="button"
             >
-              <Image
+              <ChurchNewsImage
                 alt=""
                 className="object-cover"
+                fallbackSrc={image.fallbackSrc}
                 fill
                 sizes="48px"
                 src={image.src}

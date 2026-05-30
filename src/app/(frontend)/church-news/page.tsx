@@ -1,12 +1,14 @@
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 
 import { EmptyState } from '@/components/EmptyState'
 import { PageHero } from '@/components/PageHero'
 import type { ChurchNew, Media } from '@/payload-types'
+
+import { ChurchNewsImage } from './ChurchNewsImage'
+import { getChurchNewsImageSource } from './mediaImage'
 
 export const metadata: Metadata = {
   title: '교회소식 | 사랑하는교회',
@@ -70,7 +72,7 @@ export default async function ChurchNewsPage() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item) => {
               const media = firstMedia(item.images)
-              const url = previewUrl(media)
+              const imageSource = getChurchNewsImageSource(media, ['medium', 'small'])
               return (
                 <Link
                   className="group overflow-hidden rounded-md border border-border bg-card transition-shadow hover:shadow-md"
@@ -78,13 +80,14 @@ export default async function ChurchNewsPage() {
                   key={item.id}
                 >
                   <div className="relative aspect-[4/5] bg-muted">
-                    {url ? (
-                      <Image
+                    {imageSource ? (
+                      <ChurchNewsImage
                         alt={media?.alt || item.title || '교회소식'}
                         className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                        fallbackSrc={imageSource.fallbackSrc}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        src={url}
+                        src={imageSource.src}
                         unoptimized
                       />
                     ) : (
@@ -126,10 +129,6 @@ function firstMedia(images: ChurchNew['images']): Media | null {
 
 function resolveMedia(item: ChurchNewsImage): Media | null {
   return typeof item.image === 'object' && item.image ? item.image : null
-}
-
-function previewUrl(media: Media | null): string | null {
-  return media?.sizes?.medium?.url || media?.sizes?.small?.url || media?.url || null
 }
 
 function formatDate(value: string | null | undefined): string {

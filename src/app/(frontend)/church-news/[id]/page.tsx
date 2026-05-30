@@ -8,6 +8,7 @@ import { PageHero } from '@/components/PageHero'
 import type { ChurchNew, Media } from '@/payload-types'
 
 import { ChurchNewsGallery, type ChurchNewsGalleryImage } from './ChurchNewsGallery'
+import { getChurchNewsImageSource } from '../mediaImage'
 
 type ChurchNewsImage = NonNullable<ChurchNew['images']>[number]
 
@@ -86,23 +87,20 @@ function resolveMedia(item: ChurchNewsImage): Media | null {
   return typeof item.image === 'object' && item.image ? item.image : null
 }
 
-function imageUrl(media: Media | null): string | null {
-  return media?.sizes?.large?.url || media?.sizes?.medium?.url || media?.url || null
-}
-
 function toGalleryImages(item: ChurchNew): ChurchNewsGalleryImage[] {
   const galleryImages: ChurchNewsGalleryImage[] = []
 
   for (const [index, image] of (item.images || []).entries()) {
     const media = resolveMedia(image)
-    const url = imageUrl(media)
-    if (!url) continue
+    const imageSource = getChurchNewsImageSource(media, ['large', 'medium'])
+    if (!imageSource) continue
 
     galleryImages.push({
       alt: media?.alt || image.caption || `${item.title || '교회소식'} ${index + 1}`,
       caption: image.caption,
+      fallbackSrc: imageSource.fallbackSrc,
       height: media?.height || 1350,
-      src: url,
+      src: imageSource.src,
       width: media?.width || 1080,
     })
   }
