@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto'
 import { NextResponse } from 'next/server'
 
 import { requireManageActionUser } from '@/lib/manage/auth'
+import { optimizeChurchNewsImage } from '@/lib/manage/churchNewsImage'
 import { getManagePayload } from '@/lib/manage/payload'
 
 export async function POST(request: Request) {
@@ -22,27 +23,43 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'file_required' }, { status: 400 })
     }
 
-    const data = Buffer.from(await file.arrayBuffer())
-    const contentHash = createHash('sha256').update(data).digest('hex')
+    const originalData = Buffer.from(await file.arrayBuffer())
+    const contentHash = createHash('sha256').update(originalData).digest('hex')
+    const optimized = await optimizeChurchNewsImage(originalData, file)
     const payload = await getManagePayload()
-    const existing = await findReusableMedia(payload, contentHash, file.size)
+    const existing = await findReusableMedia(payload, contentHash, optimized.data.length)
 
     if (existing) {
-      return NextResponse.json({ contentHash, id: existing.id, reused: true })
+      return NextResponse.json({
+        contentHash,
+        filename: existing.filename,
+        id: existing.id,
+        originalSize: file.size,
+        reused: true,
+        uploadedSize: existing.filesize ?? optimized.data.length,
+      })
     }
 
     const uploaded = await payload.create({
       collection: 'media',
       data: { alt, contentHash },
       file: {
-        data,
-        mimetype: file.type || 'application/octet-stream',
-        name: file.name || 'church-news-image.upload',
-        size: file.size,
+        data: optimized.data,
+        mimetype: optimized.mimeType,
+        name: optimized.filename,
+        size: optimized.data.length,
       },
     } as any)
 
-    return NextResponse.json({ contentHash, id: uploaded.id, reused: false })
+    return NextResponse.json({
+      contentHash,
+      filename: optimized.filename,
+      id: uploaded.id,
+      optimized: optimized.optimized,
+      originalSize: file.size,
+      reused: false,
+      uploadedSize: optimized.data.length,
+    })
   } catch (error) {
     console.error('Failed to upload church news image:', error)
     return NextResponse.json({ error: 'upload_failed' }, { status: 500 })

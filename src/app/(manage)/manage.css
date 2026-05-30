@@ -738,6 +738,45 @@ textarea {
   font-weight: 600;
   margin-top: 6px;
 }
+.manage-upload-progress {
+  background: #fffaf2;
+  border: 1px solid #ebe0d0;
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+  padding: 10px 12px;
+}
+.manage-upload-progress-top {
+  align-items: center;
+  color: #344238;
+  display: flex;
+  font-size: 12px;
+  font-weight: 700;
+  justify-content: space-between;
+}
+.manage-upload-progress-top strong {
+  color: #3d5f48;
+  font-size: 12px;
+}
+.manage-upload-progress-track {
+  background: #e9dfd0;
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+.manage-upload-progress-track span {
+  background: linear-gradient(90deg, #6f7f72, #4f8b62);
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  transition: width 180ms ease;
+}
+.manage-upload-progress small {
+  color: var(--manage-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
 .manage-new-image-preview {
   background: #fffaf2;
   border: 1px solid #ebe0d0;
@@ -807,6 +846,7 @@ textarea {
   align-items: center;
   color: var(--manage-muted);
   display: flex;
+  flex-wrap: wrap;
   font-size: 12px;
   gap: 4px;
   justify-content: center;
@@ -816,6 +856,14 @@ textarea {
   color: #5f6a61;
   font-size: 11px;
   font-weight: 700;
+}
+.manage-new-image-error {
+  color: #c2410c;
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
 }
 .manage-new-image-preview-item.is-error figcaption small {
   color: #c2410c;

@@ -3,14 +3,23 @@
 import { ImagePlus, X } from 'lucide-react'
 import { type ChangeEvent, useEffect, useRef, useState } from 'react'
 
+const CHURCH_NEWS_CLIENT_IMAGE_MAX_HEIGHT = 1920
+const CHURCH_NEWS_CLIENT_IMAGE_MAX_WIDTH = 1440
+const CHURCH_NEWS_CLIENT_WEBP_QUALITY = 0.82
+
 type PreviewImage = {
   contentHash?: string
+  errorMessage?: string
   file: File
   id: string
   imageId?: string
+  loadedBytes?: number
   name: string
+  originalSize?: number
   reused?: boolean
   status: 'error' | 'pending' | 'uploaded' | 'uploading'
+  uploadedFilename?: string
+  uploadedSize?: number
   url: string
 }
 
@@ -32,6 +41,20 @@ export function ChurchNewsImagePicker() {
     (preview) => preview.status === 'uploaded' && preview.reused,
   ).length
   const totalBytes = previews.reduce((sum, preview) => sum + preview.file.size, 0)
+  const uploadedBytes = previews.reduce((sum, preview) => {
+    if (preview.status === 'uploaded') return sum + preview.file.size
+    if (preview.status === 'uploading') {
+      return sum + Math.min(preview.loadedBytes ?? 0, preview.file.size)
+    }
+    return sum
+  }, 0)
+  const savedBytes = previews.reduce((sum, preview) => {
+    if (!preview.uploadedSize) return sum
+    return sum + Math.max(0, preview.file.size - preview.uploadedSize)
+  }, 0)
+  const progressPercent = totalBytes
+    ? Math.min(100, Math.round((uploadedBytes / totalBytes) * 100))
+    : 0
   const statusText = getStatusText({
     failedCount,
     pendingCount,
@@ -79,9 +102,30 @@ export function ChurchNewsImagePicker() {
         type="file"
       />
       <span className="manage-muted">
-        카카오톡에서 받은 이미지는 화질을 낮추지 않고 원본 파일을 1장씩 업로드합니다.
+        카카오톡에서 받은 이미지는 1장씩 업로드하며, 저장 전에 WebP로 압축해 용량을 줄입니다.
       </span>
       {statusText ? <span className="manage-new-image-status">{statusText}</span> : null}
+      {previews.length ? (
+        <div className="manage-upload-progress">
+          <div className="manage-upload-progress-top">
+            <span>업로드 진행률</span>
+            <strong>{progressPercent}%</strong>
+          </div>
+          <div
+            aria-label="이미지 업로드 진행률"
+            aria-valuemax={100}
+            aria-valuemin={0}
+            aria-valuenow={progressPercent}
+            className="manage-upload-progress-track"
+            role="progressbar"
+          >
+            <span style={{ width: `${progressPercent}%` }} />
+          </div>
+          {savedBytes > 0 ? (
+            <small>WebP 압축으로 {formatBytes(savedBytes)} 절감</small>
+          ) : null}
+        </div>
+      ) : null}
       {previews
         .filter((preview) => preview.status === 'uploaded' && preview.imageId)
         .map((preview) => (
@@ -128,8 +172,11 @@ export function ChurchNewsImagePicker() {
                 </div>
                 <figcaption title={preview.name}>
                   <span>{index + 1}</span>
-                  <small>{statusLabel(preview.status, preview.reused)}</small>
+                  <small>{statusLabel(preview)}</small>
                 </figcaption>
+                {preview.errorMessage ? (
+                  <small className="manage-new-image-error">{preview.errorMessage}</small>
+                ) : null}
               </figure>
             ))}
           </div>
@@ -179,10 +226,12 @@ export function ChurchNewsImagePicker() {
       if (uploadRunRef.current !== runId) return
       if (removedIdsRef.current.has(item.id)) continue
 
-      updatePreview(item.id, { status: 'uploading' })
+      updatePreview(item.id, { errorMessage: undefined, loadedBytes: 0, status: 'uploading' })
 
       try {
-        const uploaded = await uploadImageFile(item.file)
+        const uploaded = await uploadImageFile(item.file, (loaded) => {
+          updatePreview(item.id, { loadedBytes: loaded })
+        })
 
         if (uploadRunRef.current !== runId) {
           if (!uploaded.reused) await deleteUploadedImage(uploaded.id)
@@ -211,13 +260,17 @@ export function ChurchNewsImagePicker() {
         updatePreview(item.id, {
           contentHash: uploaded.contentHash,
           imageId: uploaded.id,
+          loadedBytes: item.file.size,
+          originalSize: uploaded.originalSize,
           reused: uploaded.reused,
           status: 'uploaded',
+          uploadedFilename: uploaded.filename,
+          uploadedSize: uploaded.uploadedSize,
         })
       } catch (error) {
         console.error('Failed to upload church news image:', error)
         if (uploadRunRef.current !== runId || removedIdsRef.current.has(item.id)) continue
-        updatePreview(item.id, { status: 'error' })
+        updatePreview(item.id, { errorMessage: uploadErrorMessage(error), status: 'error' })
       }
     }
   }
@@ -252,36 +305,77 @@ export function ChurchNewsImagePicker() {
 
 type UploadImageResult = {
   contentHash: string
+  filename?: string
   id: string
+  optimized?: boolean
+  originalSize?: number
   reused: boolean
+  uploadedSize?: number
 }
 
-async function uploadImageFile(file: File): Promise<UploadImageResult> {
-  const formData = new FormData()
-  formData.append('file', file)
-  formData.append('alt', file.name)
+async function uploadImageFile(
+  file: File,
+  onProgress: (loadedBytes: number) => void,
+): Promise<UploadImageResult> {
+  const uploadFile = await optimizeImageForUpload(file)
+  const uploadFileSize = Math.max(1, uploadFile.size)
 
-  const response = await fetch('/manage/church-news/upload-image', {
-    body: formData,
-    method: 'POST',
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', '/manage/church-news/upload-image')
+
+    xhr.upload.onprogress = (event) => {
+      if (!event.lengthComputable) return
+      const ratio = Math.min(1, event.loaded / Math.max(event.total, uploadFileSize))
+      onProgress(Math.round(file.size * ratio))
+    }
+
+    xhr.onerror = () => reject(new Error('network_error'))
+    xhr.onload = () => {
+      let result: {
+        contentHash?: string
+        error?: string
+        filename?: string
+        id?: number | string
+        optimized?: boolean
+        originalSize?: number
+        reused?: boolean
+        uploadedSize?: number
+      } = {}
+
+      try {
+        result = JSON.parse(xhr.responseText || '{}')
+      } catch {
+        result = {}
+      }
+
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject(new UploadImageError(result.error, xhr.status))
+        return
+      }
+
+      if (!result.id || !result.contentHash) {
+        reject(new Error('missing_upload_result'))
+        return
+      }
+
+      onProgress(file.size)
+      resolve({
+        contentHash: result.contentHash,
+        filename: result.filename,
+        id: String(result.id),
+        optimized: Boolean(result.optimized),
+        originalSize: result.originalSize,
+        reused: Boolean(result.reused),
+        uploadedSize: result.uploadedSize,
+      })
+    }
+
+    const optimizedFormData = new FormData()
+    optimizedFormData.append('file', uploadFile)
+    optimizedFormData.append('alt', file.name)
+    xhr.send(optimizedFormData)
   })
-
-  if (!response.ok) {
-    throw new Error(`Upload failed with status ${response.status}`)
-  }
-
-  const result = (await response.json()) as {
-    contentHash?: string
-    id?: number | string
-    reused?: boolean
-  }
-  if (!result.id || !result.contentHash) throw new Error('Upload did not return an image id')
-
-  return {
-    contentHash: result.contentHash,
-    id: String(result.id),
-    reused: Boolean(result.reused),
-  }
 }
 
 async function deleteUploadedImage(id: string) {
@@ -313,21 +407,109 @@ function getStatusText({
 }) {
   if (!totalCount) return null
   if (pendingCount)
-    return `원본 이미지 업로드 중 ${uploadedCount}/${totalCount} · ${formatBytes(totalBytes)}`
+    return `이미지 업로드 중 ${uploadedCount}/${totalCount} · 원본 ${formatBytes(totalBytes)}`
   if (failedCount)
     return `업로드 실패 ${failedCount}장. 실패한 이미지를 제거하거나 다시 선택해 주세요.`
   const reuseText = reusedCount ? ` · 기존 파일 ${reusedCount}장 재사용` : ''
-  return `원본 이미지 ${uploadedCount}장 업로드 완료 · ${formatBytes(totalBytes)}${reuseText}`
+  return `이미지 ${uploadedCount}장 업로드 완료 · 원본 ${formatBytes(totalBytes)}${reuseText}`
 }
 
-function statusLabel(status: PreviewImage['status'], reused?: boolean): string {
+function statusLabel(preview: PreviewImage): string {
+  const { reused, status, uploadedSize } = preview
   if (status === 'pending') return '대기'
   if (status === 'uploading') return '업로드 중'
-  if (status === 'uploaded') return reused ? '재사용' : '완료'
+  if (status === 'uploaded') {
+    const sizeText = uploadedSize ? ` · ${formatBytes(uploadedSize)}` : ''
+    return `${reused ? '재사용' : '완료'}${sizeText}`
+  }
   return '실패'
 }
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))}KB`
   return `${(bytes / 1024 / 1024).toFixed(1)}MB`
+}
+
+async function optimizeImageForUpload(file: File): Promise<File> {
+  if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') return file
+
+  try {
+    const bitmap = await createImageBitmap(file)
+    const { height, width } = fitWithinBounds(bitmap.width, bitmap.height)
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+
+    const context = canvas.getContext('2d')
+    if (!context) {
+      bitmap.close()
+      return file
+    }
+
+    context.drawImage(bitmap, 0, 0, width, height)
+    bitmap.close()
+
+    const blob = await canvasToBlob(canvas, 'image/webp', CHURCH_NEWS_CLIENT_WEBP_QUALITY)
+    if (!blob || blob.size >= file.size) return file
+
+    return new File([blob], toWebpFilename(file.name), {
+      lastModified: file.lastModified,
+      type: 'image/webp',
+    })
+  } catch (error) {
+    console.error('Failed to optimize church news image before upload:', error)
+    return file
+  }
+}
+
+function fitWithinBounds(width: number, height: number) {
+  const scale = Math.min(
+    1,
+    CHURCH_NEWS_CLIENT_IMAGE_MAX_WIDTH / width,
+    CHURCH_NEWS_CLIENT_IMAGE_MAX_HEIGHT / height,
+  )
+
+  return {
+    height: Math.max(1, Math.round(height * scale)),
+    width: Math.max(1, Math.round(width * scale)),
+  }
+}
+
+function canvasToBlob(
+  canvas: HTMLCanvasElement,
+  mimeType: string,
+  quality: number,
+): Promise<Blob | null> {
+  return new Promise((resolve) => canvas.toBlob(resolve, mimeType, quality))
+}
+
+function toWebpFilename(filename: string): string {
+  const withoutExtension = filename.replace(/\.[^.]+$/, '').trim()
+  const safeBase = withoutExtension
+    .replace(/[^\p{L}\p{N}._-]+/gu, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+
+  return `${safeBase || 'church-news-image'}.webp`
+}
+
+class UploadImageError extends Error {
+  constructor(
+    readonly code: string | undefined,
+    readonly status: number,
+  ) {
+    super(code || `upload_failed_${status}`)
+  }
+}
+
+function uploadErrorMessage(error: unknown): string {
+  if (error instanceof UploadImageError) {
+    if (error.status === 413) return '파일이 너무 큽니다. 더 작은 이미지로 다시 시도해 주세요.'
+    if (error.code === 'storage_not_configured') return '운영 이미지 저장소 설정이 필요합니다.'
+    if (error.code === 'file_required') return '이미지 파일을 다시 선택해 주세요.'
+  }
+  if (error instanceof Error && error.message === 'network_error') {
+    return '네트워크 오류로 업로드하지 못했습니다.'
+  }
+  return '이미지를 압축하거나 저장하지 못했습니다.'
 }
