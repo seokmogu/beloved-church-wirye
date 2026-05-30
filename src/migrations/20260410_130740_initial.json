@@ -1070,7 +1070,7 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": false,
-          "default": "'헌금 안내'"
+          "default": "'헌금안내'"
         },
         "description": {
           "name": "description",
@@ -2832,7 +2832,7 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": false,
-          "default": "'헌금 안내'"
+          "default": "'헌금안내'"
         },
         "description": {
           "name": "description",

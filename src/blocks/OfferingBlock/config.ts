@@ -2,14 +2,14 @@ import type { Block } from 'payload'
 
 export const OfferingBlock: Block = {
   slug: 'offeringBlock',
-  labels: { singular: '헌금 안내', plural: '헌금 안내' },
+  labels: { singular: '헌금안내', plural: '헌금안내' },
   interfaceName: 'OfferingBlock',
   fields: [
     {
       name: 'title',
       type: 'text',
       label: '제목',
-      defaultValue: '헌금 안내',
+      defaultValue: '헌금안내',
     },
     {
       name: 'description',

@@ -50,6 +50,15 @@ export const Media: CollectionConfig = {
         },
       }),
     },
+    {
+      name: 'contentHash',
+      type: 'text',
+      label: '원본 파일 해시',
+      index: true,
+      admin: {
+        hidden: true,
+      },
+    },
   ],
   upload: {
     // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload

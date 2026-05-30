@@ -200,10 +200,22 @@ export interface Page {
             type?: ('internal' | 'reference' | 'custom') | null;
             newTab?: boolean | null;
             /**
-             * 고정 페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배 안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.
+             * 고정페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.
              */
             internalPath?:
-              | ('/' | '/about' | '/worship' | '/sermon' | '/announcements' | '/bulletins' | '/newcomer' | '/offering')
+              | (
+                  | '/'
+                  | '/about'
+                  | '/about/leaders'
+                  | '/worship'
+                  | '/sermon'
+                  | '/announcements'
+                  | '/church-news'
+                  | '/church-news/videos'
+                  | '/bulletins'
+                  | '/newcomer'
+                  | '/offering'
+                )
               | null;
             reference?:
               | ({
@@ -416,6 +428,7 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  contentHash?: string | null;
   folder?: (number | null) | FolderInterface;
   updatedAt: string;
   createdAt: string;
@@ -569,10 +582,22 @@ export interface ContentBlock {
           type?: ('internal' | 'reference' | 'custom') | null;
           newTab?: boolean | null;
           /**
-           * 고정 페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배 안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.
+           * 고정페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.
            */
           internalPath?:
-            | ('/' | '/about' | '/worship' | '/sermon' | '/announcements' | '/bulletins' | '/newcomer' | '/offering')
+            | (
+                | '/'
+                | '/about'
+                | '/about/leaders'
+                | '/worship'
+                | '/sermon'
+                | '/announcements'
+                | '/church-news'
+                | '/church-news/videos'
+                | '/bulletins'
+                | '/newcomer'
+                | '/offering'
+              )
             | null;
           reference?:
             | ({
@@ -1589,6 +1614,7 @@ export interface NewcomersSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  contentHash?: T;
   folder?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2165,7 +2191,7 @@ export interface SiteSetting {
 export interface Header {
   id: number;
   /**
-   * 상단에 보일 링크의 이름과 순서를 관리합니다. 링크 대상 페이지의 본문은 각 관리 화면에서 수정합니다. 예배 안내는 홈페이지 빌더의 예배/오시는 길, 최신 설교는 설교, 공지사항은 공지사항, 주보는 주보, 헌금 안내는 헌금 안내 페이지에서 관리합니다.
+   * 상단에 보일 링크의 이름과 순서를 관리합니다. 링크 대상 페이지의 본문은 각 관리 화면에서 수정합니다. 예배안내는 홈페이지 빌더의 예배/오시는 길, 최신 설교는 설교, 공지사항은 공지사항, 주보는 주보, 헌금안내는 헌금안내페이지에서 관리합니다.
    */
   navItems?:
     | {
@@ -2173,10 +2199,22 @@ export interface Header {
           type?: ('internal' | 'reference' | 'custom') | null;
           newTab?: boolean | null;
           /**
-           * 고정 페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배 안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.
+           * 고정페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.
            */
           internalPath?:
-            | ('/' | '/about' | '/worship' | '/sermon' | '/announcements' | '/bulletins' | '/newcomer' | '/offering')
+            | (
+                | '/'
+                | '/about'
+                | '/about/leaders'
+                | '/worship'
+                | '/sermon'
+                | '/announcements'
+                | '/church-news'
+                | '/church-news/videos'
+                | '/bulletins'
+                | '/newcomer'
+                | '/offering'
+              )
             | null;
           reference?:
             | ({
@@ -2190,6 +2228,35 @@ export interface Header {
           url?: string | null;
           label: string;
         };
+        /**
+         * 상위 메뉴 아래에 펼쳐질 하위 링크를 관리합니다. 비워두면 기존처럼 단일 메뉴로 표시됩니다.
+         */
+        children?:
+          | {
+              link: {
+                type?: ('internal' | 'custom') | null;
+                newTab?: boolean | null;
+                internalPath?:
+                  | (
+                      | '/'
+                      | '/about'
+                      | '/about/leaders'
+                      | '/worship'
+                      | '/sermon'
+                      | '/announcements'
+                      | '/church-news'
+                      | '/church-news/videos'
+                      | '/bulletins'
+                      | '/newcomer'
+                      | '/offering'
+                    )
+                  | null;
+                url?: string | null;
+                label: string;
+              };
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -2210,10 +2277,22 @@ export interface Footer {
           type?: ('internal' | 'reference' | 'custom') | null;
           newTab?: boolean | null;
           /**
-           * 고정 페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배 안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.
+           * 고정페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.
            */
           internalPath?:
-            | ('/' | '/about' | '/worship' | '/sermon' | '/announcements' | '/bulletins' | '/newcomer' | '/offering')
+            | (
+                | '/'
+                | '/about'
+                | '/about/leaders'
+                | '/worship'
+                | '/sermon'
+                | '/announcements'
+                | '/church-news'
+                | '/church-news/videos'
+                | '/bulletins'
+                | '/newcomer'
+                | '/offering'
+              )
             | null;
           reference?:
             | ({
@@ -2278,7 +2357,7 @@ export interface SpecialBanner {
   createdAt?: string | null;
 }
 /**
- * 헌금 안내 페이지의 문구, 계좌, 안내 사항을 관리합니다.
+ * 헌금안내페이지의 문구, 계좌, 안내 사항을 관리합니다.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "offering-page".
@@ -2286,7 +2365,7 @@ export interface SpecialBanner {
 export interface OfferingPage {
   id: number;
   /**
-   * 헌금 안내 페이지 상단에 표시되는 소개 문구
+   * 헌금안내페이지 상단에 표시되는 소개 문구
    */
   introText?: string | null;
   bankAccounts?:
@@ -2472,6 +2551,20 @@ export interface HeaderSelect<T extends boolean = true> {
               reference?: T;
               url?: T;
               label?: T;
+            };
+        children?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    internalPath?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              id?: T;
             };
         id?: T;
       };

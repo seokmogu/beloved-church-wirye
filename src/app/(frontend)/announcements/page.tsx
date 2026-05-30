@@ -73,7 +73,7 @@ export default async function AnnouncementsPage() {
             icon="announcement"
             title="등록된 공지사항이 없습니다"
             description="사랑하는교회의 새 소식이 곧 전해질 예정입니다. 자주 방문해주세요!"
-            ctaText="예배 안내 보기"
+            ctaText="예배안내 보기"
             ctaLink="/worship"
           />
         ) : (

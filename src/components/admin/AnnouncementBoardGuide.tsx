@@ -27,8 +27,8 @@ export function AnnouncementBoardGuide() {
             표시됩니다. 공지사항용 일반 페이지를 새로 만들 필요가 없습니다.
           </p>
           <p style={{ color: 'var(--theme-elevation-650)', margin: '6px 0 0' }}>
-            상단 메뉴에 노출하려면 상단 메뉴에서 링크 유형을 “사이트 고정 페이지”로 두고
-            “공지사항”을 선택하세요.
+            상단메뉴에 노출하려면 상단메뉴에서 링크 유형을 “사이트 고정페이지”로 두고 “공지사항”을
+            선택하세요.
           </p>
         </div>
 
@@ -43,7 +43,7 @@ export function AnnouncementBoardGuide() {
             게시판 보기
           </Link>
           <Link className="btn btn--style-secondary btn--size-small" href="/admin/globals/header">
-            상단 메뉴 편집
+            상단메뉴 편집
           </Link>
         </div>
       </div>

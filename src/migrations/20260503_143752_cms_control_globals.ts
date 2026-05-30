@@ -110,7 +110,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "site_settings" ADD COLUMN "sub_tagline" varchar DEFAULT '더불어 우리의 삶 속에 하나님 나라를 세웁니다';
   ALTER TABLE "site_settings" ADD COLUMN "logo_id" integer;
   ALTER TABLE "site_settings" ADD COLUMN "hero_eyebrow" varchar DEFAULT 'Beloved Church Wirye';
-  ALTER TABLE "site_settings" ADD COLUMN "hero_primary_label" varchar DEFAULT '예배 안내';
+  ALTER TABLE "site_settings" ADD COLUMN "hero_primary_label" varchar DEFAULT '예배안내';
   ALTER TABLE "site_settings" ADD COLUMN "hero_primary_url" varchar DEFAULT '/worship';
   ALTER TABLE "site_settings" ADD COLUMN "hero_secondary_label" varchar DEFAULT '최신 설교 보기';
   ALTER TABLE "site_settings" ADD COLUMN "hero_secondary_url" varchar DEFAULT '/sermon';

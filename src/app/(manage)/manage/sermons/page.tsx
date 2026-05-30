@@ -21,7 +21,7 @@ export default async function ManageSermonsPage() {
         actionHref="/manage/sermons/new"
         actionLabel="설교 추가"
         description="공개된 설교가 메인 화면의 최신 설교 영역과 /sermon 페이지에 함께 노출됩니다."
-        title="설교"
+        title="설교영상"
       />
       <form action={saveSermonSettingsAction} className="manage-form" style={{ marginBottom: 16 }}>
         <h2 className="manage-section-title">홈 최신 설교 설정</h2>

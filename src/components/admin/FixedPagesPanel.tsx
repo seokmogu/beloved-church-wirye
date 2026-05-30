@@ -10,7 +10,7 @@ const fixedPages = [
     publicHref: '/',
   },
   {
-    title: '교회 소개',
+    title: '교회소개',
     type: '기본 페이지',
     path: '/about',
     editLabel: '교회 정보에서 편집',
@@ -18,7 +18,7 @@ const fixedPages = [
     publicHref: '/about',
   },
   {
-    title: '예배 안내',
+    title: '예배안내',
     type: '기본 페이지',
     path: '/worship',
     editLabel: '예배/오시는 길에서 편집',
@@ -50,15 +50,15 @@ const fixedPages = [
     publicHref: '/bulletins',
   },
   {
-    title: '헌금 안내',
+    title: '헌금안내',
     type: '기본 페이지',
     path: '/offering',
-    editLabel: '헌금 안내 페이지에서 편집',
+    editLabel: '헌금안내페이지에서 편집',
     editHref: '/admin/globals/offering-page',
     publicHref: '/offering',
   },
   {
-    title: '새가족 등록',
+    title: '새가족등록',
     type: '고정 폼',
     path: '/newcomer',
     editLabel: '고정 폼 페이지',

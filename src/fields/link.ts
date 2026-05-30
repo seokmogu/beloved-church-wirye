@@ -17,14 +17,16 @@ export const appearanceOptions: Record<LinkAppearances, { label: string; value: 
 
 export const internalLinkOptions = [
   { label: '홈', value: '/' },
-  { label: '교회 소개 - 홈/디자인/교회 정보에서 관리', value: '/about' },
-  { label: '예배 안내 - 홈/디자인/교회 정보 > 예배와 위치에서 관리', value: '/worship' },
-  { label: '최신 설교 - 설교에서 관리', value: '/sermon' },
+  { label: '교회소개 - 홈/디자인/교회 정보에서 관리', value: '/about' },
+  { label: '섬기는 사람들 - 섬기는 사람들에서 관리', value: '/about/leaders' },
+  { label: '예배안내 - 홈/디자인/교회 정보 > 예배와 위치에서 관리', value: '/worship' },
+  { label: '설교영상 - 설교에서 관리', value: '/sermon' },
   { label: '공지사항 - 공지사항에서 관리', value: '/announcements' },
   { label: '교회소식 - 교회소식에서 관리', value: '/church-news' },
+  { label: '동영상 - 동영상에서 관리', value: '/church-news/videos' },
   { label: '주보 - 주보에서 관리', value: '/bulletins' },
-  { label: '새가족 등록 - 신청 내역은 새가족에서 확인', value: '/newcomer' },
-  { label: '헌금 안내 - 헌금 안내 페이지에서 관리', value: '/offering' },
+  { label: '새가족등록 - 신청 내역은 새가족에서 확인', value: '/newcomer' },
+  { label: '헌금안내 - 헌금안내페이지에서 관리', value: '/offering' },
 ]
 
 type LinkType = (options?: {
@@ -54,7 +56,7 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
             defaultValue: 'internal',
             options: [
               {
-                label: '사이트 고정 페이지',
+                label: '사이트 고정페이지',
                 value: 'internal',
               },
               {
@@ -90,10 +92,10 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'internal',
         description:
-          '고정 페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배 안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.',
+          '고정페이지의 본문은 메뉴 화면이 아니라 해당 CMS 영역에서 관리합니다. 예배안내는 홈/디자인/교회 정보, 최신 설교는 설교, 공지사항은 공지사항에서 수정합니다.',
       },
       defaultValue: '/',
-      label: '사이트 고정 페이지',
+      label: '사이트 고정페이지',
       options: internalLinkOptions,
       required: true,
     },

@@ -72,7 +72,9 @@ export default async function ManageHomePage() {
       design.darkSectionBackgroundColor,
       designDefaults.darkSectionBackgroundColor,
     ),
-    '--preview-dark-section-bg-image': darkSectionBackgroundImageUrl ? cssUrl(darkSectionBackgroundImageUrl) : 'none',
+    '--preview-dark-section-bg-image': darkSectionBackgroundImageUrl
+      ? cssUrl(darkSectionBackgroundImageUrl)
+      : 'none',
     '--preview-hero-bg-image': heroImageUrl ? cssUrl(heroImageUrl) : 'none',
     '--preview-hero-overlay': colorValue(design.heroOverlayColor, designDefaults.heroOverlayColor),
     '--preview-hero-overlay-opacity': String(heroOverlayOpacity / 100),
@@ -86,7 +88,10 @@ export default async function ManageHomePage() {
     )}px`,
     '--preview-muted': colorValue(design.mutedTextColor, designDefaults.mutedTextColor),
     '--preview-primary': colorValue(design.primaryColor, designDefaults.primaryColor),
-    '--preview-primary-light': colorValue(design.primaryLightColor, designDefaults.primaryLightColor),
+    '--preview-primary-light': colorValue(
+      design.primaryLightColor,
+      designDefaults.primaryLightColor,
+    ),
     '--preview-page-bg-image': pageBackgroundImageUrl ? cssUrl(pageBackgroundImageUrl) : 'none',
     '--preview-secondary': colorValue(design.secondaryColor, designDefaults.secondaryColor),
     '--preview-section-bg': colorValue(
@@ -102,7 +107,10 @@ export default async function ManageHomePage() {
 
   return (
     <ManageShell active="home" user={user}>
-      <PageHeader description="공개 메인 화면을 보면서 문구, 배경, 색상, 글자 크기를 수정합니다." title="홈 관리" />
+      <PageHeader
+        description="공개 메인 화면을 보면서 문구, 배경, 색상, 글자 크기를 수정합니다."
+        title="홈관리"
+      />
       <form
         action={saveHomeSettingsAction}
         className="manage-visual-form"
@@ -132,7 +140,11 @@ export default async function ManageHomePage() {
               </label>
               <label className="manage-inline-field small" htmlFor="englishName">
                 <span>영문명</span>
-                <input defaultValue={settings.englishName || ''} id="englishName" name="englishName" />
+                <input
+                  defaultValue={settings.englishName || ''}
+                  id="englishName"
+                  name="englishName"
+                />
               </label>
             </header>
 
@@ -149,7 +161,12 @@ export default async function ManageHomePage() {
                 </label>
                 <label className="manage-inline-field hero-title" htmlFor="heroTitle">
                   <span>히어로 제목</span>
-                  <textarea defaultValue={settings.heroTitle || ''} id="heroTitle" name="heroTitle" rows={2} />
+                  <textarea
+                    defaultValue={settings.heroTitle || ''}
+                    id="heroTitle"
+                    name="heroTitle"
+                    rows={2}
+                  />
                 </label>
                 <label className="manage-inline-field hero-subtitle" htmlFor="heroSubtitle">
                   <span>부제목</span>
@@ -164,12 +181,15 @@ export default async function ManageHomePage() {
                   <label className="manage-inline-field button-label" htmlFor="heroPrimaryLabel">
                     <span>기본 버튼</span>
                     <input
-                      defaultValue={settings.heroPrimaryLabel || '예배 안내'}
+                      defaultValue={settings.heroPrimaryLabel || '예배안내'}
                       id="heroPrimaryLabel"
                       name="heroPrimaryLabel"
                     />
                   </label>
-                  <label className="manage-inline-field button-label secondary" htmlFor="heroSecondaryLabel">
+                  <label
+                    className="manage-inline-field button-label secondary"
+                    htmlFor="heroSecondaryLabel"
+                  >
                     <span>보조 버튼</span>
                     <input
                       defaultValue={settings.heroSecondaryLabel || '최신 설교 보기'}
@@ -206,17 +226,28 @@ export default async function ManageHomePage() {
               </label>
               <label className="manage-inline-field body-copy" htmlFor="subTagline">
                 <span>보조 문구</span>
-                <textarea defaultValue={settings.subTagline || ''} id="subTagline" name="subTagline" rows={2} />
+                <textarea
+                  defaultValue={settings.subTagline || ''}
+                  id="subTagline"
+                  name="subTagline"
+                  rows={2}
+                />
               </label>
             </section>
 
             <section className="manage-edit-sections">
               {sections.map((section, index) => (
-                <article className={sectionCardClassName(section.sectionType)} key={`${section.sectionType}-${index}`}>
+                <article
+                  className={sectionCardClassName(section.sectionType)}
+                  key={`${section.sectionType}-${index}`}
+                >
                   <input name="homeSectionType" type="hidden" value={section.sectionType} />
                   <div className="manage-edit-section-card-top">
                     <strong>{sectionLabel(section.sectionType)}</strong>
-                    <label className="manage-checkbox compact" htmlFor={`homeSectionEnabled-${index}`}>
+                    <label
+                      className="manage-checkbox compact"
+                      htmlFor={`homeSectionEnabled-${index}`}
+                    >
                       <input
                         defaultChecked={section.enabled !== false}
                         id={`homeSectionEnabled-${index}`}
@@ -226,7 +257,10 @@ export default async function ManageHomePage() {
                       홈에 표시
                     </label>
                   </div>
-                  <label className="manage-inline-field section-eyebrow" htmlFor={`homeSectionEyebrow-${index}`}>
+                  <label
+                    className="manage-inline-field section-eyebrow"
+                    htmlFor={`homeSectionEyebrow-${index}`}
+                  >
                     <span>작은 제목</span>
                     <input
                       defaultValue={section.eyebrow || ''}
@@ -234,7 +268,10 @@ export default async function ManageHomePage() {
                       name={`homeSectionEyebrow-${index}`}
                     />
                   </label>
-                  <label className="manage-inline-field section-title" htmlFor={`homeSectionTitle-${index}`}>
+                  <label
+                    className="manage-inline-field section-title"
+                    htmlFor={`homeSectionTitle-${index}`}
+                  >
                     <span>섹션 제목</span>
                     <textarea
                       defaultValue={section.title || ''}
@@ -243,7 +280,10 @@ export default async function ManageHomePage() {
                       rows={2}
                     />
                   </label>
-                  <label className="manage-inline-field body-copy" htmlFor={`homeSectionDescription-${index}`}>
+                  <label
+                    className="manage-inline-field body-copy"
+                    htmlFor={`homeSectionDescription-${index}`}
+                  >
                     <span>설명</span>
                     <textarea
                       defaultValue={section.description || ''}
@@ -282,15 +322,30 @@ export default async function ManageHomePage() {
 
             <section className="manage-style-group">
               <h2>컬러</h2>
-              <ColorControl design={design} fallback={designDefaults.primaryColor} label="메인" name="primaryColor" />
+              <ColorControl
+                design={design}
+                fallback={designDefaults.primaryColor}
+                label="메인"
+                name="primaryColor"
+              />
               <ColorControl
                 design={design}
                 fallback={designDefaults.primaryLightColor}
                 label="메인 밝은색"
                 name="primaryLightColor"
               />
-              <ColorControl design={design} fallback={designDefaults.secondaryColor} label="강조" name="secondaryColor" />
-              <ColorControl design={design} fallback={designDefaults.backgroundColor} label="페이지 배경" name="backgroundColor" />
+              <ColorControl
+                design={design}
+                fallback={designDefaults.secondaryColor}
+                label="강조"
+                name="secondaryColor"
+              />
+              <ColorControl
+                design={design}
+                fallback={designDefaults.backgroundColor}
+                label="페이지 배경"
+                name="backgroundColor"
+              />
               <ColorControl
                 design={design}
                 fallback={designDefaults.sectionBackgroundColor}
@@ -303,10 +358,30 @@ export default async function ManageHomePage() {
                 label="어두운 섹션"
                 name="darkSectionBackgroundColor"
               />
-              <ColorControl design={design} fallback={designDefaults.cardBackgroundColor} label="카드" name="cardBackgroundColor" />
-              <ColorControl design={design} fallback={designDefaults.textColor} label="본문" name="textColor" />
-              <ColorControl design={design} fallback={designDefaults.mutedTextColor} label="보조 글자" name="mutedTextColor" />
-              <ColorControl design={design} fallback={designDefaults.borderColor} label="테두리" name="borderColor" />
+              <ColorControl
+                design={design}
+                fallback={designDefaults.cardBackgroundColor}
+                label="카드"
+                name="cardBackgroundColor"
+              />
+              <ColorControl
+                design={design}
+                fallback={designDefaults.textColor}
+                label="본문"
+                name="textColor"
+              />
+              <ColorControl
+                design={design}
+                fallback={designDefaults.mutedTextColor}
+                label="보조 글자"
+                name="mutedTextColor"
+              />
+              <ColorControl
+                design={design}
+                fallback={designDefaults.borderColor}
+                label="테두리"
+                name="borderColor"
+              />
               <ColorControl
                 design={design}
                 fallback={designDefaults.headerBackgroundColor}
@@ -404,7 +479,7 @@ function sectionLabel(type: HomeSection['sectionType']) {
   const labels: Record<HomeSection['sectionType'], string> = {
     announcements: '공지사항',
     instagram: '인스타그램',
-    intro: '교회 소개',
+    intro: '교회소개',
     map: '오시는 길',
     sermons: '최신 설교',
   }
@@ -472,7 +547,14 @@ function NumberControl({
   return (
     <label className="manage-number-control" htmlFor={name}>
       <span>{label}</span>
-      <input defaultValue={numberValue(design[name], fallback)} id={name} max={max} min={min} name={name} type="number" />
+      <input
+        defaultValue={numberValue(design[name], fallback)}
+        id={name}
+        max={max}
+        min={min}
+        name={name}
+        type="number"
+      />
       <small>{suffix}</small>
     </label>
   )

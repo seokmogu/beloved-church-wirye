@@ -20,15 +20,19 @@ export default async function ManageDashboardPage() {
       <PageHeader description="주요 콘텐츠를 빠르게 확인하고 수정합니다." title="대시보드" />
       <section className="manage-grid cols-3">
         <Link className="manage-card manage-stat" href="/manage/guide">
-          <span>관리 가이드</span>
+          <span>관리가이드</span>
           <strong>안내</strong>
         </Link>
         <Link className="manage-card manage-stat" href="/manage/home">
-          <span>홈 관리</span>
+          <span>홈관리</span>
           <strong>5</strong>
         </Link>
+        <Link className="manage-card manage-stat" href="/manage/leaders">
+          <span>섬기는 사람들</span>
+          <strong>소개</strong>
+        </Link>
         <Link className="manage-card manage-stat" href="/manage/worship">
-          <span>예배 안내</span>
+          <span>예배안내</span>
           <strong>위치</strong>
         </Link>
         <Link className="manage-card manage-stat" href="/manage/instagram">
@@ -43,6 +47,10 @@ export default async function ManageDashboardPage() {
           <span>교회소식</span>
           <strong>{churchNews.totalDocs}</strong>
         </Link>
+        <Link className="manage-card manage-stat" href="/manage/videos">
+          <span>동영상</span>
+          <strong>채널</strong>
+        </Link>
         <Link className="manage-card manage-stat" href="/manage/sermons">
           <span>설교</span>
           <strong>{sermons.totalDocs}</strong>
@@ -52,11 +60,11 @@ export default async function ManageDashboardPage() {
           <strong>{bulletins.totalDocs}</strong>
         </Link>
         <Link className="manage-card manage-stat" href="/manage/offering">
-          <span>헌금 안내</span>
+          <span>헌금안내</span>
           <strong>계좌</strong>
         </Link>
         <Link className="manage-card manage-stat" href="/manage/menu">
-          <span>메뉴 관리</span>
+          <span>메뉴관리</span>
           <strong>GNB</strong>
         </Link>
       </section>

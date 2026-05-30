@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: '등록 완료 | 사랑하는교회',
-  description: '새가족 등록이 완료되었습니다.',
+  description: '새가족등록이 완료되었습니다.',
 }
 
 export default function ThankYouPage() {
@@ -55,7 +55,7 @@ export default function ThankYouPage() {
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            예배 안내
+            예배안내
           </h2>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
@@ -73,8 +73,7 @@ export default function ThankYouPage() {
             <li className="flex items-start gap-2">
               <span className="text-secondary mt-0.5">•</span>
               <span>
-                <strong className="text-foreground">위치:</strong> 서울 송파구 위례성대로 6길
-                19 2층
+                <strong className="text-foreground">위치:</strong> 서울 송파구 위례성대로 6길 19 2층
               </span>
             </li>
           </ul>
@@ -92,7 +91,7 @@ export default function ThankYouPage() {
             href="/worship"
             className="flex-1 bg-white border-2 border-primary text-primary font-medium py-3 px-6 rounded-lg hover:bg-primary/5 transition-colors text-center"
           >
-            예배 안내 보기
+            예배안내 보기
           </Link>
         </div>
       </div>

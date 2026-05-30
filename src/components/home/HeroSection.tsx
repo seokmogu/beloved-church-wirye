@@ -20,12 +20,15 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
   const subtitle = settings?.heroSubtitle ?? settings?.tagline ?? ''
   const body = settings?.subTagline ?? ''
   const badges = getWorshipBadges(settings)
-  const primaryLabel = settings?.heroPrimaryLabel ?? '예배 안내'
+  const primaryLabel = settings?.heroPrimaryLabel ?? '예배안내'
   const primaryUrl = settings?.heroPrimaryUrl ?? '/worship'
   const secondaryLabel = settings?.heroSecondaryLabel ?? '최신 설교 보기'
   const secondaryUrl = settings?.heroSecondaryUrl ?? '/sermon'
   const location = [settings?.address, settings?.addressDetail].filter(Boolean).join(' · ')
-  const scheduleItems = badges.length > 0 ? badges : (settings?.worshipServices ?? []).filter((item) => item?.name && item?.time)
+  const scheduleItems =
+    badges.length > 0
+      ? badges
+      : (settings?.worshipServices ?? []).filter((item) => item?.name && item?.time)
 
   return (
     <section className="relative min-h-[82svh] overflow-hidden bg-primary text-white">
@@ -50,14 +53,24 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
 
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt={churchName} className="mb-7 h-16 w-auto object-contain brightness-0 invert md:h-20" />
+            <img
+              src={logoUrl}
+              alt={churchName}
+              className="mb-7 h-16 w-auto object-contain brightness-0 invert md:h-20"
+            />
           ) : (
             <h1 className="church-hero-title mb-6 font-bold leading-tight text-white">{title}</h1>
           )}
 
           {logoUrl && <h1 className="sr-only">{title}</h1>}
-          {subtitle && <p className="church-hero-subtitle max-w-2xl font-semibold leading-snug text-white">{subtitle}</p>}
-          {body && <p className="church-body-copy mt-5 max-w-xl leading-relaxed text-white/72">{body}</p>}
+          {subtitle && (
+            <p className="church-hero-subtitle max-w-2xl font-semibold leading-snug text-white">
+              {subtitle}
+            </p>
+          )}
+          {body && (
+            <p className="church-body-copy mt-5 max-w-xl leading-relaxed text-white/72">{body}</p>
+          )}
 
           {badges.length > 0 && (
             <div className="mt-8 flex flex-wrap gap-2.5">
@@ -98,7 +111,10 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
           <p className="text-sm font-semibold text-secondary">Worship This Week</p>
           <div className="mt-6 divide-y divide-white/12 border-y border-white/12">
             {scheduleItems.slice(0, 4).map((item) => (
-              <div key={`${item.name}-${item.time}`} className="grid grid-cols-[1fr_auto] gap-5 py-4">
+              <div
+                key={`${item.name}-${item.time}`}
+                className="grid grid-cols-[1fr_auto] gap-5 py-4"
+              >
                 <span className="text-sm text-white/70">{item.name}</span>
                 <span className="text-sm font-semibold text-white">{item.time}</span>
               </div>

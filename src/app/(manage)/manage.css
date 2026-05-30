@@ -871,6 +871,35 @@ textarea {
   gap: 12px;
   justify-content: space-between;
 }
+.manage-submenu-block {
+  border-top: 1px solid #ebe0d0;
+  display: grid;
+  gap: 12px;
+  padding-top: 4px;
+}
+.manage-submenu-title {
+  display: grid;
+  gap: 3px;
+}
+.manage-submenu-title h3 {
+  color: #344238;
+  font-size: 14px;
+  line-height: 1.25;
+  margin: 0;
+}
+.manage-submenu-title p {
+  color: var(--manage-muted);
+  font-size: 12px;
+  margin: 0;
+}
+.manage-submenu-row {
+  background: rgb(255 255 255 / 0.58);
+  border: 1px dashed #e2d4bf;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+}
 .manage-field-grid {
   display: grid;
   gap: 16px;

@@ -9,9 +9,9 @@ const colorPickerField = {
 }
 
 const homeSectionOptions = [
-  { label: '교회 소개 - 교회 정보 내용을 홈에 보여줍니다', value: 'intro' },
+  { label: '교회소개 - 교회 정보 내용을 홈에 보여줍니다', value: 'intro' },
   { label: '공지사항 - 최근 공지를 홈에 보여줍니다', value: 'announcements' },
-  { label: '최신 설교 - YouTube/설교 영상을 홈에 보여줍니다', value: 'sermons' },
+  { label: '최신 설교 - YouTube/설교영상을 홈에 보여줍니다', value: 'sermons' },
   { label: '인스타그램 - SNS 게시물을 홈에 보여줍니다', value: 'instagram' },
   { label: '오시는 길 - 주소와 지도를 홈에 보여줍니다', value: 'map' },
 ]
@@ -96,7 +96,7 @@ export const SiteSettings: GlobalConfig = {
                       name: 'heroPrimaryLabel',
                       type: 'text',
                       label: '기본 버튼 문구',
-                      defaultValue: '예배 안내',
+                      defaultValue: '예배안내',
                       admin: { width: '50%' },
                     },
                     {
@@ -306,7 +306,7 @@ export const SiteSettings: GlobalConfig = {
             {
               name: 'churchDescription',
               type: 'textarea',
-              label: '교회 소개',
+              label: '교회소개',
               defaultValue:
                 '사랑하는교회는 기독교대한감리회 소속으로, 위례 신도시에서 하나님의 말씀을 중심으로 모이는 공동체입니다.',
             },
@@ -846,7 +846,7 @@ export const SiteSettings: GlobalConfig = {
     {
       name: 'offeringNotes',
       type: 'textarea',
-      label: '헌금 안내 메시지',
+      label: '헌금안내 메시지',
       admin: { hidden: true },
     },
   ],

@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import type { Header as HeaderType } from '@/payload-types'
-import { resolveCMSLink } from '@/utilities/resolveCMSLink'
+import { normalizeHeaderNavItems } from '@/Header/normalizeNavItems'
 
 interface MobileMenuProps {
   data: HeaderType
@@ -11,16 +11,8 @@ interface MobileMenuProps {
   onClose: () => void
 }
 
-type NavItem = {
-  href: string
-  label: string
-  newTab?: boolean
-}
-
 export const MobileMenu: React.FC<MobileMenuProps> = ({ data, open, onClose }) => {
-  const navItems = (data?.navItems || [])
-    .map((item) => resolveCMSLink(item.link))
-    .filter(Boolean) as NavItem[]
+  const navItems = normalizeHeaderNavItems(data)
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') onClose()
@@ -28,7 +20,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ data, open, onClose }) =
 
   return (
     <div
-      className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${open ? 'max-h-[600px] opacity-100 visible' : 'max-h-0 opacity-0 pointer-events-none invisible'}`}
+      className={`md:hidden transition-all duration-300 ease-in-out ${open ? 'max-h-[80vh] overflow-y-auto opacity-100 visible' : 'max-h-0 overflow-hidden opacity-0 pointer-events-none invisible'}`}
       aria-hidden={!open}
       onKeyDown={handleKeyDown}
     >
@@ -37,14 +29,36 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ data, open, onClose }) =
           const newTabProps = item.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
 
           return (
-            <div key={i} className="border-b border-white/10 px-4 py-3" onClick={onClose}>
+            <div key={`${item.href}-${i}`} className="border-b border-white/10 px-4 py-3">
               <Link
                 href={item.href}
-                className="text-sm font-medium text-white/80 transition-colors hover:text-white"
+                className="block text-sm font-medium text-white/82 transition-colors hover:text-white"
+                onClick={onClose}
                 {...newTabProps}
               >
                 {item.label}
               </Link>
+              {item.children.length ? (
+                <div className="mt-3 grid gap-1 border-l border-white/14 pl-3">
+                  {item.children.map((child, childIndex) => {
+                    const childNewTabProps = child.newTab
+                      ? { rel: 'noopener noreferrer', target: '_blank' }
+                      : {}
+
+                    return (
+                      <Link
+                        key={`${child.href}-${childIndex}`}
+                        href={child.href}
+                        className="block rounded-sm px-2 py-2 text-sm font-medium text-white/68 transition-colors hover:bg-white/8 hover:text-white"
+                        onClick={onClose}
+                        {...childNewTabProps}
+                      >
+                        {child.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+              ) : null}
             </div>
           )
         })}

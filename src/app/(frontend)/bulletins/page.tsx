@@ -53,7 +53,7 @@ export default async function BulletinsPage() {
               icon="document"
               title="등록된 주보가 없습니다"
               description="사랑하는교회의 주보가 곧 업로드될 예정입니다. 자주 방문해주세요!"
-              ctaText="예배 안내 보기"
+              ctaText="예배안내 보기"
               ctaLink="/worship"
             />
           )
@@ -66,7 +66,10 @@ export default async function BulletinsPage() {
               const isPdf = file?.mimeType === 'application/pdf'
 
               return (
-                <div key={bulletin.id} className="group border border-border rounded-xl overflow-hidden bg-card hover:shadow-md transition-shadow">
+                <div
+                  key={bulletin.id}
+                  className="group border border-border rounded-xl overflow-hidden bg-card hover:shadow-md transition-shadow"
+                >
                   {/* Preview */}
                   <div className="aspect-[3/4] bg-muted flex items-center justify-center relative overflow-hidden">
                     {isImage && fileUrl ? (
@@ -77,8 +80,18 @@ export default async function BulletinsPage() {
                       />
                     ) : (
                       <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <svg
+                          className="w-12 h-12"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
                         </svg>
                         <span className="text-sm">PDF</span>
                       </div>
@@ -87,12 +100,21 @@ export default async function BulletinsPage() {
 
                   {/* Info */}
                   <div className="p-4">
-                    <h3 className="font-semibold text-sm text-foreground mb-1 line-clamp-2">{bulletin.title}</h3>
+                    <h3 className="font-semibold text-sm text-foreground mb-1 line-clamp-2">
+                      {bulletin.title}
+                    </h3>
                     {bulletin.description && (
-                      <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{bulletin.description}</p>
+                      <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+                        {bulletin.description}
+                      </p>
                     )}
                     <p className="text-xs text-muted-foreground mb-3">
-                      {new Date(bulletin.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' })}
+                      {new Date(bulletin.date).toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        timeZone: 'Asia/Seoul',
+                      })}
                     </p>
                     {fileUrl && (
                       <a
@@ -102,8 +124,18 @@ export default async function BulletinsPage() {
                         download={isPdf}
                         className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-secondary transition-colors"
                       >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        <svg
+                          className="w-3.5 h-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          />
                         </svg>
                         {isPdf ? '다운로드' : '보기'}
                       </a>

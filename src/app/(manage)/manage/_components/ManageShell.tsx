@@ -14,6 +14,8 @@ import {
   Newspaper,
   Plus,
   Radio,
+  UserRound,
+  Video,
 } from 'lucide-react'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
@@ -30,9 +32,11 @@ type ActiveKey =
   | 'guide'
   | 'home'
   | 'instagram'
+  | 'leaders'
   | 'menu'
   | 'offering'
   | 'sermons'
+  | 'videos'
   | 'worship'
 
 const navItems: {
@@ -42,17 +46,19 @@ const navItems: {
   label: string
 }[] = [
   { href: '/manage', icon: LayoutDashboard, key: 'dashboard', label: '대시보드' },
-  { href: '/manage/guide', icon: HelpCircle, key: 'guide', label: '관리 가이드' },
-  { href: '/manage/home', icon: Home, key: 'home', label: '홈 관리' },
-  { href: '/manage/worship', icon: MapPin, key: 'worship', label: '예배 안내' },
-  { href: '/manage/sermons', icon: Radio, key: 'sermons', label: '설교' },
+  { href: '/manage/guide', icon: HelpCircle, key: 'guide', label: '관리가이드' },
+  { href: '/manage/home', icon: Home, key: 'home', label: '홈관리' },
+  { href: '/manage/leaders', icon: UserRound, key: 'leaders', label: '섬기는 사람들' },
+  { href: '/manage/worship', icon: MapPin, key: 'worship', label: '예배안내' },
+  { href: '/manage/sermons', icon: Radio, key: 'sermons', label: '설교영상' },
+  { href: '/manage/videos', icon: Video, key: 'videos', label: '동영상' },
   { href: '/manage/instagram', icon: Instagram, key: 'instagram', label: '인스타그램' },
   { href: '/manage/announcements', icon: Bell, key: 'announcements', label: '공지사항' },
   { href: '/manage/church-news', icon: Newspaper, key: 'churchNews', label: '교회소식' },
   { href: '/manage/bulletins', icon: FileText, key: 'bulletins', label: '주보' },
-  { href: '/manage/offering', icon: HandCoins, key: 'offering', label: '헌금 안내' },
+  { href: '/manage/offering', icon: HandCoins, key: 'offering', label: '헌금안내' },
   { href: '/manage/banner', icon: Megaphone, key: 'banner', label: '상단 배너' },
-  { href: '/manage/menu', icon: Menu, key: 'menu', label: '메뉴 관리' },
+  { href: '/manage/menu', icon: Menu, key: 'menu', label: '메뉴관리' },
 ]
 
 export function ManageShell({

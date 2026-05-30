@@ -12,10 +12,10 @@ const quickLinks = [
     meta: '가장 많이 수정',
   },
   {
-    description: '상단 메뉴 추가, 삭제, 순서 변경',
+    description: '상단메뉴 추가, 삭제, 순서 변경',
     href: '/admin/globals/header',
-    label: '상단 메뉴',
-    meta: '메뉴 관리',
+    label: '상단메뉴',
+    meta: '메뉴관리',
   },
   {
     description: '사역 소개처럼 별도로 필요한 독립 페이지 생성',
@@ -46,7 +46,7 @@ const quickLinks = [
 const secondaryLinks = [
   { href: '/admin/globals/footer', label: '하단 메뉴/푸터' },
   { href: '/admin/globals/special-banner', label: '상단 알림 배너' },
-  { href: '/admin/globals/offering-page', label: '헌금 안내 페이지' },
+  { href: '/admin/globals/offering-page', label: '헌금안내페이지' },
   { href: '/admin/collections/bulletins', label: '주보' },
   { href: '/admin/collections/sermons', label: '설교' },
   { href: '/', label: '사이트 열기' },
@@ -59,7 +59,7 @@ const fixedPageLinks = [
     label: '홈 메인 화면',
   },
   {
-    description: '교회 소개, 목회자, 핵심 가치',
+    description: '교회소개, 목회자, 핵심 가치',
     href: '/admin/globals/site-settings',
     label: '교회 정보',
   },
@@ -69,7 +69,7 @@ const fixedPageLinks = [
     label: '예배/오시는 길',
   },
   {
-    description: '최신 설교 페이지에 노출되는 설교 영상',
+    description: '최신 설교 페이지에 노출되는 설교영상',
     href: '/admin/collections/sermons',
     label: '최신 설교',
   },
@@ -86,7 +86,7 @@ const fixedPageLinks = [
   {
     description: '헌금 계좌, 안내 문구, 헌금 종류',
     href: '/admin/globals/offering-page',
-    label: '헌금 안내',
+    label: '헌금안내',
   },
 ]
 

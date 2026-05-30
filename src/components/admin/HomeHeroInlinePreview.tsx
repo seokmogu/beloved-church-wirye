@@ -16,7 +16,7 @@ export function HomeHeroInlinePreview() {
   const eyebrow = getText(fields, 'heroEyebrow', 'Beloved Church Wirye')
   const title = getText(fields, 'heroTitle', '사랑하는교회')
   const subtitle = getText(fields, 'heroSubtitle', '위례에서 하나님의 사랑을 나누는 공동체')
-  const primaryLabel = getText(fields, 'heroPrimaryLabel', '예배 안내')
+  const primaryLabel = getText(fields, 'heroPrimaryLabel', '예배안내')
   const primaryUrl = getText(fields, 'heroPrimaryUrl', '/worship')
   const secondaryLabel = getText(fields, 'heroSecondaryLabel', '최신 설교 보기')
   const secondaryUrl = getText(fields, 'heroSecondaryUrl', '/sermon')

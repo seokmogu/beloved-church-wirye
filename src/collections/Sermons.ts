@@ -89,7 +89,7 @@ export const Sermons: CollectionConfig = {
       required: true,
       admin: {
         description: {
-          ko: '설교 영상 YouTube URL (예: https://www.youtube.com/watch?v=VIDEO_ID)',
+          ko: '설교영상 YouTube URL (예: https://www.youtube.com/watch?v=VIDEO_ID)',
           en: 'YouTube video URL',
         },
       },

@@ -106,7 +106,8 @@ export function DesignPreview() {
         <div>
           <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>디자인 미리보기</h3>
           <p style={{ color: '#6b7280', fontSize: 13, margin: '6px 0 0' }}>
-            색상 입력값은 저장 전에도 즉시 반영됩니다. 배경 이미지는 저장 후 실제 사이트에서 확인합니다.
+            색상 입력값은 저장 전에도 즉시 반영됩니다. 배경 이미지는 저장 후 실제 사이트에서
+            확인합니다.
           </p>
         </div>
         <a
@@ -140,7 +141,7 @@ export function DesignPreview() {
           }}
         >
           <strong style={{ fontSize: 13 }}>BELOVED</strong>
-          <span style={{ color: 'rgba(255,255,255,.72)', fontSize: 12 }}>예배 안내 · 최신 설교</span>
+          <span style={{ color: 'rgba(255,255,255,.72)', fontSize: 12 }}>예배안내 · 최신 설교</span>
         </div>
 
         <div
@@ -168,13 +169,15 @@ export function DesignPreview() {
               padding: '10px 14px',
             }}
           >
-            예배 안내
+            예배안내
           </button>
         </div>
 
         <div style={{ background: sectionBackground, display: 'grid', gap: 12, padding: 16 }}>
           <div style={{ color: secondary, fontSize: 12, fontWeight: 700 }}>ABOUT US</div>
-          <div style={{ color: text, fontSize: 24, fontWeight: 800 }}>그리스도를 본받아 함께 사랑하는 공동체</div>
+          <div style={{ color: text, fontSize: 24, fontWeight: 800 }}>
+            그리스도를 본받아 함께 사랑하는 공동체
+          </div>
           <p style={{ color: mutedText, lineHeight: 1.55, margin: 0 }}>
             CMS에서 입력한 색상과 배경 설정으로 섹션 톤을 확인합니다.
           </p>
@@ -196,19 +199,37 @@ export function DesignPreview() {
           <div style={{ color: secondary, fontSize: 12, fontWeight: 700 }}>INSTAGRAM</div>
           <div style={{ fontSize: 24, fontWeight: 800, marginTop: 6 }}>어두운 섹션</div>
           <p style={{ color: 'rgba(255,255,255,.64)' }}>
-            {hasDarkBackground ? '어두운 섹션 배경 이미지가 선택되어 있습니다.' : '배경 이미지를 선택하면 저장 후 반영됩니다.'}
+            {hasDarkBackground
+              ? '어두운 섹션 배경 이미지가 선택되어 있습니다.'
+              : '배경 이미지를 선택하면 저장 후 반영됩니다.'}
           </p>
         </div>
 
-        <div style={{ background: footerBackground, borderRadius: '0 0 8px 8px', color: '#fff', padding: 16 }}>
+        <div
+          style={{
+            background: footerBackground,
+            borderRadius: '0 0 8px 8px',
+            color: '#fff',
+            padding: 16,
+          }}
+        >
           <strong>Footer</strong>
           <span style={{ color: 'rgba(255,255,255,.62)', marginLeft: 10 }}>
-            {hasPageBackground ? '전체 페이지 배경 이미지 선택됨' : '전체 페이지 배경 이미지는 비어 있음'}
+            {hasPageBackground
+              ? '전체 페이지 배경 이미지 선택됨'
+              : '전체 페이지 배경 이미지는 비어 있음'}
           </span>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', padding: 16 }}>
+      <div
+        style={{
+          display: 'grid',
+          gap: 10,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          padding: 16,
+        }}
+      >
         {swatch('메인', primary)}
         {swatch('메인 밝은색', primaryLight)}
         {swatch('강조', secondary)}

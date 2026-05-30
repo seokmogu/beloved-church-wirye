@@ -36,7 +36,7 @@ const sectionMeta: Record<
   intro: {
     defaultEyebrow: 'ABOUT US',
     defaultTitle: '그리스도를 본받아 함께 사랑하는 공동체',
-    label: '교회 소개',
+    label: '교회소개',
     source:
       '소개 본문, 목회자, 핵심 가치는 교회 정보 탭에서 관리하고, 이 카드에서는 홈 섹션 제목과 설명을 편집합니다.',
   },
@@ -52,7 +52,7 @@ const sectionMeta: Record<
     defaultTitle: '최신 설교',
     label: '최신 설교',
     source:
-      '설교 영상은 설교 메뉴에서 작성하고, YouTube 자동 연동은 SNS/자동 연동 탭에서 관리합니다.',
+      '설교영상은 설교 메뉴에서 작성하고, YouTube 자동 연동은 SNS/자동 연동 탭에서 관리합니다.',
   },
 }
 
