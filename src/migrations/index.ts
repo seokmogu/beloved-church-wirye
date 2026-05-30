@@ -8,6 +8,9 @@ import * as migration_20260525_233607_instagram_post_thumbnails from './20260525
 import * as migration_20260526_231800_instagram_thumbnail_urls from './20260526_231800_instagram_thumbnail_urls'
 import * as migration_20260527_000100_instagram_post_metadata from './20260527_000100_instagram_post_metadata'
 import * as migration_20260530_165500_church_news from './20260530_165500_church_news'
+import * as migration_20260531_010000_header_submenus from './20260531_010000_header_submenus'
+import * as migration_20260531_020000_media_content_hash from './20260531_020000_media_content_hash'
+import * as migration_20260531_030000_compact_korean_menu_labels from './20260531_030000_compact_korean_menu_labels'
 
 export const migrations = [
   {
@@ -59,5 +62,20 @@ export const migrations = [
     up: migration_20260530_165500_church_news.up,
     down: migration_20260530_165500_church_news.down,
     name: '20260530_165500_church_news',
+  },
+  {
+    up: migration_20260531_010000_header_submenus.up,
+    down: migration_20260531_010000_header_submenus.down,
+    name: '20260531_010000_header_submenus',
+  },
+  {
+    up: migration_20260531_020000_media_content_hash.up,
+    down: migration_20260531_020000_media_content_hash.down,
+    name: '20260531_020000_media_content_hash',
+  },
+  {
+    up: migration_20260531_030000_compact_korean_menu_labels.up,
+    down: migration_20260531_030000_compact_korean_menu_labels.down,
+    name: '20260531_030000_compact_korean_menu_labels',
   },
 ]

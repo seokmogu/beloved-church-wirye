@@ -29,8 +29,8 @@ export default async function ManageWorshipPage() {
   return (
     <ManageShell active="worship" user={user}>
       <PageHeader
-        description="예배 안내 페이지와 홈 히어로의 예배 시간, 위치 정보를 관리합니다."
-        title="예배 안내"
+        description="예배안내페이지와 홈 히어로의 예배 시간, 위치 정보를 관리합니다."
+        title="예배안내"
       />
       <form action={saveWorshipSettingsAction} className="manage-form">
         <section className="manage-grid">

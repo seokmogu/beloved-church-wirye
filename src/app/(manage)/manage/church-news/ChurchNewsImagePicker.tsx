@@ -4,10 +4,12 @@ import { ImagePlus, X } from 'lucide-react'
 import { type ChangeEvent, useEffect, useRef, useState } from 'react'
 
 type PreviewImage = {
+  contentHash?: string
   file: File
   id: string
   imageId?: string
   name: string
+  reused?: boolean
   status: 'error' | 'pending' | 'uploaded' | 'uploading'
   url: string
 }
@@ -26,10 +28,14 @@ export function ChurchNewsImagePicker() {
   const pendingCount = previews.filter(
     (preview) => preview.status === 'pending' || preview.status === 'uploading',
   ).length
+  const reusedCount = previews.filter(
+    (preview) => preview.status === 'uploaded' && preview.reused,
+  ).length
   const totalBytes = previews.reduce((sum, preview) => sum + preview.file.size, 0)
   const statusText = getStatusText({
     failedCount,
     pendingCount,
+    reusedCount,
     totalBytes,
     totalCount: previews.length,
     uploadedCount,
@@ -94,7 +100,9 @@ export function ChurchNewsImagePicker() {
           className="manage-new-image-preview"
         >
           <div className="manage-new-image-preview-header">
-            <span>선택한 이미지 {previews.length}장 · {formatBytes(totalBytes)}</span>
+            <span>
+              선택한 이미지 {previews.length}장 · {formatBytes(totalBytes)}
+            </span>
           </div>
           <div className="manage-new-image-preview-grid">
             {previews.map((preview, index) => (
@@ -120,7 +128,7 @@ export function ChurchNewsImagePicker() {
                 </div>
                 <figcaption title={preview.name}>
                   <span>{index + 1}</span>
-                  <small>{statusLabel(preview.status)}</small>
+                  <small>{statusLabel(preview.status, preview.reused)}</small>
                 </figcaption>
               </figure>
             ))}
@@ -163,7 +171,7 @@ export function ChurchNewsImagePicker() {
     URL.revokeObjectURL(target.url)
     setPreviewState(previewsRef.current.filter((_, index) => index !== removeIndex))
 
-    if (target.imageId) void deleteUploadedImage(target.imageId)
+    if (shouldDeleteUploadedImage(target)) void deleteUploadedImage(target.imageId)
   }
 
   async function uploadSequentially(items: PreviewImage[], runId: number) {
@@ -174,15 +182,38 @@ export function ChurchNewsImagePicker() {
       updatePreview(item.id, { status: 'uploading' })
 
       try {
-        const imageId = await uploadImageFile(item.file)
+        const uploaded = await uploadImageFile(item.file)
 
-        if (uploadRunRef.current !== runId) return
+        if (uploadRunRef.current !== runId) {
+          if (!uploaded.reused) await deleteUploadedImage(uploaded.id)
+          return
+        }
         if (removedIdsRef.current.has(item.id)) {
-          await deleteUploadedImage(imageId)
+          if (!uploaded.reused) await deleteUploadedImage(uploaded.id)
           continue
         }
 
-        updatePreview(item.id, { imageId, status: 'uploaded' })
+        const duplicate = previewsRef.current.find(
+          (preview) =>
+            preview.id !== item.id &&
+            preview.contentHash === uploaded.contentHash &&
+            preview.status === 'uploaded',
+        )
+
+        if (duplicate) {
+          removedIdsRef.current.add(item.id)
+          URL.revokeObjectURL(item.url)
+          if (!uploaded.reused) await deleteUploadedImage(uploaded.id)
+          setPreviewState(previewsRef.current.filter((preview) => preview.id !== item.id))
+          continue
+        }
+
+        updatePreview(item.id, {
+          contentHash: uploaded.contentHash,
+          imageId: uploaded.id,
+          reused: uploaded.reused,
+          status: 'uploaded',
+        })
       } catch (error) {
         console.error('Failed to upload church news image:', error)
         if (uploadRunRef.current !== runId || removedIdsRef.current.has(item.id)) continue
@@ -207,9 +238,25 @@ export function ChurchNewsImagePicker() {
     hasUploadErrorRef.current = next.some((preview) => preview.status === 'error')
     setPreviews(next)
   }
+
+  function shouldDeleteUploadedImage(
+    target: PreviewImage,
+  ): target is PreviewImage & { imageId: string } {
+    if (!target.imageId || target.reused) return false
+
+    return !previewsRef.current.some(
+      (preview) => preview.id !== target.id && preview.imageId === target.imageId,
+    )
+  }
 }
 
-async function uploadImageFile(file: File): Promise<string> {
+type UploadImageResult = {
+  contentHash: string
+  id: string
+  reused: boolean
+}
+
+async function uploadImageFile(file: File): Promise<UploadImageResult> {
   const formData = new FormData()
   formData.append('file', file)
   formData.append('alt', file.name)
@@ -223,10 +270,18 @@ async function uploadImageFile(file: File): Promise<string> {
     throw new Error(`Upload failed with status ${response.status}`)
   }
 
-  const result = (await response.json()) as { id?: number | string }
-  if (!result.id) throw new Error('Upload did not return an image id')
+  const result = (await response.json()) as {
+    contentHash?: string
+    id?: number | string
+    reused?: boolean
+  }
+  if (!result.id || !result.contentHash) throw new Error('Upload did not return an image id')
 
-  return String(result.id)
+  return {
+    contentHash: result.contentHash,
+    id: String(result.id),
+    reused: Boolean(result.reused),
+  }
 }
 
 async function deleteUploadedImage(id: string) {
@@ -244,26 +299,31 @@ async function deleteUploadedImage(id: string) {
 function getStatusText({
   failedCount,
   pendingCount,
+  reusedCount,
   totalBytes,
   totalCount,
   uploadedCount,
 }: {
   failedCount: number
   pendingCount: number
+  reusedCount: number
   totalBytes: number
   totalCount: number
   uploadedCount: number
 }) {
   if (!totalCount) return null
-  if (pendingCount) return `원본 이미지 업로드 중 ${uploadedCount}/${totalCount} · ${formatBytes(totalBytes)}`
-  if (failedCount) return `업로드 실패 ${failedCount}장. 실패한 이미지를 제거하거나 다시 선택해 주세요.`
-  return `원본 이미지 ${uploadedCount}장 업로드 완료 · ${formatBytes(totalBytes)}`
+  if (pendingCount)
+    return `원본 이미지 업로드 중 ${uploadedCount}/${totalCount} · ${formatBytes(totalBytes)}`
+  if (failedCount)
+    return `업로드 실패 ${failedCount}장. 실패한 이미지를 제거하거나 다시 선택해 주세요.`
+  const reuseText = reusedCount ? ` · 기존 파일 ${reusedCount}장 재사용` : ''
+  return `원본 이미지 ${uploadedCount}장 업로드 완료 · ${formatBytes(totalBytes)}${reuseText}`
 }
 
-function statusLabel(status: PreviewImage['status']): string {
+function statusLabel(status: PreviewImage['status'], reused?: boolean): string {
   if (status === 'pending') return '대기'
   if (status === 'uploading') return '업로드 중'
-  if (status === 'uploaded') return '완료'
+  if (status === 'uploaded') return reused ? '재사용' : '완료'
   return '실패'
 }
 

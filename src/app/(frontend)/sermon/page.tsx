@@ -8,7 +8,7 @@ import { fetchLatestVideos, type YouTubeVideo } from '@/lib/youtube'
 import type { SiteSetting } from '@/payload-types'
 
 export const metadata: Metadata = {
-  title: '설교 | 사랑하는교회',
+  title: '설교영상 | 사랑하는교회',
   description: '사랑하는교회의 설교 말씀을 들어보세요.',
 }
 
@@ -136,7 +136,9 @@ function SermonArchiveSection({
                         {video.title}
                       </h3>
                       <p className="mt-2 text-sm text-muted-foreground">
-                        {relativeDate ? `${formatDate(video.publishedAt)} · ${relativeDate}` : formatDate(video.publishedAt)}
+                        {relativeDate
+                          ? `${formatDate(video.publishedAt)} · ${relativeDate}`
+                          : formatDate(video.publishedAt)}
                       </p>
                     </div>
                     <span
@@ -152,9 +154,7 @@ function SermonArchiveSection({
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-border bg-card/70 px-6 py-12 text-center">
-            <p className="text-base font-semibold text-foreground">
-              등록된 설교 영상이 없습니다.
-            </p>
+            <p className="text-base font-semibold text-foreground">등록된 설교영상이 없습니다.</p>
             {channelUrl && (
               <a
                 href={channelUrl}
@@ -224,7 +224,7 @@ export default async function SermonPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <PageHero label="SERMON" title="설교" subtitle="하나님의 말씀을 나눕니다." />
+      <PageHero label="SERMON" title="설교영상" subtitle="하나님의 말씀을 영상으로 나눕니다." />
 
       <SermonArchiveSection
         channelUrl={settings?.youtubeChannelUrl}

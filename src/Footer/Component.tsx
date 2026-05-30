@@ -40,7 +40,11 @@ export async function Footer() {
       ? { href: settings.youtubeChannelUrl, label: 'YouTube', value: settings.youtubeChannelUrl }
       : null,
     settings?.instagramUrl
-      ? { href: settings.instagramUrl, label: 'Instagram', value: settings.instagramHandle ?? settings.instagramUrl }
+      ? {
+          href: settings.instagramUrl,
+          label: 'Instagram',
+          value: settings.instagramHandle ?? settings.instagramUrl,
+        }
       : null,
   ].filter(Boolean) as { href: string; label: string; value: string }[]
 
@@ -52,7 +56,10 @@ export async function Footer() {
       <div className="container py-12">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.15fr_1fr_1fr]">
           <div>
-            <Link href="/" className="inline-flex flex-col gap-3 hover:opacity-85 transition-opacity">
+            <Link
+              href="/"
+              className="inline-flex flex-col gap-3 hover:opacity-85 transition-opacity"
+            >
               <Logo alt={churchName} src={logoUrl} />
               <span>
                 <span className="block text-xl font-bold">{churchName}</span>
@@ -70,11 +77,13 @@ export async function Footer() {
               </address>
             )}
 
-            {footer?.churchPhone && <p className="mt-3 text-sm text-white/70">{footer.churchPhone}</p>}
+            {footer?.churchPhone && (
+              <p className="mt-3 text-sm text-white/70">{footer.churchPhone}</p>
+            )}
           </div>
 
           <div>
-            <h4 className="mb-4 text-sm font-semibold text-secondary">예배 안내</h4>
+            <h4 className="mb-4 text-sm font-semibold text-secondary">예배안내</h4>
             <div className="space-y-2 text-sm text-white/70">
               {scheduleLines.map((item) => (
                 <p key={item}>{item}</p>
@@ -88,7 +97,9 @@ export async function Footer() {
               {navItems.map((item, index) => {
                 const resolved = resolveCMSLink(item.link)
                 if (!resolved) return null
-                const newTabProps = resolved.newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
+                const newTabProps = resolved.newTab
+                  ? { rel: 'noopener noreferrer', target: '_blank' }
+                  : {}
 
                 return (
                   <Link

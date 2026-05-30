@@ -2,9 +2,9 @@ import type { GlobalConfig } from 'payload'
 
 export const OfferingPage: GlobalConfig = {
   slug: 'offering-page',
-  label: '헌금 안내 페이지',
+  label: '헌금안내페이지',
   admin: {
-    description: '헌금 안내 페이지의 문구, 계좌, 안내 사항을 관리합니다.',
+    description: '헌금안내페이지의 문구, 계좌, 안내 사항을 관리합니다.',
     group: '1. 홈페이지 편집',
   },
   access: {
@@ -20,7 +20,7 @@ export const OfferingPage: GlobalConfig = {
       defaultValue:
         '헌금은 하나님께 드리는 감사와 헌신의 표현입니다.\n여러분의 귀한 헌금은 복음 전파와 교회 사역에 사용됩니다.',
       admin: {
-        description: '헌금 안내 페이지 상단에 표시되는 소개 문구',
+        description: '헌금안내페이지 상단에 표시되는 소개 문구',
       },
     },
 

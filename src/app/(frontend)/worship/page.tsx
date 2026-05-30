@@ -8,8 +8,8 @@ import { PageHero } from '@/components/PageHero'
 import type { SiteSetting } from '@/payload-types'
 
 export const metadata: Metadata = {
-  title: '예배 안내 | 사랑하는교회',
-  description: '사랑하는교회 위례 예배 안내',
+  title: '예배안내 | 사랑하는교회',
+  description: '사랑하는교회 위례 예배안내',
 }
 
 export const dynamic = 'force-dynamic'
@@ -41,13 +41,19 @@ export default async function WorshipPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <PageHero label="WORSHIP" title="예배 안내" subtitle={settings?.heroSubtitle ?? '하나님께 영광 돌리는 예배'} />
+      <PageHero
+        label="WORSHIP"
+        title="예배안내"
+        subtitle={settings?.heroSubtitle ?? '하나님께 영광 돌리는 예배'}
+      />
 
       <section className="border-b border-border py-16">
         <div className="container max-w-5xl">
           <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">Schedule</p>
+              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
+                Schedule
+              </p>
               <h2 className="text-3xl font-bold text-foreground">예배와 모임</h2>
             </div>
             {settings?.youtubeChannelUrl && (
@@ -57,7 +63,7 @@ export default async function WorshipPage() {
                 rel="noopener noreferrer"
                 className="text-sm font-medium text-primary hover:underline"
               >
-                설교 영상 보기 &rarr;
+                설교영상 보기 &rarr;
               </a>
             )}
           </div>
@@ -65,10 +71,17 @@ export default async function WorshipPage() {
           {services.length > 0 && (
             <div className="grid gap-5 md:grid-cols-2">
               {services.map((service) => (
-                <article key={service.id ?? `${service.name}-${service.time}`} className="rounded-lg border border-border bg-card p-6">
+                <article
+                  key={service.id ?? `${service.name}-${service.time}`}
+                  className="rounded-lg border border-border bg-card p-6"
+                >
                   <p className="text-sm font-semibold text-secondary">{service.time}</p>
                   <h3 className="mt-3 text-2xl font-bold text-foreground">{service.name}</h3>
-                  {service.description && <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{service.description}</p>}
+                  {service.description && (
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                      {service.description}
+                    </p>
+                  )}
                 </article>
               ))}
             </div>
@@ -80,19 +93,26 @@ export default async function WorshipPage() {
         <section className="border-b border-border bg-muted/25 py-16">
           <div className="container max-w-5xl">
             <div className="mb-8">
-              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">Order</p>
+              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
+                Order
+              </p>
               <h2 className="text-3xl font-bold text-foreground">예배 순서</h2>
             </div>
             <ol className="grid gap-4 md:grid-cols-2">
               {order.map((item, index) => (
-                <li key={item.id ?? `${item.title}-${index}`} className="rounded-lg border border-border bg-card p-5">
+                <li
+                  key={item.id ?? `${item.title}-${index}`}
+                  className="rounded-lg border border-border bg-card p-5"
+                >
                   <div className="flex gap-4">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-bold text-white">
                       {index + 1}
                     </span>
                     <div>
                       <h3 className="font-semibold text-foreground">{item.title}</h3>
-                      {item.description && <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>}
+                      {item.description && (
+                        <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
+                      )}
                     </div>
                   </div>
                 </li>
@@ -102,11 +122,7 @@ export default async function WorshipPage() {
         </section>
       )}
 
-      <NaverMapSectionServer
-        eyebrow="VISIT"
-        settings={settings}
-        title="찾아오시는 길"
-      />
+      <NaverMapSectionServer eyebrow="VISIT" settings={settings} title="찾아오시는 길" />
 
       {hasVisitNotes && (
         <section className="border-t border-border py-16">
@@ -143,7 +159,7 @@ export default async function WorshipPage() {
                       href="/newcomer"
                       className="mt-6 inline-flex rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
                     >
-                      새가족 등록하기
+                      새가족등록하기
                     </Link>
                   </div>
                 )}

@@ -5,8 +5,8 @@ import { PageHero } from '@/components/PageHero'
 import { CopyAccountButton } from '@/components/CopyAccountButton'
 
 export const metadata: Metadata = {
-  title: '헌금 안내 | 사랑하는교회',
-  description: '사랑하는교회 위례 헌금 안내 - 은행 계좌 및 카카오페이 송금 방법',
+  title: '헌금안내 | 사랑하는교회',
+  description: '사랑하는교회 위례 헌금안내 - 은행 계좌 및 카카오페이 송금 방법',
 }
 
 export const dynamic = 'force-dynamic'
@@ -24,11 +24,7 @@ export default async function OfferingPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <PageHero
-        label="OFFERING"
-        title="헌금 안내"
-        subtitle="하나님께 드리는 감사와 헌신의 예물"
-      />
+      <PageHero label="OFFERING" title="헌금안내" subtitle="하나님께 드리는 감사와 헌신의 예물" />
 
       <div className="container py-16 max-w-4xl">
         {/* Intro */}
@@ -50,9 +46,7 @@ export default async function OfferingPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between py-3 border-b border-border">
                   <span className="text-muted-foreground font-medium">은행</span>
-                  <span className="text-foreground text-lg font-semibold">
-                    {account.bankName}
-                  </span>
+                  <span className="text-foreground text-lg font-semibold">{account.bankName}</span>
                 </div>
 
                 <div className="flex items-center justify-between py-3 border-b border-border">

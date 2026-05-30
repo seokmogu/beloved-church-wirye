@@ -6,10 +6,11 @@ import { requireManageUser } from '@/lib/manage/auth'
 const guideSections = [
   {
     adminHref: '/manage/home',
-    adminLabel: '홈 관리',
+    adminLabel: '홈관리',
     publicHref: '/',
     publicLabel: '메인 화면',
-    summary: '공개 메인 화면 프리뷰 안에서 히어로 문구, 섹션 문구, 배경 이미지, 색상, 글자 크기를 수정합니다.',
+    summary:
+      '공개 메인 화면 프리뷰 안에서 히어로 문구, 섹션 문구, 배경 이미지, 색상, 글자 크기를 수정합니다.',
     steps: [
       '히어로 프리뷰 화면 안에서 교회명, 제목, 부제목, 버튼 문구와 링크를 직접 수정합니다.',
       '오른쪽 스타일 패널에서 배경 이미지, 컬러, 히어로/섹션 글자 크기를 조정합니다.',
@@ -18,14 +19,14 @@ const guideSections = [
   },
   {
     adminHref: '/manage/worship',
-    adminLabel: '예배 안내',
+    adminLabel: '예배안내',
     publicHref: '/worship',
-    publicLabel: '예배 안내 페이지',
+    publicLabel: '예배안내페이지',
     summary: '예배 시간, 예배 순서, 주소, 교통편, 주차 안내를 수정합니다.',
     steps: [
       '예배와 모임에는 실제 노출할 예배명과 시간을 입력합니다.',
       '오시는 길에는 주소와 지도 좌표, 대중교통과 주차 안내를 입력합니다.',
-      '저장 후 예배 안내 페이지와 메인 오시는 길 영역을 확인합니다.',
+      '저장 후 예배안내페이지와 메인 오시는 길 영역을 확인합니다.',
     ],
   },
   {
@@ -49,7 +50,7 @@ const guideSections = [
     steps: [
       'Instagram URL에는 계정 주소를 입력하고 계정명에는 화면에 보일 이름을 입력합니다.',
       '게시물 ID에는 Instagram 주소의 /p/ 또는 /reel/ 뒤에 오는 값을 입력합니다.',
-      '홈 관리에서 인스타그램 섹션이 표시 상태인지 함께 확인합니다.',
+      '홈관리에서 인스타그램 섹션이 표시 상태인지 함께 확인합니다.',
     ],
   },
   {
@@ -73,7 +74,7 @@ const guideSections = [
     steps: [
       '교회소식 추가에서 날짜와 공개 여부를 확인하고 이미지를 여러 장 선택합니다.',
       '공개를 체크한 항목만 공개 교회소식 페이지에 표시됩니다.',
-      '상단 메뉴에 노출하려면 메뉴 관리에서 교회소식 링크를 직접 추가합니다.',
+      '상단메뉴에 노출하려면 메뉴관리에서 교회소식 링크를 직접 추가합니다.',
     ],
   },
   {
@@ -90,15 +91,15 @@ const guideSections = [
   },
   {
     adminHref: '/manage/offering',
-    adminLabel: '헌금 안내',
+    adminLabel: '헌금안내',
     publicHref: '/offering',
-    publicLabel: '헌금 안내 페이지',
-    summary: '헌금 안내 문구, 계좌 정보, 안내 사항, 성경 구절, 헌금 종류를 수정합니다.',
+    publicLabel: '헌금안내페이지',
+    summary: '헌금안내 문구, 계좌 정보, 안내 사항, 성경 구절, 헌금 종류를 수정합니다.',
     steps: [
       '계좌 정보는 은행명, 계좌번호, 예금주가 모두 있을 때 저장됩니다.',
       '헌금 종류는 제목과 설명이 모두 있을 때 목록에 표시됩니다.',
-      '상단 메뉴에 노출하려면 메뉴 관리에서 헌금 안내 링크를 직접 추가합니다.',
-      '저장 후 헌금 안내 페이지에서 계좌 복사 버튼과 안내 문구를 확인합니다.',
+      '상단메뉴에 노출하려면 메뉴관리에서 헌금안내 링크를 직접 추가합니다.',
+      '저장 후 헌금안내페이지에서 계좌 복사 버튼과 안내 문구를 확인합니다.',
     ],
   },
   {
@@ -115,14 +116,14 @@ const guideSections = [
   },
   {
     adminHref: '/manage/menu',
-    adminLabel: '메뉴 관리',
+    adminLabel: '메뉴관리',
     publicHref: '/',
-    publicLabel: '상단 메뉴',
+    publicLabel: '상단메뉴',
     summary: '공개 사이트 상단 내비게이션의 메뉴명, 순서, 링크를 수정합니다.',
     steps: [
       '빈 메뉴명 행은 저장 시 제외됩니다.',
-      '고정 페이지는 준비된 공개 페이지로 연결하고, 직접 주소는 외부 링크에 사용합니다.',
-      '저장 후 메인 화면 상단 메뉴에서 링크가 원하는 페이지로 이동하는지 확인합니다.',
+      '고정페이지는 준비된 공개페이지로 연결하고, 직접 주소는 외부 링크에 사용합니다.',
+      '저장 후 메인 화면 상단메뉴에서 링크가 원하는 페이지로 이동하는지 확인합니다.',
     ],
   },
 ]
@@ -134,7 +135,7 @@ export default async function ManageGuidePage() {
     <ManageShell active="guide" user={user}>
       <PageHeader
         description="관리 화면과 공개 화면이 어떻게 연결되는지 확인하고 수정 순서를 따릅니다."
-        title="관리 가이드"
+        title="관리가이드"
       />
 
       <section className="manage-guide-layout">

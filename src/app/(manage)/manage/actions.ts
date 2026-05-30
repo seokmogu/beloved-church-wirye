@@ -14,8 +14,11 @@ import { getManagePayload } from '@/lib/manage/payload'
 const publicPaths = [
   '/',
   '/about',
+  '/about/leaders',
   '/announcements',
+  '/newcomer',
   '/church-news',
+  '/church-news/videos',
   '/sermon',
   '/worship',
   '/bulletins',
@@ -97,6 +100,22 @@ export async function saveSermonSettingsAction(formData: FormData) {
 
   revalidateManageAndPublic('/manage/sermons')
   redirect('/manage/sermons')
+}
+
+export async function saveVideoSettingsAction(formData: FormData) {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+
+  await payload.updateGlobal({
+    data: {
+      youtubeChannelUrl: optionalString(formData, 'youtubeChannelUrl'),
+      youtubeVideoCount: clampNumber(formData, 'youtubeVideoCount', 8, 1, 24),
+    } as any,
+    slug: 'site-settings',
+  })
+
+  revalidateManageAndPublic('/manage/videos')
+  redirect('/manage/videos')
 }
 
 export async function deleteSermonAction(formData: FormData) {
@@ -314,6 +333,37 @@ export async function saveWorshipSettingsAction(formData: FormData) {
   redirect('/manage/worship')
 }
 
+export async function saveLeadersSettingsAction(formData: FormData) {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+  const currentSettings = (await payload.findGlobal({
+    slug: 'site-settings',
+    depth: 0,
+  })) as unknown as Record<string, unknown>
+  const pastorPhotoUpload = await uploadMediaFromForm(
+    payload,
+    formData,
+    'pastorPhotoFile',
+    optionalString(formData, 'pastorName') || '담임목사 사진',
+  )
+
+  await payload.updateGlobal({
+    data: {
+      pastorBio: optionalString(formData, 'pastorBio'),
+      pastorName: optionalString(formData, 'pastorName') || '담임목사',
+      pastorPhoto: checkboxValue(formData, 'clearPastorPhoto')
+        ? null
+        : pastorPhotoUpload || mediaRelationValue(currentSettings.pastorPhoto),
+      pastorQuote: optionalString(formData, 'pastorQuote'),
+      pastorTitle: optionalString(formData, 'pastorTitle'),
+    } as any,
+    slug: 'site-settings',
+  })
+
+  revalidateManageAndPublic('/manage/leaders')
+  redirect('/manage/leaders')
+}
+
 export async function saveInstagramSettingsAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
@@ -463,7 +513,10 @@ async function uploadMediaFilesFromForm(
   key: string,
   altPrefix: string,
 ): Promise<Array<{ caption: null; image: number | string }>> {
-  const files = formData.getAll(key).filter(isUploadableFile).filter((file) => file.size > 0)
+  const files = formData
+    .getAll(key)
+    .filter(isUploadableFile)
+    .filter((file) => file.size > 0)
   const uploadedImages: Array<{ caption: null; image: number | string }> = []
   assertUploadStorageConfigured(files.length)
 
@@ -829,25 +882,69 @@ function parseMenuItems(formData: FormData) {
 
   return labels
     .map((label, index) => {
-      const type = types[index] === 'custom' ? 'custom' : 'internal'
-      const link =
-        type === 'custom'
-          ? {
-              label,
-              newTab: formData.get(`menuNewTab-${index}`) === 'on',
-              type,
-              url: urls[index] || '',
-            }
-          : {
-              internalPath: internalPaths[index] || '/',
-              label,
-              newTab: formData.get(`menuNewTab-${index}`) === 'on',
-              type,
-            }
+      const link = buildMenuLink({
+        internalPath: internalPaths[index],
+        label,
+        newTab: formData.get(`menuNewTab-${index}`) === 'on',
+        type: types[index],
+        url: urls[index],
+      })
 
-      return { link }
+      if (!link) return null
+
+      const children = parseChildMenuItems(formData, index)
+      return children.length ? { children, link } : { link }
     })
-    .filter(
-      (item) => item.link.label && ('url' in item.link ? item.link.url : item.link.internalPath),
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+}
+
+function parseChildMenuItems(formData: FormData, parentIndex: number) {
+  const labels = stringValues(formData, `menuChildLabel-${parentIndex}`)
+  const types = stringValues(formData, `menuChildType-${parentIndex}`)
+  const internalPaths = stringValues(formData, `menuChildInternalPath-${parentIndex}`)
+  const urls = stringValues(formData, `menuChildUrl-${parentIndex}`)
+
+  return labels
+    .map((label, childIndex) =>
+      buildMenuLink({
+        internalPath: internalPaths[childIndex],
+        label,
+        newTab: formData.get(`menuChildNewTab-${parentIndex}-${childIndex}`) === 'on',
+        type: types[childIndex],
+        url: urls[childIndex],
+      }),
     )
+    .filter((link): link is NonNullable<typeof link> => Boolean(link))
+    .map((link) => ({ link }))
+}
+
+function buildMenuLink({
+  internalPath,
+  label,
+  newTab,
+  type,
+  url,
+}: {
+  internalPath?: string
+  label: string
+  newTab: boolean
+  type?: string
+  url?: string
+}) {
+  const normalizedLabel = label.trim()
+  if (!normalizedLabel) return null
+
+  if (type === 'custom') {
+    const normalizedUrl = url?.trim() || ''
+    return normalizedUrl
+      ? { label: normalizedLabel, newTab, type: 'custom' as const, url: normalizedUrl }
+      : null
+  }
+
+  return {
+    internalPath: internalPath?.trim() || '/',
+    label: normalizedLabel,
+    newTab,
+    type: 'internal' as const,
+  }
 }

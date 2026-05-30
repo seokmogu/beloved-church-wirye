@@ -41,7 +41,11 @@ export default async function ChurchNewsPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <PageHero label="CHURCH NEWS" title="교회소식" subtitle="사랑하는교회의 주간 소식을 전합니다" />
+      <PageHero
+        label="CHURCH NEWS"
+        title="교회소식"
+        subtitle="사랑하는교회의 주간 소식을 전합니다"
+      />
 
       <div className="container py-12">
         {items.length === 0 ? (
@@ -58,7 +62,7 @@ export default async function ChurchNewsPage() {
               icon="announcement"
               title="등록된 교회소식이 없습니다"
               description="사랑하는교회의 새 소식이 곧 업로드될 예정입니다."
-              ctaText="예배 안내 보기"
+              ctaText="예배안내 보기"
               ctaLink="/worship"
             />
           )

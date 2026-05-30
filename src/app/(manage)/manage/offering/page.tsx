@@ -16,14 +16,14 @@ export default async function ManageOfferingPage() {
   return (
     <ManageShell active="offering" user={user}>
       <PageHeader
-        description="저장하면 공개 헌금 안내 페이지에 반영됩니다. 상단 메뉴 노출은 메뉴 관리에서 직접 설정합니다."
-        title="헌금 안내"
+        description="저장하면 공개 헌금안내페이지에 반영됩니다. 상단메뉴 노출은 메뉴관리에서 직접 설정합니다."
+        title="헌금안내"
       >
         <Link className="manage-button secondary" href="/manage/menu">
-          메뉴 관리
+          메뉴관리
         </Link>
         <Link className="manage-button" href="/offering" target="_blank">
-          공개 페이지 보기
+          공개페이지 보기
         </Link>
       </PageHeader>
       <form action={saveOfferingAction} className="manage-form">
