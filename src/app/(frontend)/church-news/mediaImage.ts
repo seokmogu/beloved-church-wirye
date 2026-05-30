@@ -31,10 +31,14 @@ function getSourceFromUrlAndFilename(
   const staticSrc = filename ? `/media/${encodeURIComponent(filename)}` : undefined
   if (!url && staticSrc) return { src: staticSrc }
 
-  return {
-    fallbackSrc: isPayloadMediaFileUrl(url) ? staticSrc : undefined,
-    src: url || staticSrc || '',
+  if (isPayloadMediaFileUrl(url) && staticSrc) {
+    return {
+      fallbackSrc: url || undefined,
+      src: staticSrc,
+    }
   }
+
+  return { src: url || staticSrc || '' }
 }
 
 function isPayloadMediaFileUrl(url: null | string | undefined): boolean {
