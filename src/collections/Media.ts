@@ -10,6 +10,12 @@ import { fileURLToPath } from 'url'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
+import {
+  CHURCH_NEWS_IMAGE_MAX_HEIGHT,
+  CHURCH_NEWS_IMAGE_MAX_WIDTH,
+  CHURCH_NEWS_WEBP_QUALITY,
+} from '../lib/manage/churchNewsImage'
+import { assertDurableUploadStorageConfigured } from '../lib/manage/uploadStorage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -32,6 +38,17 @@ export const Media: CollectionConfig = {
     delete: authenticated,
     read: anyone,
     update: authenticated,
+  },
+  hooks: {
+    beforeOperation: [
+      ({ args, operation }) => {
+        if ((operation === 'create' || operation === 'update') && args.req.file) {
+          assertDurableUploadStorageConfigured(1)
+        }
+
+        return args
+      },
+    ],
   },
   fields: [
     {
@@ -65,15 +82,23 @@ export const Media: CollectionConfig = {
     staticDir: path.resolve(dirname, '../../public/media'),
     adminThumbnail: 'thumbnail',
     focalPoint: true,
+    resizeOptions: {
+      fit: 'inside',
+      height: CHURCH_NEWS_IMAGE_MAX_HEIGHT,
+      width: CHURCH_NEWS_IMAGE_MAX_WIDTH,
+      withoutEnlargement: true,
+    },
+    formatOptions: {
+      format: 'webp',
+      options: {
+        effort: 4,
+        quality: CHURCH_NEWS_WEBP_QUALITY,
+      },
+    },
     imageSizes: [
       {
         name: 'thumbnail',
         width: 300,
-      },
-      {
-        name: 'square',
-        width: 500,
-        height: 500,
       },
       {
         name: 'small',
@@ -86,10 +111,6 @@ export const Media: CollectionConfig = {
       {
         name: 'large',
         width: 1400,
-      },
-      {
-        name: 'xlarge',
-        width: 1920,
       },
       {
         name: 'og',

@@ -8,8 +8,13 @@ import { redirect } from 'next/navigation'
 import { requireManageActionUser } from '@/lib/manage/auth'
 import { InstagramSyncConfigError, syncInstagramPosts } from '@/lib/instagram'
 import { dateInputToISO } from '@/lib/manage/date'
+import { optimizeUploadImage } from '@/lib/manage/churchNewsImage'
 import { plaintextToLexical } from '@/lib/manage/lexical'
 import { getManagePayload } from '@/lib/manage/payload'
+import {
+  assertDurableUploadStorageConfigured,
+  isUploadStorageNotConfiguredError,
+} from '@/lib/manage/uploadStorage'
 
 const publicPaths = [
   '/',
@@ -512,15 +517,18 @@ async function uploadMediaFromForm(
 
   const file = value as File
   if (!file.size) return null
+  assertDurableUploadStorageConfigured(1)
+  const originalData = Buffer.from(await file.arrayBuffer())
+  const optimized = await optimizeUploadImage(originalData, file, key)
 
   const uploaded = await payload.create({
     collection: 'media',
     data: { alt },
     file: {
-      data: Buffer.from(await file.arrayBuffer()),
-      mimetype: file.type || 'application/octet-stream',
-      name: file.name || `${key}.upload`,
-      size: file.size,
+      data: optimized.data,
+      mimetype: optimized.mimeType,
+      name: optimized.filename,
+      size: optimized.data.length,
     },
   } as any)
 
@@ -538,17 +546,19 @@ async function uploadMediaFilesFromForm(
     .filter(isUploadableFile)
     .filter((file) => file.size > 0)
   const uploadedImages: Array<{ caption: null; image: number | string }> = []
-  assertUploadStorageConfigured(files.length)
+  assertDurableUploadStorageConfigured(files.length)
 
   for (const [index, file] of files.entries()) {
+    const originalData = Buffer.from(await file.arrayBuffer())
+    const optimized = await optimizeUploadImage(originalData, file, `${key}-${index + 1}`)
     const uploaded = await payload.create({
       collection: 'media',
       data: { alt: `${altPrefix} ${index + 1}` },
       file: {
-        data: Buffer.from(await file.arrayBuffer()),
-        mimetype: file.type || 'application/octet-stream',
-        name: file.name || `${key}-${index + 1}.upload`,
-        size: file.size,
+        data: optimized.data,
+        mimetype: optimized.mimeType,
+        name: optimized.filename,
+        size: optimized.data.length,
       },
     } as any)
 
@@ -558,15 +568,8 @@ async function uploadMediaFilesFromForm(
   return uploadedImages
 }
 
-function assertUploadStorageConfigured(fileCount: number) {
-  if (fileCount === 0) return
-  if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN) {
-    throw new Error('UPLOAD_STORAGE_NOT_CONFIGURED')
-  }
-}
-
 function isUploadStorageError(error: unknown): boolean {
-  return error instanceof Error && error.message === 'UPLOAD_STORAGE_NOT_CONFIGURED'
+  return isUploadStorageNotConfiguredError(error)
 }
 
 function churchNewsErrorPath(id: number | undefined, error: 'storage' | 'upload'): string {

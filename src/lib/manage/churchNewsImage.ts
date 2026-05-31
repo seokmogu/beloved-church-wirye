@@ -22,10 +22,18 @@ export async function optimizeChurchNewsImage(
   data: Buffer,
   file: UploadFileLike,
 ): Promise<OptimizedChurchNewsImage> {
+  return optimizeUploadImage(data, file, 'church-news-image')
+}
+
+export async function optimizeUploadImage(
+  data: Buffer,
+  file: UploadFileLike,
+  fallbackName = 'site-image',
+): Promise<OptimizedChurchNewsImage> {
   if (!file.type?.startsWith('image/')) {
     return {
       data,
-      filename: file.name || 'church-news-image.upload',
+      filename: file.name || `${fallbackName}.upload`,
       mimeType: file.type || 'application/octet-stream',
       optimized: false,
     }
@@ -44,18 +52,22 @@ export async function optimizeChurchNewsImage(
 
   return {
     data: optimizedData,
-    filename: toChurchNewsWebpFilename(file.name || ''),
+    filename: toWebpFilename(file.name || '', fallbackName),
     mimeType: 'image/webp',
     optimized: optimizedData.length < data.length,
   }
 }
 
 export function toChurchNewsWebpFilename(filename: string): string {
+  return toWebpFilename(filename, 'church-news-image')
+}
+
+export function toWebpFilename(filename: string, fallbackName = 'site-image'): string {
   const withoutExtension = filename.replace(/\.[^.]+$/, '').trim()
   const safeBase = withoutExtension
     .replace(/[^\p{L}\p{N}._-]+/gu, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')
 
-  return `${safeBase || 'church-news-image'}.webp`
+  return `${safeBase || fallbackName}.webp`
 }

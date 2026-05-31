@@ -110,7 +110,29 @@ function resolveMedia(item: ChurchNewsImage): Media | null {
 }
 
 function imageUrl(media: Media | null): string | null {
-  return media?.sizes?.small?.url || media?.url || null
+  return (
+    mediaSource(media?.sizes?.small?.url, media?.sizes?.small?.filename) ||
+    mediaSource(media?.url, media?.filename)
+  )
+}
+
+function mediaSource(
+  url: null | string | undefined,
+  filename: null | string | undefined,
+): string | null {
+  const staticSrc = filename ? `/media/${encodeURIComponent(filename)}` : null
+  const webpStaticSrc =
+    filename && /\.(?:avif|jpe?g|png|webp)$/i.test(filename)
+      ? `/media/${encodeURIComponent(filename.replace(/\.[^.]+$/, '.webp'))}`
+      : null
+  if (!url) return webpStaticSrc || staticSrc
+  if ((url.startsWith('/api/media/file/') || url.includes('/api/media/file/')) && staticSrc) {
+    return webpStaticSrc || staticSrc
+  }
+  if (webpStaticSrc && (url.startsWith('/media/') || url.startsWith('/api/media/file/'))) {
+    return webpStaticSrc
+  }
+  return url
 }
 
 function mediaRelationId(item: ChurchNewsImage): string {
