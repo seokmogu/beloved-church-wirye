@@ -2,6 +2,9 @@
 
 ## Deployment Policy
 
+- The church project is live in production. Do not merge to `main`, push to any remote branch, or otherwise trigger a production-affecting Git/Vercel flow unless the user explicitly authorizes that exact merge/push/deploy action in the current turn. Previous instructions to merge or push do not carry forward.
+- Before any explicitly authorized push, inspect and verify the Mac Studio source checkout at `/Users/aktn/project/beloved-church-wirye` first. Do not push from another machine or from an unverified local copy.
+- Normal code, content, and configuration changes should use a branch-and-PR workflow: create a new branch from the verified Mac Studio `main`, implement and validate there, then push the branch and open a PR only after current-turn user approval. Do not work directly on `main` for normal changes, and do not merge the PR until the user explicitly approves that merge.
 - Approved Vercel target: `seokmogus-projects/beloved-church-wirye`.
 - Vercel project ID: `prj_rlSbDEXCQBanqqOZorCnYKL6BTnH`.
 - Approved deployment path: GitHub -> Vercel Git integration. Use GitHub CLI to push/PR/merge `seokmogu/beloved-church-wirye`; Vercel should build from Git. Do not use direct `vercel deploy` for normal releases.

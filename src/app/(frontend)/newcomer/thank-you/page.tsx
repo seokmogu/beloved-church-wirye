@@ -1,23 +1,51 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { getPayload } from 'payload'
+
+import config from '@payload-config'
+import type { SiteSetting } from '@/payload-types'
 
 export const metadata: Metadata = {
   title: '등록 완료 | 사랑하는교회',
   description: '새가족등록이 완료되었습니다.',
 }
 
-export default function ThankYouPage() {
+export const dynamic = 'force-dynamic'
+
+async function getSettings(): Promise<SiteSetting | null> {
+  try {
+    const payload = await getPayload({ config })
+    return await payload.findGlobal({ slug: 'site-settings', depth: 1 })
+  } catch (error) {
+    console.error('Failed to fetch site settings:', error)
+    return null
+  }
+}
+
+function formatLocation(settings: SiteSetting | null): string {
+  const address = settings?.address?.trim() || '위례서일로 3길 21-4'
+  const addressDetail = settings?.addressDetail?.trim()
+  return addressDetail ? `${address} (${addressDetail})` : address
+}
+
+export default async function ThankYouPage() {
+  const settings = await getSettings()
+  const services = (settings?.worshipServices ?? []).filter(
+    (service) => service?.name && service?.time,
+  )
+  const primaryServices = services.slice(0, 3)
+
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="max-w-md w-full text-center">
-        {/* 성공 아이콘 */}
+    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+      <div className="w-full max-w-md text-center">
         <div className="mb-6 flex justify-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
             <svg
-              className="w-8 h-8 text-green-600"
+              className="h-8 w-8 text-green-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -29,24 +57,23 @@ export default function ThankYouPage() {
           </div>
         </div>
 
-        {/* 메시지 */}
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+        <h1 className="mb-3 text-2xl font-bold text-foreground md:text-3xl">
           등록이 완료되었습니다
         </h1>
-        <p className="text-muted-foreground mb-6 leading-relaxed">
+        <p className="mb-6 leading-relaxed text-muted-foreground">
           사랑하는교회에 관심을 가져주셔서 감사합니다.
           <br />
           담당자가 곧 연락드려 교회를 따뜻하게 안내해 드리겠습니다.
         </p>
 
-        {/* 안내 카드 */}
-        <div className="bg-primary/5 border border-primary/10 rounded-xl p-6 mb-8 text-left">
-          <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+        <div className="mb-8 rounded-xl border border-primary/10 bg-primary/5 p-6 text-left">
+          <h2 className="mb-3 flex items-center gap-2 font-semibold text-foreground">
             <svg
-              className="w-5 h-5 text-secondary"
+              className="h-5 w-5 text-primary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -58,38 +85,50 @@ export default function ThankYouPage() {
             예배안내
           </h2>
           <ul className="space-y-2 text-sm text-muted-foreground">
+            {primaryServices.length > 0 ? (
+              primaryServices.map((service) => (
+                <li key={`${service.name}-${service.time}`} className="flex items-start gap-2">
+                  <span className="mt-0.5 text-primary">•</span>
+                  <span>
+                    <strong className="text-foreground">{service.name}:</strong> {service.time}
+                  </span>
+                </li>
+              ))
+            ) : (
+              <>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 text-primary">•</span>
+                  <span>
+                    <strong className="text-foreground">주일 예배:</strong> 매주 일요일 오후 12시
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 text-primary">•</span>
+                  <span>
+                    <strong className="text-foreground">금요 예배:</strong> 매주 금요일 오후 8시
+                  </span>
+                </li>
+              </>
+            )}
             <li className="flex items-start gap-2">
-              <span className="text-secondary mt-0.5">•</span>
+              <span className="mt-0.5 text-primary">•</span>
               <span>
-                <strong className="text-foreground">주일 예배:</strong> 매주 일요일 오후 12시
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-secondary mt-0.5">•</span>
-              <span>
-                <strong className="text-foreground">금요 예배:</strong> 매주 금요일 오후 8시
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-secondary mt-0.5">•</span>
-              <span>
-                <strong className="text-foreground">위치:</strong> 서울 송파구 위례성대로 6길 19 2층
+                <strong className="text-foreground">위치:</strong> {formatLocation(settings)}
               </span>
             </li>
           </ul>
         </div>
 
-        {/* 버튼 그룹 */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <Link
             href="/"
-            className="flex-1 bg-primary text-white font-medium py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors text-center"
+            className="flex-1 rounded-lg bg-primary px-6 py-3 text-center font-medium text-white transition-colors hover:bg-primary/90"
           >
             홈으로 돌아가기
           </Link>
           <Link
             href="/worship"
-            className="flex-1 bg-white border-2 border-primary text-primary font-medium py-3 px-6 rounded-lg hover:bg-primary/5 transition-colors text-center"
+            className="flex-1 rounded-lg border-2 border-primary bg-white px-6 py-3 text-center font-medium text-primary transition-colors hover:bg-primary/5"
           >
             예배안내 보기
           </Link>

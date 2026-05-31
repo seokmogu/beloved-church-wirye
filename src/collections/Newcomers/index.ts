@@ -4,7 +4,7 @@ export const Newcomers: CollectionConfig = {
   slug: 'newcomers',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'phone', 'visitDate', 'source', 'createdAt'],
+    defaultColumns: ['name', 'phone', 'visitDate', 'gender', 'source', 'createdAt'],
     description: '새가족 신청과 후속 연락 상태를 관리합니다.',
     group: '4. 새가족/계정',
   },
@@ -38,6 +38,41 @@ export const Newcomers: CollectionConfig = {
       },
     },
     {
+      name: 'gender',
+      type: 'select',
+      required: true,
+      label: '성별',
+      options: [
+        { label: '남', value: 'male' },
+        { label: '여', value: 'female' },
+      ],
+    },
+    {
+      name: 'birthDate',
+      type: 'date',
+      label: '생년월일',
+      admin: {
+        date: {
+          pickerAppearance: 'dayOnly',
+        },
+      },
+    },
+    {
+      name: 'age',
+      type: 'text',
+      label: '나이',
+    },
+    {
+      name: 'address',
+      type: 'text',
+      label: '주소',
+    },
+    {
+      name: 'schoolOrWork',
+      type: 'text',
+      label: '학교/직장',
+    },
+    {
       name: 'email',
       type: 'email',
       label: '이메일',
@@ -49,29 +84,44 @@ export const Newcomers: CollectionConfig = {
       name: 'visitDate',
       type: 'date',
       required: true,
-      label: '방문 예정일 또는 첫 방문일',
+      label: '등록신청일',
       defaultValue: () => new Date().toISOString(),
       admin: {
         date: {
           pickerAppearance: 'dayOnly',
         },
-        description: '주일 예배 또는 금요 예배일을 선택해 주세요',
       },
     },
     {
       name: 'source',
       type: 'select',
       required: true,
-      label: '교회를 알게 된 경로',
+      label: '대표 방문경로',
       options: [
-        { label: '지인 소개', value: 'referral' },
+        { label: '전도/소개', value: 'referral' },
         { label: '인터넷 검색', value: 'search' },
-        { label: 'SNS (인스타그램, 페이스북 등)', value: 'sns' },
+        { label: 'SNS', value: 'sns' },
         { label: '유튜브', value: 'youtube' },
         { label: '지나가다가', value: 'passingBy' },
         { label: '기타', value: 'other' },
       ],
       defaultValue: 'referral',
+    },
+    {
+      name: 'sourceChannels',
+      type: 'select',
+      label: '방문경로',
+      hasMany: true,
+      options: [
+        { label: '전도/소개', value: 'referral' },
+        { label: 'SNS', value: 'sns' },
+        { label: '유튜브', value: 'youtube' },
+        { label: '인터넷 검색', value: 'search' },
+        { label: '기타', value: 'other' },
+      ],
+      admin: {
+        description: '등록카드 체크 항목입니다. 여러 개 선택할 수 있습니다.',
+      },
     },
     {
       name: 'sourceDetail',
@@ -81,6 +131,47 @@ export const Newcomers: CollectionConfig = {
         description: '예: 친구 이름, 검색 키워드, SNS 계정 등 (선택 사항)',
         rows: 2,
       },
+    },
+    {
+      name: 'faithExperience',
+      type: 'select',
+      label: '신앙경력',
+      options: [
+        { label: '교회가 처음', value: 'firstTime' },
+        { label: '오래 쉬었어요', value: 'returning' },
+        { label: '교회 이동', value: 'transfer' },
+      ],
+    },
+    {
+      name: 'previousChurch',
+      type: 'text',
+      label: '기존교회',
+    },
+    {
+      name: 'mbti',
+      type: 'text',
+      label: 'MBTI',
+    },
+    {
+      name: 'baptismStatus',
+      type: 'select',
+      label: '세례',
+      options: [
+        { label: '받음', value: 'baptized' },
+        { label: '안 받음', value: 'notBaptized' },
+      ],
+    },
+    {
+      name: 'churchRoles',
+      type: 'select',
+      label: '직분',
+      hasMany: true,
+      options: [
+        { label: '집사', value: 'deacon' },
+        { label: '권사', value: 'kwonsa' },
+        { label: '장로', value: 'elder' },
+        { label: '목회자', value: 'pastor' },
+      ],
     },
     {
       name: 'interests',
@@ -114,10 +205,36 @@ export const Newcomers: CollectionConfig = {
       type: 'checkbox',
       required: true,
       defaultValue: false,
-      label: '개인정보 수집 및 이용 동의',
+      label: '개인정보 사용 동의',
       admin: {
-        description:
-          '입력하신 정보는 새가족 환영 및 교회 안내 목적으로만 사용되며, 본인의 동의 없이 제3자에게 제공되지 않습니다.',
+        description: '등록카드에 기재된 개인정보는 교회목양 사역에만 사용됩니다.',
+      },
+    },
+    {
+      name: 'groupChatConsent',
+      type: 'checkbox',
+      required: true,
+      defaultValue: false,
+      label: '단체카톡방 초대 동의',
+      admin: {
+        description: '교회 공지사항 및 긴급 중보기도 전달 목적',
+      },
+    },
+    {
+      name: 'conductConsent',
+      type: 'checkbox',
+      required: true,
+      defaultValue: false,
+      label: '금품 거래 및 사업 목적 사적 연락 금지 동의',
+    },
+    {
+      name: 'faithCommunityConsent',
+      type: 'checkbox',
+      required: true,
+      defaultValue: false,
+      label: '비신앙적/이단적 행위 금지 동의',
+      admin: {
+        description: '음주, 도박, 외부성경공부 권유 등',
       },
     },
     {

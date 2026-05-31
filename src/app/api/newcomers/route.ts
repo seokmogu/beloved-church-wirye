@@ -7,11 +7,26 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     // 필수 필드 검증
-    if (!body.name || !body.phone || !body.visitDate || !body.source || !body.privacyConsent) {
-      return NextResponse.json(
-        { error: '필수 항목을 모두 입력해 주세요.' },
-        { status: 400 },
-      )
+    const sourceChannels = Array.isArray(body.sourceChannels) ? body.sourceChannels : []
+    const churchRoles = Array.isArray(body.churchRoles) ? body.churchRoles : []
+
+    if (
+      !body.name ||
+      !body.phone ||
+      !body.visitDate ||
+      !body.gender ||
+      sourceChannels.length === 0
+    ) {
+      return NextResponse.json({ error: '필수 항목을 모두 입력해 주세요.' }, { status: 400 })
+    }
+
+    if (
+      !body.privacyConsent ||
+      !body.groupChatConsent ||
+      !body.conductConsent ||
+      !body.faithCommunityConsent
+    ) {
+      return NextResponse.json({ error: '동의/서약 항목을 모두 확인해 주세요.' }, { status: 400 })
     }
 
     // Payload CMS를 통해 새가족 정보 저장
@@ -22,9 +37,23 @@ export async function POST(request: NextRequest) {
       data: {
         name: body.name,
         phone: body.phone,
+        address: body.address || undefined,
+        age: body.age || undefined,
+        baptismStatus: body.baptismStatus || undefined,
+        birthDate: body.birthDate || undefined,
+        churchRoles,
+        conductConsent: body.conductConsent,
         email: body.email || undefined,
+        faithCommunityConsent: body.faithCommunityConsent,
+        faithExperience: body.faithExperience || undefined,
+        gender: body.gender,
+        groupChatConsent: body.groupChatConsent,
         visitDate: body.visitDate,
-        source: body.source,
+        mbti: body.mbti || undefined,
+        previousChurch: body.previousChurch || undefined,
+        schoolOrWork: body.schoolOrWork || undefined,
+        source: body.source || sourceChannels[0],
+        sourceChannels,
         sourceDetail: body.sourceDetail || undefined,
         interests: body.interests || [],
         message: body.message || undefined,
@@ -35,10 +64,7 @@ export async function POST(request: NextRequest) {
       overrideAccess: false,
     })
 
-    return NextResponse.json(
-      { success: true, id: newcomer.id },
-      { status: 201 },
-    )
+    return NextResponse.json({ success: true, id: newcomer.id }, { status: 201 })
   } catch (error) {
     console.error('Newcomer registration error:', error)
     return NextResponse.json(
