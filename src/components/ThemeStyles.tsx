@@ -65,6 +65,37 @@ function cssUrl(url: string | null): string {
   return `url(${JSON.stringify(url)})`
 }
 
+function getRelativeLuminance(value: string): number {
+  const [red, green, blue] = hexToRgb(value).map((channel) => {
+    const normalized = channel / 255
+    return normalized <= 0.03928 ? normalized / 12.92 : Math.pow((normalized + 0.055) / 1.055, 2.4)
+  })
+
+  return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+}
+
+function getContrastRatio(foreground: string, background: string): number {
+  const foregroundLuminance = getRelativeLuminance(foreground)
+  const backgroundLuminance = getRelativeLuminance(background)
+  const light = Math.max(foregroundLuminance, backgroundLuminance)
+  const dark = Math.min(foregroundLuminance, backgroundLuminance)
+
+  return (light + 0.05) / (dark + 0.05)
+}
+
+function pickReadableColor(background: string, candidates: string[], minimumRatio = 4.5): string {
+  const scored = candidates.map((color) => ({
+    color,
+    ratio: getContrastRatio(color, background),
+  }))
+
+  return (
+    scored.find((candidate) => candidate.ratio >= minimumRatio)?.color ??
+    scored.sort((a, b) => b.ratio - a.ratio)[0]?.color ??
+    candidates[0]
+  )
+}
+
 function buildThemeCSS(settings: SiteSetting | null): string {
   const design = settings?.design
   const primary = normalizeHex(design?.primaryColor, defaultTheme.primaryColor)
@@ -126,6 +157,22 @@ function buildThemeCSS(settings: SiteSetting | null): string {
     80,
   )
   const bodyFontSize = normalizeNumber(design?.bodyFontSize, defaultTheme.bodyFontSize, 13, 24)
+  const sectionAccentText = pickReadableColor(sectionBackground, [
+    secondary,
+    primary,
+    text,
+    '#ffffff',
+    '#171a17',
+  ])
+  const sectionMutedText = pickReadableColor(sectionBackground, [
+    mutedText,
+    text,
+    primary,
+    '#ffffff',
+    '#171a17',
+  ])
+  const cardAccentText = pickReadableColor(card, [secondary, primary, text, '#ffffff', '#171a17'])
+  const plainAccentText = pickReadableColor('#ffffff', [secondary, primary, text, '#171a17'])
 
   return `
 :root {
@@ -149,6 +196,10 @@ function buildThemeCSS(settings: SiteSetting | null): string {
   --church-primary-light: ${primaryLight};
   --church-secondary-dark: color-mix(in srgb, ${secondary} 82%, black);
   --church-section-bg: ${sectionBackground};
+  --church-section-accent-text: ${sectionAccentText};
+  --church-section-muted-text: ${sectionMutedText};
+  --church-card-accent-text: ${cardAccentText};
+  --church-plain-accent-text: ${plainAccentText};
   --church-dark-section-bg: ${darkSectionBackground};
   --church-header-bg: ${headerBackground};
   --church-footer-bg: ${footerBackground};

@@ -26,7 +26,7 @@ export function YouTubeSection({ channelUrl, description, eyebrow, title, videos
       <div className="container">
         <div className="mb-10 flex items-end justify-between gap-6">
           <div>
-            <p className="mb-2 text-sm font-semibold uppercase text-secondary">
+            <p className="church-plain-accent mb-2 text-sm font-semibold uppercase">
               {eyebrow ?? 'Sermon'}
             </p>
             <h2 className="church-section-heading font-bold text-foreground">

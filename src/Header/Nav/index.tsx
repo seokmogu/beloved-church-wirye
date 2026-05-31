@@ -33,7 +33,7 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
               ) : null}
             </Link>
             {hasChildren ? (
-              <div className="invisible absolute left-0 top-full z-50 min-w-48 pt-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+              <div className="invisible absolute right-0 top-full z-50 min-w-48 pt-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
                 <div
                   className="overflow-hidden rounded-md border border-white/12 bg-[#173427] py-2 shadow-xl shadow-black/20"
                   role="menu"

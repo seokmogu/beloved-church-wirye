@@ -31,14 +31,14 @@ export function AnnouncementsSection({ announcements, description, eyebrow, titl
       <div className="container">
         <div className="mb-10 flex items-end justify-between gap-6">
           <div>
-            <p className="mb-2 text-sm font-semibold uppercase text-secondary">
+            <p className="church-surface-accent mb-2 text-sm font-semibold uppercase">
               {eyebrow ?? 'Notice'}
             </p>
             <h2 className="church-section-heading font-bold text-foreground">
               {title ?? '교회 소식'}
             </h2>
             {description && (
-              <p className="church-body-copy mt-4 max-w-2xl leading-relaxed text-muted-foreground">
+              <p className="church-body-copy church-surface-muted mt-4 max-w-2xl leading-relaxed">
                 {description}
               </p>
             )}
@@ -64,7 +64,7 @@ export function AnnouncementsSection({ announcements, description, eyebrow, titl
                     {item.title}
                   </h3>
                   {item.isPinned && (
-                    <span className="inline-flex shrink-0 items-center rounded-md bg-secondary/10 px-2.5 py-1 text-xs font-medium text-secondary">
+                    <span className="church-card-accent-badge inline-flex shrink-0 items-center rounded-md px-2.5 py-1 text-xs font-medium">
                       고정
                     </span>
                   )}

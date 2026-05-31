@@ -126,6 +126,10 @@
   --success: oklch(71% 0.111 151deg);
   --warning: oklch(84.5% 0.112 88deg);
   --error: oklch(67% 0.18 28deg);
+  --church-section-accent-text: var(--primary);
+  --church-section-muted-text: var(--muted-foreground);
+  --church-card-accent-text: var(--primary);
+  --church-plain-accent-text: var(--primary);
 }
 
 @theme inline {
@@ -184,6 +188,31 @@
 
 .church-section-surface {
   background-color: var(--church-section-bg);
+}
+
+.church-surface-accent {
+  color: var(--church-section-accent-text);
+}
+
+.church-surface-muted {
+  color: var(--church-section-muted-text);
+}
+
+.church-surface-accent-border {
+  border-color: color-mix(in srgb, var(--church-section-accent-text) 64%, transparent);
+}
+
+.church-card-accent {
+  color: var(--church-card-accent-text);
+}
+
+.church-plain-accent {
+  color: var(--church-plain-accent-text);
+}
+
+.church-card-accent-badge {
+  color: var(--church-card-accent-text);
+  background-color: color-mix(in srgb, var(--church-card-accent-text) 10%, transparent);
 }
 
 .church-card-surface {

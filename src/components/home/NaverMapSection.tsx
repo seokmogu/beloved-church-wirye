@@ -93,9 +93,9 @@ export function NaverMapSection({
         <div className="container">
           <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
             <div>
-              <p className="mb-2 text-sm font-semibold uppercase text-secondary">{eyebrow ?? 'Location'}</p>
+              <p className="church-surface-accent mb-2 text-sm font-semibold uppercase">{eyebrow ?? 'Location'}</p>
               <h2 className="church-section-heading font-bold text-foreground">{title ?? '오시는 길'}</h2>
-              {description && <p className="church-body-copy mt-4 max-w-xl leading-relaxed text-muted-foreground">{description}</p>}
+              {description && <p className="church-body-copy church-surface-muted mt-4 max-w-xl leading-relaxed">{description}</p>}
             </div>
 
             <div className="rounded-lg border border-border bg-card p-6 shadow-[0_18px_60px_rgba(20,42,33,0.08)]">
@@ -151,9 +151,9 @@ export function NaverMapSection({
       <section id="map" className="church-section-surface py-20 md:py-24">
         <div className="container">
           <div className="mb-10">
-            <p className="mb-2 text-sm font-semibold uppercase text-secondary">{eyebrow ?? 'Location'}</p>
+            <p className="church-surface-accent mb-2 text-sm font-semibold uppercase">{eyebrow ?? 'Location'}</p>
             <h2 className="church-section-heading font-bold text-foreground">{title ?? '오시는 길'}</h2>
-            {description && <p className="church-body-copy mt-4 max-w-2xl leading-relaxed text-muted-foreground">{description}</p>}
+            {description && <p className="church-body-copy church-surface-muted mt-4 max-w-2xl leading-relaxed">{description}</p>}
           </div>
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
@@ -169,7 +169,7 @@ export function NaverMapSection({
               <div>
                 <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
                   <svg
-                    className="h-5 w-5 text-secondary"
+                    className="church-card-accent h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -203,7 +203,7 @@ export function NaverMapSection({
               <div>
                 <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
                   <svg
-                    className="h-5 w-5 text-secondary"
+                    className="church-card-accent h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -228,7 +228,7 @@ export function NaverMapSection({
               <div>
                 <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
                   <svg
-                    className="h-5 w-5 text-secondary"
+                    className="church-card-accent h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
