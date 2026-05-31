@@ -17,9 +17,9 @@ export default function NewcomerPage() {
           </p>
           <h1 className="text-3xl md:text-4xl font-bold text-white">새가족등록</h1>
           <p className="text-white/60 mt-2 max-w-2xl mx-auto">
-            사랑하는교회에 오신 것을 진심으로 환영합니다.
+            WELCOME! 사랑하는교회에 오신 당신을 환영합니다.
             <br />
-            간단한 정보를 남겨주시면 더 따뜻하게 맞이하겠습니다.
+            등록카드 내용을 남겨주시면 목양 사역 안에서 따뜻하게 안내하겠습니다.
           </p>
         </div>
       </div>

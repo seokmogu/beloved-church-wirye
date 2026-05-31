@@ -853,19 +853,30 @@ export interface Newcomer {
    * 예: 010-1234-5678
    */
   phone: string;
+  gender: 'male' | 'female';
+  birthDate?: string | null;
+  age?: string | null;
+  address?: string | null;
+  schoolOrWork?: string | null;
   /**
    * 선택 사항
    */
   email?: string | null;
-  /**
-   * 주일 예배 또는 금요 예배일을 선택해 주세요
-   */
   visitDate: string;
   source: 'referral' | 'search' | 'sns' | 'youtube' | 'passingBy' | 'other';
+  /**
+   * 등록카드 체크 항목입니다. 여러 개 선택할 수 있습니다.
+   */
+  sourceChannels?: ('referral' | 'sns' | 'youtube' | 'search' | 'other')[] | null;
   /**
    * 예: 친구 이름, 검색 키워드, SNS 계정 등 (선택 사항)
    */
   sourceDetail?: string | null;
+  faithExperience?: ('firstTime' | 'returning' | 'transfer') | null;
+  previousChurch?: string | null;
+  mbti?: string | null;
+  baptismStatus?: ('baptized' | 'notBaptized') | null;
+  churchRoles?: ('deacon' | 'kwonsa' | 'elder' | 'pastor')[] | null;
   /**
    * 여러 개 선택 가능 (선택 사항)
    */
@@ -875,9 +886,18 @@ export interface Newcomer {
    */
   message?: string | null;
   /**
-   * 입력하신 정보는 새가족 환영 및 교회 안내 목적으로만 사용되며, 본인의 동의 없이 제3자에게 제공되지 않습니다.
+   * 등록카드에 기재된 개인정보는 교회목양 사역에만 사용됩니다.
    */
   privacyConsent: boolean;
+  /**
+   * 교회 공지사항 및 긴급 중보기도 전달 목적
+   */
+  groupChatConsent: boolean;
+  conductConsent: boolean;
+  /**
+   * 음주, 도박, 외부성경공부 권유 등
+   */
+  faithCommunityConsent: boolean;
   /**
    * 관리자만 수정 가능
    */
@@ -1651,13 +1671,27 @@ export interface PostsSelect<T extends boolean = true> {
 export interface NewcomersSelect<T extends boolean = true> {
   name?: T;
   phone?: T;
+  gender?: T;
+  birthDate?: T;
+  age?: T;
+  address?: T;
+  schoolOrWork?: T;
   email?: T;
   visitDate?: T;
   source?: T;
+  sourceChannels?: T;
   sourceDetail?: T;
+  faithExperience?: T;
+  previousChurch?: T;
+  mbti?: T;
+  baptismStatus?: T;
+  churchRoles?: T;
   interests?: T;
   message?: T;
   privacyConsent?: T;
+  groupChatConsent?: T;
+  conductConsent?: T;
+  faithCommunityConsent?: T;
   status?: T;
   notes?: T;
   updatedAt?: T;
