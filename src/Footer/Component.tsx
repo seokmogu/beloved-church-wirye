@@ -4,6 +4,7 @@ import type { Footer as FooterType, SiteSetting } from '@/payload-types'
 import { Logo } from '@/components/Logo/Logo'
 import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
 import { getCachedGlobal } from '@/utilities/getGlobals'
+import { hasPayloadRuntimeConfig } from '@/utilities/payloadRuntime'
 import { resolveCMSLink } from '@/utilities/resolveCMSLink'
 
 function lines(value?: string | null): string[] {
@@ -17,13 +18,15 @@ export async function Footer() {
   let footer: FooterType = { id: 0, navItems: [] }
   let settings: SiteSetting | null = null
 
-  try {
-    ;[footer, settings] = await Promise.all([
-      getCachedGlobal('footer', 1)() as Promise<FooterType>,
-      getCachedGlobal('site-settings', 1)() as Promise<SiteSetting>,
-    ])
-  } catch (error) {
-    console.error('Failed to fetch footer globals:', error)
+  if (hasPayloadRuntimeConfig()) {
+    try {
+      ;[footer, settings] = await Promise.all([
+        getCachedGlobal('footer', 1)() as Promise<FooterType>,
+        getCachedGlobal('site-settings', 1)() as Promise<SiteSetting>,
+      ])
+    } catch (error) {
+      console.error('Failed to fetch footer globals:', error)
+    }
   }
 
   const logo = settings?.logo

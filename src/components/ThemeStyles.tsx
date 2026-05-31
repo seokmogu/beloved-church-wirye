@@ -1,5 +1,6 @@
 import { getCachedGlobal } from '@/utilities/getGlobals'
 import type { Media, SiteSetting } from '@/payload-types'
+import { hasPayloadRuntimeConfig } from '@/utilities/payloadRuntime'
 
 const defaultTheme = {
   backgroundColor: '#f7f8f6',
@@ -231,10 +232,12 @@ body {
 export async function ThemeStyles() {
   let settings: SiteSetting | null = null
 
-  try {
-    settings = (await getCachedGlobal('site-settings', 1)()) as SiteSetting
-  } catch (error) {
-    console.error('Failed to fetch theme settings:', error)
+  if (hasPayloadRuntimeConfig()) {
+    try {
+      settings = (await getCachedGlobal('site-settings', 1)()) as SiteSetting
+    } catch (error) {
+      console.error('Failed to fetch theme settings:', error)
+    }
   }
 
   return <style id="church-theme" dangerouslySetInnerHTML={{ __html: buildThemeCSS(settings) }} />
