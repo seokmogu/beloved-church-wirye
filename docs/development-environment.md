@@ -5,7 +5,7 @@ The live church site must not be used for destructive admin QA. Local and stagin
 ## Targets
 
 - Production: GitHub `main` -> Vercel `seokmogus-projects/beloved-church-wirye`.
-- Development/Staging: non-`main` GitHub branches -> Vercel `seokmogus-projects/beloved-church-wirye-dev` Preview deployments.
+- Development/Staging: non-`main` GitHub branches -> Vercel `seokmogus-projects/beloved-church-wirye-dev` deployments.
 - Development database/auth: Supabase `beloved-church-wirye-dev` (`tnvhgvxekvwqgdjufnwe`).
 - Development uploads: Vercel Blob store `beloved-church-wirye-dev-blob` (`store_PsGvFSpiCzfBPzlT`).
 - `.env.production` in git is limited to non-secret domain defaults. Project-bound production values must be configured in Vercel Project Settings, not committed.
@@ -20,7 +20,8 @@ Read-only check on 2026-06-01:
 - Production `BLOB_READ_WRITE_TOKEN` is scoped to Production only.
 - Production Vercel Ignored Build Step is set to `if [ "$VERCEL_GIT_COMMIT_REF" = "main" ]; then exit 1; else exit 0; fi`. Vercel continues the build when this command exits `1`, so only `main` builds on the production project.
 - Development project: `seokmogus-projects/beloved-church-wirye-dev` (`prj_WP15MtYl2epk2Y7gQa158GWjoeTj`), Node.js `22.x`, framework `nextjs`.
-- Development/Preview env values are configured for the dev Supabase project, dev Blob store, Payload runtime, manage admin allowlist, and explicit `PAYLOAD_MIGRATE=true`.
+- Development/Preview/Production env values on the dev project are configured for the dev Supabase project, dev Blob store, Payload runtime, manage admin allowlist, and explicit `PAYLOAD_MIGRATE=true`.
+- The dev project's Production env is intentionally not live data. It exists because Git deployments on the separate `beloved-church-wirye-dev` project can run with Vercel target `production`, which only affects the dev project aliases.
 - Dev Vercel Git integration is connected to `seokmogu/beloved-church-wirye`.
 - Dev Vercel Ignored Build Step is set to `if [ "$VERCEL_GIT_COMMIT_REF" = "main" ]; then exit 0; else exit 1; fi`. Vercel skips the build when this command exits `0`, so `main` does not build on the dev project; all non-`main` branches can build there.
 
@@ -59,12 +60,12 @@ Use this as the current source of truth:
 | Git action | Vercel project | Vercel environment | Result |
 | --- | --- | --- | --- |
 | Push or merge to `main` | `beloved-church-wirye` | Production | Updates the live domains `https://belovedchurch.co.kr/` and `https://www.belovedchurch.co.kr/` after the Git deployment succeeds. |
-| Push to `develop` | `beloved-church-wirye-dev` | Preview | Creates/updates the shared dev preview using the dev Supabase and dev Blob resources. |
-| Push to `feature/*`, `fix/*`, or `chore/*` | `beloved-church-wirye-dev` | Preview | Creates an isolated preview for QA before PR review. |
+| Push to `develop` | `beloved-church-wirye-dev` | Dev project deployment | Creates/updates the shared dev URL using the dev Supabase and dev Blob resources. |
+| Push to `feature/*`, `fix/*`, or `chore/*` | `beloved-church-wirye-dev` | Dev project deployment | Creates a branch URL for QA before PR review. |
 | Push to `main` | `beloved-church-wirye-dev` | Skipped by Ignored Build Step | Does not build the dev project. |
 | Push to non-`main` | `beloved-church-wirye` | Skipped by Ignored Build Step | Does not build the production project. |
 
-The production Vercel project still uses `main` as its production branch and is intentionally configured to build only `main`. The dev project is intentionally configured to build only non-`main` branches. This keeps `main` merges live-only and development branches dev-only.
+The production Vercel project still uses `main` as its production branch and is intentionally configured to build only `main`. The dev project is intentionally configured to build only non-`main` branches. This keeps `main` merges live-only and development branches dev-only. If Vercel labels a dev project branch deployment as `production`, read that as "production target inside the dev project," not as the public church live site.
 
 Recommended daily flow:
 

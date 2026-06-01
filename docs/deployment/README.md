@@ -34,8 +34,8 @@ The live site must remain tied to the production Vercel project only. The dev pr
 | GitHub branch/action | Vercel project | Expected deployment |
 | --- | --- | --- |
 | `main` push or merge | `seokmogus-projects/beloved-church-wirye` | Production deployment. This is the only path that updates `https://belovedchurch.co.kr/` and `https://www.belovedchurch.co.kr/`. |
-| `develop` push | `seokmogus-projects/beloved-church-wirye-dev` | Preview deployment for shared dev QA. |
-| `feature/*`, `fix/*`, `chore/*` push | `seokmogus-projects/beloved-church-wirye-dev` | Preview deployment for task-level QA. |
+| `develop` push | `seokmogus-projects/beloved-church-wirye-dev` | Dev project deployment for shared dev QA. |
+| `feature/*`, `fix/*`, `chore/*` push | `seokmogus-projects/beloved-church-wirye-dev` | Dev project branch deployment for task-level QA. |
 | Non-`main` push | `seokmogus-projects/beloved-church-wirye` | Skipped. The production project has an Ignored Build Step that exits `0` for non-`main` branches. |
 | `main` push | `seokmogus-projects/beloved-church-wirye-dev` | Skipped. The dev project has an Ignored Build Step that exits `0` for `main`. |
 
@@ -78,7 +78,8 @@ Operational rules:
 - Dashboard: `https://vercel.com/seokmogus-projects/beloved-church-wirye-dev`
 - Git repository: `seokmogu/beloved-church-wirye`
 - Ignored Build Step: skip `main`, build non-`main` branches.
-- Environment: Preview and Development variables point to the dev Supabase and dev Blob resources.
+- Environment: Production, Preview, and Development variables point to the dev Supabase and dev Blob resources.
+- Note: Vercel may label a Git deployment on this separate dev project as target `production`. That target belongs only to the dev project aliases such as `beloved-church-wirye-dev-seokmogus-projects.vercel.app`; it must not use production Supabase or production Blob values.
 
 Required Vercel access:
 

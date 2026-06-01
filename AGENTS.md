@@ -17,7 +17,7 @@
   - Non-`main` branches are for development/staging validation. Use `develop` for the shared dev line and short-lived `feature/*`, `fix/*`, or `chore/*` branches for individual work.
   - The production Vercel project has an Ignored Build Step that builds only `main`, so development branches do not build on the production project.
   - The dev Vercel project `seokmogus-projects/beloved-church-wirye-dev` is connected to the same GitHub repo and has an Ignored Build Step that skips `main`, so `main` merges do not build the dev project.
-  - To send work to dev, push a non-`main` branch or open a PR; Vercel should create a Preview deployment on the dev project with dev Supabase/Blob environment variables.
+  - To send work to dev, push a non-`main` branch or open a PR; Vercel should deploy the dev project with dev Supabase/Blob environment variables. The dev project may label these Git deployments as its own `production` target, but that target belongs only to `beloved-church-wirye-dev` and must still point to dev resources.
   - To send work live, merge an approved PR into `main`; Vercel should create a Production deployment only on the production project and assign the live domains.
 - Approved Supabase target: `beloved-church-wirye` (`fpiqbslkwcyqpbrnbkhr`) under the church project's Supabase account. This is separate from `corp-screening` Supabase access.
 - Development/staging must use separate Vercel, Supabase, and Blob resources before destructive admin QA. Local dev must not connect to the production Supabase project `fpiqbslkwcyqpbrnbkhr` or production Blob store unless the user explicitly approves a read-only diagnostic.
