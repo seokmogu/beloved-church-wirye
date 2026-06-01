@@ -5,8 +5,35 @@ export interface YouTubeVideo {
   publishedAt: string
 }
 
+export const YOUTUBE_CACHE_TAG = 'youtube-videos'
+
 const YOUTUBE_REVALIDATE_SECONDS = 43200
 const CHANNEL_ID_SCAN_LIMIT = 512 * 1024
+
+type YouTubeFetchOptions = {
+  cache?: RequestCache
+  revalidateSeconds?: number
+}
+
+type NextFetchInit = RequestInit & {
+  next?: {
+    revalidate?: number
+    tags?: string[]
+  }
+}
+
+function getYouTubeFetchInit(options?: YouTubeFetchOptions): NextFetchInit {
+  if (options?.cache === 'no-store') {
+    return { cache: 'no-store' }
+  }
+
+  return {
+    next: {
+      revalidate: options?.revalidateSeconds ?? YOUTUBE_REVALIDATE_SECONDS,
+      tags: [YOUTUBE_CACHE_TAG],
+    },
+  }
+}
 
 function parseChannelId(source: string): string | null {
   const patterns = [
@@ -35,7 +62,10 @@ function normalizeYouTubeURL(url: string): string | null {
   }
 }
 
-async function resolveChannelIdFromURL(channelUrl?: string | null): Promise<string | null> {
+async function resolveChannelIdFromURL(
+  channelUrl?: string | null,
+  options?: YouTubeFetchOptions,
+): Promise<string | null> {
   const rawURL = channelUrl?.trim()
   if (!rawURL) return null
 
@@ -45,7 +75,7 @@ async function resolveChannelIdFromURL(channelUrl?: string | null): Promise<stri
   const normalizedURL = normalizeYouTubeURL(rawURL)
   if (!normalizedURL) return null
 
-  const res = await fetch(normalizedURL, { next: { revalidate: YOUTUBE_REVALIDATE_SECONDS } })
+  const res = await fetch(normalizedURL, getYouTubeFetchInit(options))
   if (!res.ok) return null
 
   return parseChannelId(await readResponsePrefix(res))
@@ -74,9 +104,13 @@ async function readResponsePrefix(res: Response): Promise<string> {
   return text
 }
 
-async function fetchVideosByChannelId(count: number, channelId: string): Promise<YouTubeVideo[] | null> {
+async function fetchVideosByChannelId(
+  count: number,
+  channelId: string,
+  options?: YouTubeFetchOptions,
+): Promise<YouTubeVideo[] | null> {
   const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
-  const res = await fetch(rssUrl, { next: { revalidate: YOUTUBE_REVALIDATE_SECONDS } })
+  const res = await fetch(rssUrl, getYouTubeFetchInit(options))
   if (!res.ok) return null
 
   const xml = await res.text()
@@ -96,24 +130,26 @@ async function fetchVideosByChannelId(count: number, channelId: string): Promise
 
 /**
  * Fetch latest videos from the church YouTube channel via RSS feed.
- * No API key required. Results cached and revalidated every 12 hours.
+ * No API key required. Results cached and revalidated every 12 hours unless a cron refresh
+ * invalidates the YouTube cache tag during the Sunday publishing window.
  */
 export async function fetchLatestVideos(
   count = 4,
   channelId?: string | null,
   channelUrl?: string | null,
+  options?: YouTubeFetchOptions,
 ): Promise<YouTubeVideo[]> {
   try {
     const explicitChannelId = parseChannelId(channelId?.trim() ?? '')
     if (explicitChannelId) {
-      const videos = await fetchVideosByChannelId(count, explicitChannelId)
+      const videos = await fetchVideosByChannelId(count, explicitChannelId, options)
       if (videos) return videos
     }
 
-    const resolvedChannelId = await resolveChannelIdFromURL(channelUrl)
+    const resolvedChannelId = await resolveChannelIdFromURL(channelUrl, options)
     if (!resolvedChannelId || resolvedChannelId === explicitChannelId) return []
 
-    return (await fetchVideosByChannelId(count, resolvedChannelId)) ?? []
+    return (await fetchVideosByChannelId(count, resolvedChannelId, options)) ?? []
   } catch (error) {
     console.error('Failed to fetch YouTube videos:', error)
     return []
