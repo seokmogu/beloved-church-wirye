@@ -1,8 +1,11 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { hasPayloadRuntimeConfig } from '@/utilities/payloadRuntime'
 
 export async function SpecialBanner() {
   let data
+
+  if (!hasPayloadRuntimeConfig()) return null
 
   try {
     const payload = await getPayload({ config })
@@ -35,9 +38,7 @@ export async function SpecialBanner() {
           📢
         </span>
         <span className="font-bold text-base sm:text-lg tracking-tight">{data.text}</span>
-        {data.subtext && (
-          <span className="text-sm sm:text-base opacity-90">{data.subtext}</span>
-        )}
+        {data.subtext && <span className="text-sm sm:text-base opacity-90">{data.subtext}</span>}
       </div>
     </div>
   )

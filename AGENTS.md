@@ -3,15 +3,24 @@
 ## Deployment Policy
 
 - The church project is live in production. Do not merge to `main`, push to any remote branch, or otherwise trigger a production-affecting Git/Vercel flow unless the user explicitly authorizes that exact merge/push/deploy action in the current turn. Previous instructions to merge or push do not carry forward.
-- Before any explicitly authorized push, inspect and verify the Mac Studio source checkout at `/Users/aktn/project/beloved-church-wirye` first. Do not push from another machine or from an unverified local copy.
-- Normal code, content, and configuration changes should use a branch-and-PR workflow: create a new branch from the verified Mac Studio `main`, implement and validate there, then push the branch and open a PR only after current-turn user approval. Do not work directly on `main` for normal changes, and do not merge the PR until the user explicitly approves that merge.
+- Source-of-truth is now the MacBook Air checkout at `/Users/seokmogu/project/beloved-church-wirye`; the previous Mac Studio checkout is secondary/historical unless the user explicitly asks for a Mac Studio cross-check.
+- Before any explicitly authorized push, inspect and verify the MacBook Air source checkout first. Do not push from another machine or from an unverified copy.
+- Normal code, content, and configuration changes should use a branch-and-PR workflow: create a new branch from the verified MacBook Air `main`, implement and validate there, then push the branch and open a PR only after current-turn user approval. Do not work directly on `main` for normal changes, and do not merge the PR until the user explicitly approves that merge.
 - Approved Vercel target: `seokmogus-projects/beloved-church-wirye`.
 - Vercel project ID: `prj_rlSbDEXCQBanqqOZorCnYKL6BTnH`.
-- Approved deployment path: GitHub -> Vercel Git integration. Use GitHub CLI to push/PR/merge `seokmogu/beloved-church-wirye`; Vercel should build from Git. Do not use direct `vercel deploy` for normal releases.
+- Approved deployment path: GitHub -> Vercel Git integration. Use GitHub CLI to push/PR/merge `seokmogu/beloved-church-wirye`; Vercel should build from Git. Never run `vercel deploy`, `vercel --prod`, or any other direct Vercel CLI deployment for this project. Vercel CLI may be used only for read-only diagnostics such as logs/status/env inspection.
 - Production admin path is the custom `/manage` app; `/admin` redirects to `/manage`. Admin login uses Supabase Auth in project `fpiqbslkwcyqpbrnbkhr` and the `MANAGE_ADMIN_EMAILS` allowlist.
 - `.env.production` may be tracked for non-secret production defaults only. Do not add passwords, service-role keys, database URLs, or private tokens there; keep those in Vercel Project Settings or git-ignored `.deploy/` files.
 - Production branch: `main` after Vercel Git settings confirm this repository and branch.
+- GitHub/Vercel branch routing:
+  - `main` is the only branch that may update the live site through the production Vercel project `seokmogus-projects/beloved-church-wirye`.
+  - Non-`main` branches are for development/staging validation. Use `develop` for the shared dev line and short-lived `feature/*`, `fix/*`, or `chore/*` branches for individual work.
+  - The production Vercel project has an Ignored Build Step that builds only `main`, so development branches do not build on the production project.
+  - The dev Vercel project `seokmogus-projects/beloved-church-wirye-dev` is connected to the same GitHub repo and has an Ignored Build Step that skips `main`, so `main` merges do not build the dev project.
+  - To send work to dev, push a non-`main` branch or open a PR; Vercel should create a Preview deployment on the dev project with dev Supabase/Blob environment variables.
+  - To send work live, merge an approved PR into `main`; Vercel should create a Production deployment only on the production project and assign the live domains.
 - Approved Supabase target: `beloved-church-wirye` (`fpiqbslkwcyqpbrnbkhr`) under the church project's Supabase account. This is separate from `corp-screening` Supabase access.
+- Development/staging must use separate Vercel, Supabase, and Blob resources before destructive admin QA. Local dev must not connect to the production Supabase project `fpiqbslkwcyqpbrnbkhr` or production Blob store unless the user explicitly approves a read-only diagnostic.
 - Do not deploy this project with the Mac Studio `aktngroup-projects` / `info-64568325` Vercel context. A visible Vercel login, token, `.vercel/project.json`, dashboard URL, or `POSTGRES_URL` is not enough authorization to deploy.
 - Do not run `supabase link`, `supabase db push`, `supabase db reset`, `supabase db query --linked`, migrations, or seed commands unless the active Supabase account/token and target project ref are explicitly verified for `fpiqbslkwcyqpbrnbkhr`.
 - Before any production deploy, explicitly verify the Vercel scope/project, Git integration mode, production branch, required Vercel env vars, Supabase account/project ref, Supabase connection string, and Payload migrations. If any of these are unknown, stop and ask.

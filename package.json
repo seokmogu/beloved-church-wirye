@@ -5,10 +5,11 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "cross-env NODE_OPTIONS=--no-deprecation payload migrate && cross-env NODE_OPTIONS=--no-deprecation next build --webpack",
+    "build": "cross-env NODE_OPTIONS=--no-deprecation node scripts/guard-runtime-env.mjs build && cross-env NODE_OPTIONS=--no-deprecation node scripts/run-payload-migrate.mjs && cross-env NODE_OPTIONS=--no-deprecation node scripts/run-next-build.mjs",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
-    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev --no-server-fast-refresh",
+    "dev": "cross-env APP_ENV=development NODE_OPTIONS=--no-deprecation node scripts/guard-runtime-env.mjs dev && cross-env APP_ENV=development NODE_OPTIONS=--no-deprecation next dev --no-server-fast-refresh",
     "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
+    "env:check": "cross-env NODE_OPTIONS=--no-deprecation node scripts/guard-runtime-env.mjs check",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "ii": "cross-env NODE_OPTIONS=--no-deprecation pnpm --ignore-workspace install",

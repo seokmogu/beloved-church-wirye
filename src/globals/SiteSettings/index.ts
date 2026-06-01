@@ -703,6 +703,7 @@ export const SiteSettings: GlobalConfig = {
               name: 'youtubeChannelId',
               type: 'text',
               label: 'YouTube 채널 ID',
+              defaultValue: 'UCEyfzJVbYFdI9An9e0FTojw',
               admin: {
                 description:
                   '비워도 채널 URL에서 자동 해석을 시도합니다. UC로 시작하는 채널 ID를 넣으면 더 안정적입니다.',

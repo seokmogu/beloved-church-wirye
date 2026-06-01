@@ -25,13 +25,60 @@ Do not create `.env.production.local` unless intentionally testing Vercel-like p
 - GitHub repo: `seokmogu/beloved-church-wirye`
 - Production branch: `main`
 - Approved deployment path: GitHub -> Vercel Git integration
-- Direct `vercel deploy` is not the normal release path.
+- Direct `vercel deploy` is not an approved release path.
 
-## Vercel Target
+## GitHub To Vercel Routing
+
+The live site must remain tied to the production Vercel project only. The dev project exists to test branches without touching the live domains.
+
+| GitHub branch/action | Vercel project | Expected deployment |
+| --- | --- | --- |
+| `main` push or merge | `seokmogus-projects/beloved-church-wirye` | Production deployment. This is the only path that updates `https://belovedchurch.co.kr/` and `https://www.belovedchurch.co.kr/`. |
+| `develop` push | `seokmogus-projects/beloved-church-wirye-dev` | Preview deployment for shared dev QA. |
+| `feature/*`, `fix/*`, `chore/*` push | `seokmogus-projects/beloved-church-wirye-dev` | Preview deployment for task-level QA. |
+| Non-`main` push | `seokmogus-projects/beloved-church-wirye` | Skipped. The production project has an Ignored Build Step that exits `0` for non-`main` branches. |
+| `main` push | `seokmogus-projects/beloved-church-wirye-dev` | Skipped. The dev project has an Ignored Build Step that exits `0` for `main`. |
+
+Current production project Ignored Build Step:
+
+```sh
+if [ "$VERCEL_GIT_COMMIT_REF" = "main" ]; then exit 1; else exit 0; fi
+```
+
+Current dev project Ignored Build Step:
+
+```sh
+if [ "$VERCEL_GIT_COMMIT_REF" = "main" ]; then exit 0; else exit 1; fi
+```
+
+Vercel treats exit code `0` from the Ignored Build Step as "skip/cancel this build" and exit code `1` as "continue the build." Keep this inverted convention in mind before editing the command.
+
+Operational rules:
+
+- Live release: merge an approved PR into `main`; do not push directly to `main`.
+- Dev release: push `develop` or a task branch and use the dev Vercel Preview URL.
+- Normal work: branch -> local validation -> push -> PR -> dev preview QA -> approved merge to `main`.
+- Do not use direct Vercel CLI deployments, deploy hooks, or dashboard redeploys for normal releases.
+- Before a live merge, confirm the production Vercel project is still connected to `seokmogu/beloved-church-wirye` with production branch `main`.
+- Before destructive admin QA, confirm the target URL is a dev Preview deployment and the env points to Supabase `tnvhgvxekvwqgdjufnwe`, not production Supabase `fpiqbslkwcyqpbrnbkhr`.
+
+## Vercel Production Target
 
 - Scope/project: `seokmogus-projects/beloved-church-wirye`
 - Project ID: `prj_rlSbDEXCQBanqqOZorCnYKL6BTnH`
 - Dashboard: `https://vercel.com/seokmogus-projects/beloved-church-wirye`
+- Git repository: `seokmogu/beloved-church-wirye`
+- Ignored Build Step: build `main`, skip non-`main` branches.
+- Environment: Production variables point to the production Supabase and production Blob resources.
+
+## Vercel Dev Target
+
+- Scope/project: `seokmogus-projects/beloved-church-wirye-dev`
+- Project ID: `prj_WP15MtYl2epk2Y7gQa158GWjoeTj`
+- Dashboard: `https://vercel.com/seokmogus-projects/beloved-church-wirye-dev`
+- Git repository: `seokmogu/beloved-church-wirye`
+- Ignored Build Step: skip `main`, build non-`main` branches.
+- Environment: Preview and Development variables point to the dev Supabase and dev Blob resources.
 
 Required Vercel access:
 
@@ -104,6 +151,7 @@ Suggested local files:
 
 Secret values may also live in `.env`, `.env.development`, `.env.preview`, `.env.production`, `.env.local`, or `.env.*.local`, which are git ignored. Keep all secret-containing files mode `600` when possible.
 
-## Current Local Source Database
+## Current Local Source Checkout
 
-- Mac Studio project path: `/Users/aktn/project/beloved-church-wirye`
+- MacBook Air project path: `/Users/seokmogu/project/beloved-church-wirye`
+- Current environment-split working copy: `/Users/seokmogu/project/beloved-church-wirye-env`

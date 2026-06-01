@@ -10,6 +10,7 @@ import { NaverMapSectionServer } from '@/components/home/NaverMapSection.server'
 import { YouTubeSection } from '@/components/home/YouTubeSection'
 import type { SiteSetting } from '@/payload-types'
 import { fetchLatestVideos, type YouTubeVideo } from '@/lib/youtube'
+import { hasPayloadRuntimeConfig } from '@/utilities/payloadRuntime'
 
 export const metadata = {
   title: '사랑하는교회 | Beloved Church Wirye',
@@ -46,72 +47,81 @@ function hasSection(sections: HomeSection[], type: SectionType): boolean {
 }
 
 export default async function HomePage() {
-  const payload = await getPayload({ config: configPromise })
-
   let settings: SiteSetting | null = null
-  try {
-    settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
-  } catch (error) {
-    console.error('Failed to fetch site settings:', error)
+  let announcements: AnnouncementItem[] = []
+  let cmsVideos: YouTubeVideo[] = []
+
+  if (hasPayloadRuntimeConfig()) {
+    try {
+      const payload = await getPayload({ config: configPromise })
+      settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
+
+      const sections = getSections(settings)
+      const showAnnouncements = hasSection(sections, 'announcements')
+      const showSermons = hasSection(sections, 'sermons')
+      const videoCount =
+        typeof settings?.youtubeVideoCount === 'number' ? settings.youtubeVideoCount : 4
+
+      const [announcementsResult, sermonsResult] = await Promise.all([
+        showAnnouncements
+          ? payload
+              .find({
+                collection: 'announcements',
+                limit: 3,
+                sort: '-publishedAt',
+              })
+              .catch((error) => {
+                console.error('Failed to fetch announcements:', error)
+                return null
+              })
+          : Promise.resolve(null),
+        showSermons
+          ? payload
+              .find({
+                collection: 'sermons',
+                where: {
+                  status: {
+                    equals: 'published',
+                  },
+                },
+                limit: videoCount,
+                sort: '-sermonDate',
+              })
+              .catch((error) => {
+                console.error('Failed to fetch sermons:', error)
+                return null
+              })
+          : Promise.resolve(null),
+      ])
+
+      announcements = announcementsResult
+        ? announcementsResult.docs.map((doc) => ({
+            id: String(doc.id),
+            title: doc.title as string,
+            publishedAt: doc.publishedAt as string,
+            isPinned: doc.isPinned as boolean | null,
+          }))
+        : []
+      cmsVideos = sermonsResult
+        ? sermonsResult.docs
+            .filter((doc) => doc.youtubeId)
+            .map((doc) => ({
+              id: doc.youtubeId as string,
+              publishedAt: doc.sermonDate,
+              thumbnail:
+                doc.thumbnail || `https://img.youtube.com/vi/${doc.youtubeId}/maxresdefault.jpg`,
+              title: doc.title,
+            }))
+        : []
+    } catch (error) {
+      console.error('Failed to fetch home CMS content:', error)
+    }
   }
 
   const sections = getSections(settings)
-  const showAnnouncements = hasSection(sections, 'announcements')
   const showSermons = hasSection(sections, 'sermons')
   const videoCount =
     typeof settings?.youtubeVideoCount === 'number' ? settings.youtubeVideoCount : 4
-
-  const [announcementsResult, sermonsResult] = await Promise.all([
-    showAnnouncements
-      ? payload
-          .find({
-            collection: 'announcements',
-            limit: 3,
-            sort: '-publishedAt',
-          })
-          .catch((error) => {
-            console.error('Failed to fetch announcements:', error)
-            return null
-          })
-      : Promise.resolve(null),
-    showSermons
-      ? payload
-          .find({
-            collection: 'sermons',
-            where: {
-              status: {
-                equals: 'published',
-              },
-            },
-            limit: videoCount,
-            sort: '-sermonDate',
-          })
-          .catch((error) => {
-            console.error('Failed to fetch sermons:', error)
-            return null
-          })
-      : Promise.resolve(null),
-  ])
-
-  const announcements: AnnouncementItem[] = announcementsResult
-    ? announcementsResult.docs.map((doc) => ({
-        id: String(doc.id),
-        title: doc.title as string,
-        publishedAt: doc.publishedAt as string,
-        isPinned: doc.isPinned as boolean | null,
-      }))
-    : []
-  const cmsVideos: YouTubeVideo[] = sermonsResult
-    ? sermonsResult.docs
-        .filter((doc) => doc.youtubeId)
-        .map((doc) => ({
-          id: doc.youtubeId as string,
-          publishedAt: doc.sermonDate,
-          thumbnail:
-            doc.thumbnail || `https://img.youtube.com/vi/${doc.youtubeId}/maxresdefault.jpg`,
-          title: doc.title,
-        }))
-    : []
 
   const fallbackVideos =
     showSermons && cmsVideos.length === 0

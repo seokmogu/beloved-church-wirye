@@ -7,6 +7,8 @@ export interface YouTubeVideo {
 
 export const YOUTUBE_CACHE_TAG = 'youtube-videos'
 
+const DEFAULT_YOUTUBE_CHANNEL_HANDLE = '@BelovedChurchWirye'
+const DEFAULT_YOUTUBE_CHANNEL_ID = 'UCEyfzJVbYFdI9An9e0FTojw'
 const YOUTUBE_REVALIDATE_SECONDS = 43200
 const CHANNEL_ID_SCAN_LIMIT = 512 * 1024
 
@@ -143,6 +145,16 @@ export async function fetchLatestVideos(
     const explicitChannelId = parseChannelId(channelId?.trim() ?? '')
     if (explicitChannelId) {
       const videos = await fetchVideosByChannelId(count, explicitChannelId, options)
+      if (videos) return videos
+    }
+
+    const normalizedChannelURL = normalizeYouTubeURL(channelUrl?.trim() ?? '')
+    const shouldUseDefaultChannel =
+      !channelId?.trim() &&
+      (!normalizedChannelURL || normalizedChannelURL.includes(DEFAULT_YOUTUBE_CHANNEL_HANDLE))
+
+    if (shouldUseDefaultChannel) {
+      const videos = await fetchVideosByChannelId(count, DEFAULT_YOUTUBE_CHANNEL_ID, options)
       if (videos) return videos
     }
 
