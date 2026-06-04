@@ -5,11 +5,16 @@ import { deleteSermonAction, saveSermonAction } from '@/app/(manage)/manage/acti
 import { toDateInputValue } from '@/lib/manage/date'
 import type { Sermon } from '@/payload-types'
 
-export function SermonForm({ doc }: { doc?: Sermon }) {
+export function SermonForm({ doc, error }: { doc?: Sermon; error?: string }) {
   return (
     <>
       <form action={saveSermonAction} className="manage-form">
         {doc ? <input name="id" type="hidden" value={doc.id} /> : null}
+        {error === 'save' ? (
+          <div className="manage-alert danger" role="alert">
+            저장에 실패했습니다. YouTube 주소 등 입력값을 확인한 뒤 다시 시도해 주세요.
+          </div>
+        ) : null}
         <div className="manage-field">
           <label htmlFor="title">제목</label>
           <input defaultValue={doc?.title || ''} id="title" name="title" required />

@@ -7,8 +7,33 @@ export interface YouTubeVideo {
 
 export const YOUTUBE_CACHE_TAG = 'youtube-videos'
 
+/**
+ * Extract the 11-character YouTube video ID from the URL shapes editors realistically
+ * paste: watch?v=, youtu.be/, embed/, shorts/, live/, /v/ (incl. www. / m. hosts, which
+ * are matched as substrings), or a bare 11-char ID on its own.
+ * Returns undefined for anything that is not recognizably a YouTube reference.
+ *
+ * Single source of truth — previously this regex was duplicated (and diverging) across
+ * the Sermons/ChurchVideos collections and the manage server actions.
+ */
+export function extractYouTubeId(url: unknown): string | undefined {
+  if (typeof url !== 'string') return undefined
+  const trimmed = url.trim()
+  if (!trimmed) return undefined
+
+  // A bare ID pasted on its own. Anchored so we never match an incidental 11-char
+  // substring of unrelated text.
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed
+
+  const match = trimmed.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/live\/|youtube\.com\/v\/)([a-zA-Z0-9_-]{11})/,
+  )
+  return match?.[1]
+}
+
 const YOUTUBE_REVALIDATE_SECONDS = 43200
 const CHANNEL_ID_SCAN_LIMIT = 512 * 1024
+const YOUTUBE_FETCH_TIMEOUT_MS = 5000
 
 type YouTubeFetchOptions = {
   cache?: RequestCache
@@ -23,8 +48,12 @@ type NextFetchInit = RequestInit & {
 }
 
 function getYouTubeFetchInit(options?: YouTubeFetchOptions): NextFetchInit {
+  // Abort a slow/hung upstream rather than holding the request open until the platform
+  // timeout. All callers already treat a rejected fetch as a soft failure (return []).
+  const signal = AbortSignal.timeout(YOUTUBE_FETCH_TIMEOUT_MS)
+
   if (options?.cache === 'no-store') {
-    return { cache: 'no-store' }
+    return { cache: 'no-store', signal }
   }
 
   return {
@@ -32,6 +61,7 @@ function getYouTubeFetchInit(options?: YouTubeFetchOptions): NextFetchInit {
       revalidate: options?.revalidateSeconds ?? YOUTUBE_REVALIDATE_SECONDS,
       tags: [YOUTUBE_CACHE_TAG],
     },
+    signal,
   }
 }
 

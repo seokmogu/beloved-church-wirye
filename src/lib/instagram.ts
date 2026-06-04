@@ -60,6 +60,8 @@ export class InstagramSyncConfigError extends Error {
 
 const DEFAULT_LIMIT = 4
 const DEFAULT_API_VERSION = 'v21.0'
+const INSTAGRAM_API_TIMEOUT_MS = 8000
+const INSTAGRAM_IMAGE_TIMEOUT_MS = 10000
 const IMAGE_MIME_TYPES = new Set([
   'image/avif',
   'image/gif',
@@ -124,6 +126,7 @@ async function fetchInstagramMedia(accessToken: string, limit: number): Promise<
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
+    signal: AbortSignal.timeout(INSTAGRAM_API_TIMEOUT_MS),
   })
 
   const json = (await res.json().catch(() => ({}))) as InstagramMediaResponse
@@ -242,6 +245,7 @@ async function downloadInstagramImage(post: InstagramPostInput) {
       'User-Agent':
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36',
     },
+    signal: AbortSignal.timeout(INSTAGRAM_IMAGE_TIMEOUT_MS),
   })
 
   if (!res.ok) {

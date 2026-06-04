@@ -10,6 +10,7 @@ import { InstagramSyncConfigError, syncInstagramPosts } from '@/lib/instagram'
 import { dateInputToISO } from '@/lib/manage/date'
 import { plaintextToLexical } from '@/lib/manage/lexical'
 import { getManagePayload } from '@/lib/manage/payload'
+import { extractYouTubeId } from '@/lib/youtube'
 
 const publicPaths = [
   '/',
@@ -76,10 +77,18 @@ export async function saveSermonAction(formData: FormData) {
     youtubeUrl,
   }
 
-  if (id) {
-    await payload.update({ collection: 'sermons', data: data as any, id })
-  } else {
-    await payload.create({ collection: 'sermons', data: data as any })
+  try {
+    if (id) {
+      await payload.update({ collection: 'sermons', data: data as any, id })
+    } else {
+      await payload.create({ collection: 'sermons', data: data as any })
+    }
+  } catch (error) {
+    // e.g. a rejected youtubeUrl validate or a transient DB error. Surface a Korean
+    // alert on the form instead of a raw 500. redirect() throws NEXT_REDIRECT, which
+    // must propagate out of (not be re-caught by) this block.
+    console.error('Failed to save sermon:', error)
+    redirect(formErrorPath('/manage/sermons', id))
   }
 
   revalidateManageAndPublic('/manage/sermons')
@@ -118,10 +127,15 @@ export async function saveChurchVideoAction(formData: FormData) {
     youtubeUrl,
   }
 
-  if (id) {
-    await payload.update({ collection: 'church-videos', data: data as any, id })
-  } else {
-    await payload.create({ collection: 'church-videos', data: data as any })
+  try {
+    if (id) {
+      await payload.update({ collection: 'church-videos', data: data as any, id })
+    } else {
+      await payload.create({ collection: 'church-videos', data: data as any })
+    }
+  } catch (error) {
+    console.error('Failed to save church video:', error)
+    redirect(formErrorPath('/manage/videos', id))
   }
 
   revalidateManageAndPublic('/manage/videos')
@@ -574,6 +588,11 @@ function churchNewsErrorPath(id: number | undefined, error: 'storage' | 'upload'
   return `${path}?error=${error}`
 }
 
+function formErrorPath(basePath: string, id: number | undefined): string {
+  const path = id ? `${basePath}/${id}` : `${basePath}/new`
+  return `${path}?error=save`
+}
+
 function isUploadableFile(value: FormDataEntryValue): value is File {
   return (
     typeof value === 'object' &&
@@ -735,12 +754,6 @@ function parseDesignSettings(
     showHeroPattern: checkboxValue(formData, 'showHeroPattern'),
     textColor: optionalString(formData, 'textColor') || currentString(current.textColor, '#171a17'),
   }
-}
-
-function extractYouTubeId(url: string): string | undefined {
-  return url.match(
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-  )?.[1]
 }
 
 function parseBankAccounts(formData: FormData) {

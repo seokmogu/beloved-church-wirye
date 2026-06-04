@@ -3,18 +3,10 @@ import type { CollectionConfig } from 'payload'
 import { authenticated } from '@/access/authenticated'
 import { authenticatedOrPublishedSermon } from '@/access/authenticatedOrPublishedSermon'
 import { formatAdminSlug } from '@/fields/adminSlugField'
+import { extractYouTubeId } from '@/lib/youtube'
 
 function defaultToday() {
   return new Date().toISOString()
-}
-
-function extractYouTubeId(url: unknown): string | undefined {
-  if (!url || typeof url !== 'string') return undefined
-
-  const match = url.match(
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-  )
-  return match?.[1]
 }
 
 export const ChurchVideos: CollectionConfig = {
@@ -80,10 +72,9 @@ export const ChurchVideos: CollectionConfig = {
       },
       validate: (val: unknown) => {
         if (!val || typeof val !== 'string') return true
-        const youtubeRegex =
-          /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}/
-        if (!youtubeRegex.test(val)) return '올바른 YouTube 주소를 입력해 주세요.'
-        return true
+        // Accept the same URL shapes the ID extractor understands (watch / youtu.be /
+        // embed / shorts / live / bare ID) so editors aren't blocked on valid links.
+        return extractYouTubeId(val) ? true : '올바른 YouTube 주소를 입력해 주세요.'
       },
     },
     {
