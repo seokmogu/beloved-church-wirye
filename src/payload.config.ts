@@ -126,7 +126,9 @@ export default buildConfig({
     Users,
   ],
   serverURL,
-  csrf: [],
+  // Restrict cookie-auth acceptance to the site's own origins (same list as cors) instead
+  // of disabling Payload's CSRF origin allow-list. Requests with no Origin still pass.
+  csrf: allowedOrigins,
   cors: allowedOrigins,
   plugins: [
     ...plugins,

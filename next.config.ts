@@ -51,12 +51,30 @@ const nextConfig: NextConfig = {
 const payloadNextConfig = withPayload(nextConfig, { devBundleServerPackages: false })
 const payloadHeaders = payloadNextConfig.headers
 
+// Site-wide security headers. CSP `frame-ancestors 'self'` blocks foreign framing
+// (clickjacking) while still allowing Payload's same-origin admin / live-preview iframes —
+// a blanket `X-Frame-Options: DENY` would break those. HSTS is production-only.
+const securityHeaders = [
+  { key: 'Content-Security-Policy', value: "frame-ancestors 'self'" },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  ...(process.env.NODE_ENV === 'production'
+    ? [
+        {
+          key: 'Strict-Transport-Security',
+          value: 'max-age=63072000; includeSubDomains; preload',
+        },
+      ]
+    : []),
+]
+
 payloadNextConfig.headers = async () => {
   const headerRoutes = payloadHeaders ? await payloadHeaders() : []
 
   // Payload adds these theme client hints globally. On Vercel they trigger an HTTPS retry
   // that can leave the admin RSC children unmounted even though the Flight payload is valid.
-  return headerRoutes.map((route) => ({
+  const cleanedRoutes = headerRoutes.map((route) => ({
     ...route,
     headers: route.headers.filter(({ key, value }) => {
       const lowerKey = key.toLowerCase()
@@ -68,6 +86,9 @@ payloadNextConfig.headers = async () => {
       )
     }),
   }))
+
+  // Append (never replace Payload's per-route headers) the security headers globally.
+  return [...cleanedRoutes, { source: '/(.*)', headers: securityHeaders }]
 }
 
 export default payloadNextConfig
