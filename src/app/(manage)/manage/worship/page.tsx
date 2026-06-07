@@ -8,7 +8,6 @@ import { getManagePayload } from '@/lib/manage/payload'
 import type { SiteSetting } from '@/payload-types'
 
 type WorshipService = NonNullable<SiteSetting['worshipServices']>[number]
-type WorshipOrder = NonNullable<SiteSetting['worshipOrder']>[number]
 type VisitorNote = NonNullable<SiteSetting['visitorNotes']>[number]
 
 export default async function ManageWorshipPage() {
@@ -19,10 +18,6 @@ export default async function ManageWorshipPage() {
     description: '',
     name: '',
     time: '',
-  })
-  const order = padRows<WorshipOrder>(settings.worshipOrder, 8, {
-    description: '',
-    title: '',
   })
   const visitorNotes = padRows<VisitorNote>(settings.visitorNotes, 5, { text: '' })
 
@@ -100,49 +95,6 @@ export default async function ManageWorshipPage() {
                 </article>
               ))}
             </div>
-          </section>
-
-          <section className="manage-public-section muted">
-            <div className="manage-public-section-head">
-              <div>
-                <p>Order</p>
-                <h2>예배 순서</h2>
-              </div>
-              <span className="manage-scope-chip">/worship 예배 순서 목록</span>
-            </div>
-
-            <ol className="manage-public-order-grid">
-              {order.map((item, index) => (
-                <li className="manage-public-order-card" key={index}>
-                  <span className="manage-public-order-number">{index + 1}</span>
-                  <div>
-                    <label
-                      className="manage-visual-field strong"
-                      htmlFor={`worshipOrderTitle-${index}`}
-                    >
-                      <span>순서명</span>
-                      <input
-                        defaultValue={item.title}
-                        id={`worshipOrderTitle-${index}`}
-                        name="worshipOrderTitle"
-                      />
-                    </label>
-                    <label
-                      className="manage-visual-field muted"
-                      htmlFor={`worshipOrderDescription-${index}`}
-                    >
-                      <span>설명</span>
-                      <textarea
-                        defaultValue={item.description || ''}
-                        id={`worshipOrderDescription-${index}`}
-                        name="worshipOrderDescription"
-                        rows={2}
-                      />
-                    </label>
-                  </div>
-                </li>
-              ))}
-            </ol>
           </section>
 
           <section className="manage-public-section">

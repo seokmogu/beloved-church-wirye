@@ -28,7 +28,6 @@ async function getSettings(): Promise<SiteSetting | null> {
 export default async function WorshipPage() {
   const settings = await getSettings()
   const services = settings?.worshipServices ?? []
-  const order = settings?.worshipOrder ?? []
   const visitorNotes = settings?.visitorNotes ?? []
   const hasParkingInfo = Boolean(settings?.parkingInfo?.trim())
   const hasVisitNotes = hasParkingInfo || visitorNotes.length > 0
@@ -83,42 +82,6 @@ export default async function WorshipPage() {
           )}
         </div>
       </section>
-
-      {order.length > 0 && (
-        <section className="border-b border-border bg-muted/25 py-16">
-          <div className="container max-w-5xl">
-            <div className="mb-8">
-              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
-                Order
-              </p>
-              <h2 className="text-3xl font-bold text-foreground">예배 순서</h2>
-            </div>
-            <ol className="grid gap-4 md:grid-cols-2">
-              {order.map((item, index) => (
-                <li
-                  key={item.id ?? `${item.title}-${index}`}
-                  className="rounded-lg border border-border bg-card p-5"
-                >
-                  <div className="flex gap-4">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-bold text-white">
-                      {index + 1}
-                    </span>
-                    <div>
-                      <h3 className="font-semibold text-foreground">{item.title}</h3>
-                      <FormattedText
-                        className="mt-1 space-y-1 text-sm leading-relaxed text-muted-foreground"
-                        headingClassName="text-sm font-bold leading-snug text-foreground"
-                      >
-                        {item.description}
-                      </FormattedText>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-      )}
 
       <NaverMapSectionServer eyebrow="VISIT" settings={settings} title="찾아오시는 길" />
 

@@ -343,7 +343,6 @@ export async function saveWorshipSettingsAction(formData: FormData) {
       parkingInfo: optionalString(formData, 'parkingInfo'),
       transitInfo: optionalString(formData, 'transitInfo'),
       visitorNotes: parseVisitorNotes(formData),
-      worshipOrder: parseWorshipOrder(formData),
       worshipServices: parseWorshipServices(formData),
     } as any,
     slug: 'site-settings',
@@ -806,18 +805,6 @@ function parseWorshipServices(formData: FormData) {
       time: times[index] || '',
     }))
     .filter((service) => service.name && service.time)
-}
-
-function parseWorshipOrder(formData: FormData) {
-  const titles = stringValues(formData, 'worshipOrderTitle')
-  const descriptions = stringValues(formData, 'worshipOrderDescription')
-
-  return titles
-    .map((title, index) => ({
-      description: descriptions[index] || null,
-      title,
-    }))
-    .filter((item) => item.title)
 }
 
 function parseVisitorNotes(formData: FormData) {
