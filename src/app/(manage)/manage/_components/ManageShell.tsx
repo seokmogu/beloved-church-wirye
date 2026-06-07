@@ -74,7 +74,7 @@ const navSections: {
         type: 'group',
       },
       { href: '/manage/sermons', icon: Radio, key: 'sermons', label: '설교영상' },
-      { href: '/manage/announcements', icon: Bell, key: 'announcements', label: '공지사항' },
+      { href: '/manage/announcements', icon: Bell, key: 'announcements', label: '교회로그' },
       {
         items: [
           { href: '/manage/church-news', icon: Newspaper, key: 'churchNews', label: '교회소식' },

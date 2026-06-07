@@ -477,7 +477,7 @@ function normalizeSections(sections: SiteSetting['homeSections']): HomeSection[]
 
 function sectionLabel(type: HomeSection['sectionType']) {
   const labels: Record<HomeSection['sectionType'], string> = {
-    announcements: '공지사항',
+    announcements: '교회로그',
     instagram: '인스타그램',
     intro: '교회소개',
     map: '오시는 길',
