@@ -1,4 +1,5 @@
 import type { SiteSetting } from '@/payload-types'
+import { FormattedText } from '@/components/FormattedText'
 
 type HomeSectionCopy = {
   description?: string | null
@@ -34,7 +35,12 @@ export function ChurchIntroSection({
               {section?.title ?? settings?.tagline ?? '교회소개'}
             </h2>
             <div className="church-body-copy church-surface-muted mt-6 max-w-xl space-y-4 leading-relaxed">
-              {description && <p>{description}</p>}
+              <FormattedText
+                className="space-y-4"
+                headingClassName="text-xl font-bold leading-snug text-foreground"
+              >
+                {description}
+              </FormattedText>
               {vision && (
                 <p>
                   우리는 <strong className="text-foreground">{vision}</strong>이라는 비전 아래,
@@ -104,9 +110,12 @@ export function ChurchIntroSection({
                       {String(index + 1).padStart(2, '0')}
                     </span>
                     <h4 className="mt-3 font-semibold text-foreground">{item.title}</h4>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    <FormattedText
+                      className="mt-2 space-y-1 text-sm leading-relaxed text-muted-foreground"
+                      headingClassName="text-sm font-bold leading-snug text-foreground"
+                    >
                       {item.description}
-                    </p>
+                    </FormattedText>
                   </div>
                 ))}
               </div>

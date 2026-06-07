@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { getPayload } from 'payload'
 
 import config from '@payload-config'
+import { FormattedText } from '@/components/FormattedText'
 import { PageHero } from '@/components/PageHero'
 import type { Media, SiteSetting } from '@/payload-types'
 
@@ -15,13 +16,6 @@ export const dynamic = 'force-dynamic'
 
 function mediaUrl(media: Media | number | null | undefined): string | null {
   return media && typeof media === 'object' && media.url ? media.url : null
-}
-
-function splitLines(value?: string | null): string[] {
-  return (value ?? '')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
 }
 
 async function getSettings(): Promise<SiteSetting | null> {
@@ -37,7 +31,6 @@ async function getSettings(): Promise<SiteSetting | null> {
 export default async function LeadersPage() {
   const settings = await getSettings()
   const pastorPhotoUrl = mediaUrl(settings?.pastorPhoto as Media | number | null | undefined)
-  const pastorBio = splitLines(settings?.pastorBio)
 
   return (
     <main className="min-h-screen bg-background">
@@ -69,7 +62,7 @@ export default async function LeadersPage() {
             </div>
 
             <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
                 Senior Pastor
               </p>
               <h2 className="text-3xl font-bold text-foreground">
@@ -78,16 +71,18 @@ export default async function LeadersPage() {
               {settings?.pastorTitle && (
                 <p className="mt-2 font-medium text-primary">{settings.pastorTitle}</p>
               )}
-              {pastorBio.length > 0 && (
-                <div className="mt-7 space-y-2 leading-relaxed text-muted-foreground">
-                  {pastorBio.map((line) => (
-                    <p key={line}>{line}</p>
-                  ))}
-                </div>
-              )}
+              <FormattedText
+                className="mt-7 space-y-3 leading-relaxed text-muted-foreground"
+                headingClassName="text-lg font-bold leading-snug text-foreground"
+                listClassName="space-y-1 text-muted-foreground"
+              >
+                {settings?.pastorBio}
+              </FormattedText>
               {settings?.pastorQuote && (
                 <blockquote className="mt-7 border-l-2 border-secondary pl-5 italic text-muted-foreground">
-                  &ldquo;{settings.pastorQuote}&rdquo;
+                  <FormattedText className="space-y-2" paragraphClassName="m-0">
+                    {settings.pastorQuote}
+                  </FormattedText>
                 </blockquote>
               )}
             </div>

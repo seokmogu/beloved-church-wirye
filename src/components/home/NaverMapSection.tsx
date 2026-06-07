@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react'
 import Script from 'next/script'
 
+import { FormattedText } from '@/components/FormattedText'
+
 declare global {
   interface Window {
     naver: {
@@ -26,10 +28,12 @@ type NaverMapSectionProps = {
   eyebrow?: string | null
   transitInfo?: string
   title?: string | null
-  worshipServices?: {
-    name?: string | null
-    time?: string | null
-  }[] | null
+  worshipServices?:
+    | {
+        name?: string | null
+        time?: string | null
+      }[]
+    | null
   lat?: number
   lng?: number
 }
@@ -52,7 +56,7 @@ export function NaverMapSection({
   transitInfo = '남위례역 근처, 도보 약 5분 거리',
   title,
   worshipServices,
-  lat = 37.4670,
+  lat = 37.467,
   lng = 127.1395,
 }: NaverMapSectionProps) {
   const mapRef = useRef<HTMLDivElement>(null)
@@ -74,8 +78,7 @@ export function NaverMapSection({
     const marker = new window.naver.maps.Marker({ map, position })
 
     const infoWindow = new window.naver.maps.InfoWindow({
-      content:
-        `<div style="padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap;">${escapeHtml(churchName)}</div>`,
+      content: `<div style="padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap;">${escapeHtml(churchName)}</div>`,
     })
     infoWindow.open(map, marker)
   }
@@ -93,9 +96,18 @@ export function NaverMapSection({
         <div className="container">
           <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
             <div>
-              <p className="church-surface-accent mb-2 text-sm font-semibold uppercase">{eyebrow ?? 'Location'}</p>
-              <h2 className="church-section-heading font-bold text-foreground">{title ?? '오시는 길'}</h2>
-              {description && <p className="church-body-copy church-surface-muted mt-4 max-w-xl leading-relaxed">{description}</p>}
+              <p className="church-surface-accent mb-2 text-sm font-semibold uppercase">
+                {eyebrow ?? 'Location'}
+              </p>
+              <h2 className="church-section-heading font-bold text-foreground">
+                {title ?? '오시는 길'}
+              </h2>
+              <FormattedText
+                className="church-body-copy church-surface-muted mt-4 max-w-xl space-y-3 leading-relaxed"
+                headingClassName="text-xl font-bold leading-snug text-foreground"
+              >
+                {description}
+              </FormattedText>
             </div>
 
             <div className="rounded-lg border border-border bg-card p-6 shadow-[0_18px_60px_rgba(20,42,33,0.08)]">
@@ -123,14 +135,25 @@ export function NaverMapSection({
                 <div>
                   <h3 className="text-lg font-semibold text-foreground">예배 시간</h3>
                   <div className="mt-3 divide-y divide-border text-sm">
-                    {(worshipServices ?? []).filter((item) => item?.name && item?.time).slice(0, 4).map((item) => (
-                      <div key={`${item.name}-${item.time}`} className="grid grid-cols-[1fr_auto] gap-4 py-2.5 first:pt-0">
-                        <span className="font-medium text-foreground">{item.name}</span>
-                        <span className="font-semibold text-primary">{item.time}</span>
-                      </div>
-                    ))}
+                    {(worshipServices ?? [])
+                      .filter((item) => item?.name && item?.time)
+                      .slice(0, 4)
+                      .map((item) => (
+                        <div
+                          key={`${item.name}-${item.time}`}
+                          className="grid grid-cols-[1fr_auto] gap-4 py-2.5 first:pt-0"
+                        >
+                          <span className="font-medium text-foreground">{item.name}</span>
+                          <span className="font-semibold text-primary">{item.time}</span>
+                        </div>
+                      ))}
                   </div>
-                  {transitInfo && <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{transitInfo}</p>}
+                  <FormattedText
+                    className="mt-4 space-y-1 text-sm leading-relaxed text-muted-foreground"
+                    headingClassName="text-sm font-bold leading-snug text-foreground"
+                  >
+                    {transitInfo}
+                  </FormattedText>
                 </div>
               </div>
             </div>
@@ -151,9 +174,18 @@ export function NaverMapSection({
       <section id="map" className="church-section-surface py-20 md:py-24">
         <div className="container">
           <div className="mb-10">
-            <p className="church-surface-accent mb-2 text-sm font-semibold uppercase">{eyebrow ?? 'Location'}</p>
-            <h2 className="church-section-heading font-bold text-foreground">{title ?? '오시는 길'}</h2>
-            {description && <p className="church-body-copy church-surface-muted mt-4 max-w-2xl leading-relaxed">{description}</p>}
+            <p className="church-surface-accent mb-2 text-sm font-semibold uppercase">
+              {eyebrow ?? 'Location'}
+            </p>
+            <h2 className="church-section-heading font-bold text-foreground">
+              {title ?? '오시는 길'}
+            </h2>
+            <FormattedText
+              className="church-body-copy church-surface-muted mt-4 max-w-2xl space-y-3 leading-relaxed"
+              headingClassName="text-xl font-bold leading-snug text-foreground"
+            >
+              {description}
+            </FormattedText>
           </div>
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
@@ -218,11 +250,12 @@ export function NaverMapSection({
                   </svg>
                   교통편
                 </h3>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                  {transitInfo.split('\n').map((line) => (
-                    <p key={line}>{line}</p>
-                  ))}
-                </div>
+                <FormattedText
+                  className="space-y-1 text-sm text-muted-foreground"
+                  headingClassName="text-sm font-bold leading-snug text-foreground"
+                >
+                  {transitInfo}
+                </FormattedText>
               </div>
 
               <div>
@@ -244,12 +277,17 @@ export function NaverMapSection({
                   예배 시간
                 </h3>
                 <div className="space-y-1.5 text-sm">
-                  {(worshipServices ?? []).filter((item) => item?.name && item?.time).map((item) => (
-                    <div key={`${item.name}-${item.time}`} className="flex items-center justify-between border-b border-border py-1.5 last:border-0">
-                      <span className="font-medium text-foreground">{item.name}</span>
-                      <span className="font-semibold text-primary">{item.time}</span>
-                    </div>
-                  ))}
+                  {(worshipServices ?? [])
+                    .filter((item) => item?.name && item?.time)
+                    .map((item) => (
+                      <div
+                        key={`${item.name}-${item.time}`}
+                        className="flex items-center justify-between border-b border-border py-1.5 last:border-0"
+                      >
+                        <span className="font-medium text-foreground">{item.name}</span>
+                        <span className="font-semibold text-primary">{item.time}</span>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>

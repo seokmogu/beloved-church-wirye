@@ -25,13 +25,23 @@ const internalPathOptions = [
   { label: '교회소개', value: '/about' },
   { label: '섬기는 사람들', value: '/about/leaders' },
   { label: '예배안내', value: '/worship' },
+  { label: '새가족등록', value: '/newcomer' },
+  { label: '주보', value: '/bulletins' },
   { label: '설교영상', value: '/sermon' },
   { label: '공지사항', value: '/announcements' },
   { label: '교회소식', value: '/church-news' },
   { label: '동영상', value: '/church-news/videos' },
-  { label: '주보', value: '/bulletins' },
-  { label: '새가족등록', value: '/newcomer' },
   { label: '헌금안내', value: '/offering' },
+]
+
+const publicMenuStructure = [
+  {
+    children: ['교회소개', '섬기는 사람들', '예배안내', '새가족등록', '주보'],
+    label: '교회소개',
+  },
+  { label: '설교영상' },
+  { label: '공지사항' },
+  { children: ['교회소식', '동영상'], label: '교회소식' },
 ]
 
 export default async function ManageMenuPage({ searchParams }: { searchParams: MenuSearchParams }) {
@@ -48,6 +58,20 @@ export default async function ManageMenuPage({ searchParams }: { searchParams: M
         description="공개 사이트 상단 내비게이션에 표시되는 메뉴를 관리합니다."
         title="메뉴관리"
       />
+      <section className="manage-menu-structure" aria-label="현재 공개 메뉴 구조">
+        {publicMenuStructure.map((item) => (
+          <div className="manage-menu-structure-item" key={item.label}>
+            <strong>{item.label}</strong>
+            {item.children ? (
+              <ul>
+                {item.children.map((child) => (
+                  <li key={child}>{child}</li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ))}
+      </section>
       {error === 'save' ? (
         <div className="manage-alert danger" role="alert">
           메뉴를 저장하지 못했습니다. 입력한 메뉴항목을 확인한 뒤 다시 저장해 주세요.

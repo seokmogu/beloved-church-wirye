@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import Image from 'next/image'
 import { ExternalLink, MoreVertical, Play, Youtube } from 'lucide-react'
+import { FormattedText } from '@/components/FormattedText'
 import { PageHero } from '@/components/PageHero'
 import { fetchLatestVideos, type YouTubeVideo } from '@/lib/youtube'
 import type { SiteSetting } from '@/payload-types'
@@ -71,17 +72,18 @@ function SermonArchiveSection({
       <div className="container">
         <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="mb-2 text-sm font-semibold uppercase text-secondary">
+            <p className="mb-2 text-sm font-semibold uppercase text-primary">
               {eyebrow ?? 'SERMON'}
             </p>
             <h2 className="church-section-heading font-bold text-foreground">
               {title ?? '최신 설교'}
             </h2>
-            {description && (
-              <p className="church-body-copy mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-                {description}
-              </p>
-            )}
+            <FormattedText
+              className="church-body-copy mt-4 max-w-2xl space-y-3 leading-relaxed text-muted-foreground"
+              headingClassName="text-xl font-bold leading-snug text-foreground"
+            >
+              {description}
+            </FormattedText>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <span className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground">
