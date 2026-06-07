@@ -198,7 +198,7 @@ export const Sermons: CollectionConfig = {
             // Auto-generate thumbnail URL from YouTube ID
             const youtubeId = siblingData?.youtubeId || data?.youtubeId
             if (!youtubeId || value) return value
-            return `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
+            return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
           },
         ],
       },
@@ -283,7 +283,7 @@ export const Sermons: CollectionConfig = {
         if (!data.sermonDate) data.sermonDate = defaultToday()
         if (!data.youtubeId) data.youtubeId = extractYouTubeId(data.youtubeUrl)
         if (!data.thumbnail && data.youtubeId) {
-          data.thumbnail = `https://img.youtube.com/vi/${data.youtubeId}/maxresdefault.jpg`
+          data.thumbnail = `https://img.youtube.com/vi/${data.youtubeId}/hqdefault.jpg`
         }
         if (!data.status) data.status = 'published'
         return data

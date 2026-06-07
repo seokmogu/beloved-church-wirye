@@ -134,6 +134,16 @@ async function readResponsePrefix(res: Response): Promise<string> {
   return text
 }
 
+function decodeXmlEntities(value: string): string {
+  return value
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&')
+}
+
 async function fetchVideosByChannelId(
   count: number,
   channelId: string,
@@ -148,7 +158,7 @@ async function fetchVideosByChannelId(
 
   return entries.slice(0, count).map((entry) => {
     const videoId = (entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/) ?? [])[1] ?? ''
-    const title = (entry.match(/<media:title>([^<]+)<\/media:title>/) ?? [])[1] ?? ''
+    const title = decodeXmlEntities((entry.match(/<media:title>([^<]+)<\/media:title>/) ?? [])[1] ?? '')
     const thumbnail =
       (entry.match(/<media:thumbnail url="([^"]+)"/) ?? [])[1] ??
       `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`

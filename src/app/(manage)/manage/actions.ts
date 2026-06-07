@@ -71,7 +71,7 @@ export async function saveSermonAction(formData: FormData) {
     sermonDate: dateInputToISO(stringValue(formData, 'sermonDate')),
     sermonSeries: optionalString(formData, 'sermonSeries'),
     status: stringValue(formData, 'status') === 'draft' ? 'draft' : 'published',
-    thumbnail: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : undefined,
+    thumbnail: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : undefined,
     title: requiredString(formData, 'title'),
     youtubeId,
     youtubeUrl,
@@ -120,7 +120,7 @@ export async function saveChurchVideoAction(formData: FormData) {
   const data = {
     description: optionalString(formData, 'description'),
     status: stringValue(formData, 'status') === 'draft' ? 'draft' : 'published',
-    thumbnail: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : undefined,
+    thumbnail: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : undefined,
     title: requiredString(formData, 'title'),
     videoDate: dateInputToISO(stringValue(formData, 'videoDate')),
     youtubeId,
