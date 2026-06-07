@@ -5,11 +5,16 @@ import { deleteChurchVideoAction, saveChurchVideoAction } from '@/app/(manage)/m
 import { toDateInputValue } from '@/lib/manage/date'
 import type { ChurchVideo } from '@/payload-types'
 
-export function VideoForm({ doc }: { doc?: ChurchVideo }) {
+export function VideoForm({ doc, error }: { doc?: ChurchVideo; error?: string }) {
   return (
     <>
       <form action={saveChurchVideoAction} className="manage-form">
         {doc ? <input name="id" type="hidden" value={doc.id} /> : null}
+        {error === 'save' ? (
+          <div className="manage-alert danger" role="alert">
+            저장에 실패했습니다. YouTube 주소 등 입력값을 확인한 뒤 다시 시도해 주세요.
+          </div>
+        ) : null}
         <div className="manage-field">
           <label htmlFor="title">제목</label>
           <input defaultValue={doc?.title || ''} id="title" name="title" required />

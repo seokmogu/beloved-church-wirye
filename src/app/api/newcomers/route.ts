@@ -2,9 +2,23 @@ import { NextRequest, NextResponse } from 'next/server'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+const MAX_BODY_BYTES = 32 * 1024
+
 export async function POST(request: NextRequest) {
   try {
+    // Reject oversized payloads before parsing (this is a public, unauthenticated route).
+    const contentLength = Number(request.headers.get('content-length') || 0)
+    if (contentLength > MAX_BODY_BYTES) {
+      return NextResponse.json({ error: '요청이 너무 큽니다.' }, { status: 413 })
+    }
+
     const body = await request.json()
+
+    // Honeypot: a hidden field real users never fill. If it's populated, the request is a
+    // bot — pretend success without writing so the bot gets no signal to adapt.
+    if (typeof body.website === 'string' && body.website.trim() !== '') {
+      return NextResponse.json({ success: true }, { status: 201 })
+    }
 
     // 필수 필드 검증
     const sourceChannels = Array.isArray(body.sourceChannels) ? body.sourceChannels : []

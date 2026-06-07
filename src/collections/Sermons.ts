@@ -2,20 +2,12 @@ import type { CollectionConfig } from 'payload'
 import { authenticated } from '@/access/authenticated'
 import { authenticatedOrPublishedSermon } from '@/access/authenticatedOrPublishedSermon'
 import { formatAdminSlug } from '@/fields/adminSlugField'
+import { extractYouTubeId } from '@/lib/youtube'
 
 const defaultPreacher = '사랑하는교회'
 
 function defaultToday() {
   return new Date().toISOString()
-}
-
-function extractYouTubeId(url: unknown): string | undefined {
-  if (!url || typeof url !== 'string') return undefined
-
-  const match = url.match(
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-  )
-  return match?.[1]
 }
 
 export const Sermons: CollectionConfig = {
@@ -95,13 +87,9 @@ export const Sermons: CollectionConfig = {
       },
       validate: (val: unknown) => {
         if (!val || typeof val !== 'string') return true
-        // Validate YouTube URL format
-        const youtubeRegex =
-          /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}/
-        if (!youtubeRegex.test(val)) {
-          return '올바른 YouTube 주소를 입력해 주세요.'
-        }
-        return true
+        // Accept the same URL shapes the ID extractor understands (watch / youtu.be /
+        // embed / shorts / live / bare ID) so editors aren't blocked on valid links.
+        return extractYouTubeId(val) ? true : '올바른 YouTube 주소를 입력해 주세요.'
       },
     },
     {
@@ -210,7 +198,7 @@ export const Sermons: CollectionConfig = {
             // Auto-generate thumbnail URL from YouTube ID
             const youtubeId = siblingData?.youtubeId || data?.youtubeId
             if (!youtubeId || value) return value
-            return `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
+            return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
           },
         ],
       },
@@ -295,7 +283,7 @@ export const Sermons: CollectionConfig = {
         if (!data.sermonDate) data.sermonDate = defaultToday()
         if (!data.youtubeId) data.youtubeId = extractYouTubeId(data.youtubeUrl)
         if (!data.thumbnail && data.youtubeId) {
-          data.thumbnail = `https://img.youtube.com/vi/${data.youtubeId}/maxresdefault.jpg`
+          data.thumbnail = `https://img.youtube.com/vi/${data.youtubeId}/hqdefault.jpg`
         }
         if (!data.status) data.status = 'published'
         return data

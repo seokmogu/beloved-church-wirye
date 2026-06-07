@@ -3,6 +3,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 
+import { isAuthorizedCronRequest } from '@/lib/cronAuth'
 import { fetchLatestVideos, YOUTUBE_CACHE_TAG } from '@/lib/youtube'
 import type { SiteSetting } from '@/payload-types'
 
@@ -42,13 +43,6 @@ export async function GET(request: NextRequest) {
     payload.logger.error({ err: error }, 'YouTube refresh failed')
     return NextResponse.json({ ok: false }, { status: 500 })
   }
-}
-
-function isAuthorizedCronRequest(request: NextRequest) {
-  const secret = process.env.CRON_SECRET
-  if (!secret) return false
-
-  return request.headers.get('authorization') === `Bearer ${secret}`
 }
 
 function getVideoCount(settings: SiteSetting) {

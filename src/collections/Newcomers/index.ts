@@ -1,5 +1,21 @@
 import type { CollectionConfig } from 'payload'
 
+// Max lengths for the free-text fields on the PUBLIC create path. Enforced in a
+// beforeValidate hook so the cap applies to both the custom /api/newcomers route AND a
+// direct Payload REST create — a route-handler-only check could not cover the latter.
+const MAX_TEXT_LENGTHS: Record<string, number> = {
+  address: 200,
+  age: 16,
+  email: 200,
+  mbti: 16,
+  message: 2000,
+  name: 80,
+  phone: 30,
+  previousChurch: 120,
+  schoolOrWork: 120,
+  sourceDetail: 2000,
+}
+
 export const Newcomers: CollectionConfig = {
   slug: 'newcomers',
   admin: {
@@ -272,6 +288,19 @@ export const Newcomers: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeValidate: [
+      ({ data }) => {
+        if (!data) return data
+        const record = data as Record<string, unknown>
+        for (const [field, max] of Object.entries(MAX_TEXT_LENGTHS)) {
+          const value = record[field]
+          if (typeof value === 'string') {
+            record[field] = value.trim().slice(0, max)
+          }
+        }
+        return data
+      },
+    ],
     afterChange: [
       async ({ operation, doc, req }) => {
         // 새 등록 시 담당자에게 이메일 알림 (향후 구현)
