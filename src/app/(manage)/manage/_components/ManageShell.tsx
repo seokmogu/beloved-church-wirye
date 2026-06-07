@@ -5,6 +5,7 @@ import {
   HandCoins,
   HelpCircle,
   Home,
+  Info,
   Instagram,
   LayoutDashboard,
   LogOut,
@@ -24,6 +25,7 @@ import { signOutAction } from '@/app/(manage)/manage/login/actions'
 import type { ManageUser } from '@/lib/manage/auth'
 
 type ActiveKey =
+  | 'about'
   | 'announcements'
   | 'banner'
   | 'bulletins'
@@ -64,7 +66,8 @@ const navSections: {
     entries: [
       {
         items: [
-          { href: '/manage/home', icon: Home, key: 'home', label: '교회소개' },
+          { href: '/manage/about', icon: Info, key: 'about', label: '교회소개' },
+          { href: '/manage/home', icon: Home, key: 'home', label: '홈화면' },
           { href: '/manage/leaders', icon: UserRound, key: 'leaders', label: '섬기는 사람들' },
           { href: '/manage/worship', icon: MapPin, key: 'worship', label: '예배안내' },
           { external: true, href: '/newcomer', icon: Plus, label: '새가족등록' },

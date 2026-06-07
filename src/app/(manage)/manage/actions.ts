@@ -330,6 +330,25 @@ export async function saveHomeSettingsAction(formData: FormData) {
   redirect('/manage/home')
 }
 
+export async function saveAboutSettingsAction(formData: FormData) {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+
+  await payload.updateGlobal({
+    data: {
+      churchDescription: optionalString(formData, 'churchDescription'),
+      churchQuote: optionalString(formData, 'churchQuote'),
+      churchVision: optionalString(formData, 'churchVision'),
+      coreValues: parseCoreValues(formData),
+      denomination: optionalString(formData, 'denomination'),
+    } as any,
+    slug: 'site-settings',
+  })
+
+  revalidateManageAndPublic('/manage/about')
+  redirect('/manage/about')
+}
+
 export async function saveWorshipSettingsAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
@@ -805,6 +824,15 @@ function parseWorshipServices(formData: FormData) {
       time: times[index] || '',
     }))
     .filter((service) => service.name && service.time)
+}
+
+function parseCoreValues(formData: FormData) {
+  const titles = stringValues(formData, 'coreValueTitle')
+  const descriptions = stringValues(formData, 'coreValueDescription')
+
+  return titles
+    .map((title, index) => ({ description: descriptions[index] || '', title }))
+    .filter((value) => value.title && value.description)
 }
 
 function parseVisitorNotes(formData: FormData) {

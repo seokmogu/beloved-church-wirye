@@ -24,6 +24,10 @@ export default async function ManageDashboardPage() {
           <span>관리가이드</span>
           <strong>안내</strong>
         </Link>
+        <Link className="manage-card manage-stat" href="/manage/about">
+          <span>교회소개</span>
+          <strong>소개</strong>
+        </Link>
         <Link className="manage-card manage-stat" href="/manage/home">
           <span>홈관리</span>
           <strong>5</strong>
