@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation'
 import { requireManageActionUser } from '@/lib/manage/auth'
 import { InstagramSyncConfigError, syncInstagramPosts } from '@/lib/instagram'
 import { dateInputToISO } from '@/lib/manage/date'
+import { optimizeUploadImage } from '@/lib/manage/imageOptimize'
 import { plaintextToLexical } from '@/lib/manage/lexical'
 import { getManagePayload } from '@/lib/manage/payload'
 
@@ -560,14 +561,15 @@ async function uploadMediaFromForm(
   const file = value as File
   if (!file.size) return null
 
+  const optimized = await optimizeUploadImage(Buffer.from(await file.arrayBuffer()), file)
   const uploaded = await payload.create({
     collection: 'media',
     data: { alt },
     file: {
-      data: Buffer.from(await file.arrayBuffer()),
-      mimetype: file.type || 'application/octet-stream',
-      name: file.name || `${key}.upload`,
-      size: file.size,
+      data: optimized.data,
+      mimetype: optimized.mimeType,
+      name: optimized.filename || file.name || `${key}.upload`,
+      size: optimized.data.length,
     },
   } as any)
 
@@ -588,14 +590,15 @@ async function uploadMediaFilesFromForm(
   assertUploadStorageConfigured(files.length)
 
   for (const [index, file] of files.entries()) {
+    const optimized = await optimizeUploadImage(Buffer.from(await file.arrayBuffer()), file)
     const uploaded = await payload.create({
       collection: 'media',
       data: { alt: `${altPrefix} ${index + 1}` },
       file: {
-        data: Buffer.from(await file.arrayBuffer()),
-        mimetype: file.type || 'application/octet-stream',
-        name: file.name || `${key}-${index + 1}.upload`,
-        size: file.size,
+        data: optimized.data,
+        mimetype: optimized.mimeType,
+        name: optimized.filename || file.name || `${key}-${index + 1}.upload`,
+        size: optimized.data.length,
       },
     } as any)
 
