@@ -54,7 +54,9 @@ test.describe('church admin feedback', () => {
 
   test('어드민: 교회로그 nav / 교회소개 편집 / 이미지 업로드 / 리더 편집 노출', async ({ page }) => {
     await login(page)
-    await expect(page.getByRole('link', { name: '교회로그' })).toBeVisible()
+    await expect(
+      page.locator('a[href="/manage/announcements"]').filter({ hasText: '교회로그' }).first(),
+    ).toBeVisible()
 
     await page.goto(`${serverURL}/manage/about`, { waitUntil: 'networkidle' })
     await expect(page.locator('input[name=churchVision]')).toBeVisible()
