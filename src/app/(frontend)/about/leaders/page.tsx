@@ -89,6 +89,56 @@ export default async function LeadersPage() {
           </div>
         </div>
       </section>
+
+      {(settings?.leaders ?? []).length > 0 && (
+        <section className="border-t border-border py-16">
+          <div className="container max-w-5xl">
+            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-primary">Team</p>
+            <h2 className="text-3xl font-bold text-foreground">함께 섬기는 분들</h2>
+            <div className="mt-8 grid gap-6 md:grid-cols-2">
+              {(settings?.leaders ?? []).map((leader, index) => {
+                const photoUrl = mediaUrl(leader.photo as Media | number | null | undefined)
+                return (
+                  <article
+                    key={leader.id ?? index}
+                    className="flex gap-5 rounded-lg border border-border bg-card p-5"
+                  >
+                    <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
+                      {photoUrl ? (
+                        <Image
+                          src={photoUrl}
+                          alt={leader.name ?? '섬기는 사람'}
+                          fill
+                          className="object-cover"
+                          sizes="96px"
+                        />
+                      ) : (
+                        <span className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                          사진 준비 중
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-bold text-foreground">{leader.name}</h3>
+                      {leader.title && (
+                        <p className="mt-1 text-sm font-medium text-primary">{leader.title}</p>
+                      )}
+                      {leader.role && (
+                        <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                          {leader.role}
+                        </p>
+                      )}
+                      <FormattedText className="mt-2 space-y-1 text-sm leading-relaxed text-muted-foreground">
+                        {leader.bio}
+                      </FormattedText>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   )
 }

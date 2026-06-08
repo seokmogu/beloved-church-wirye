@@ -5,13 +5,16 @@ import { ManageShell, PageHeader } from '@/app/(manage)/manage/_components/Manag
 import { saveLeadersSettingsAction } from '@/app/(manage)/manage/actions'
 import { requireManageUser } from '@/lib/manage/auth'
 import { getManagePayload } from '@/lib/manage/payload'
-import type { Media } from '@/payload-types'
+import type { Media, SiteSetting } from '@/payload-types'
+
+type Leader = NonNullable<SiteSetting['leaders']>[number]
 
 export default async function ManageLeadersPage() {
   const user = await requireManageUser()
   const payload = await getManagePayload()
   const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
   const pastorPhotoUrl = getMediaUrl(settings.pastorPhoto as Media | number | null | undefined)
+  const leaders = padRows<Leader>(settings.leaders, 4, { name: '' } as Leader)
 
   return (
     <ManageShell active="leaders" user={user}>
@@ -104,10 +107,78 @@ export default async function ManageLeadersPage() {
               </article>
             </div>
           </section>
+
+          <section className="manage-public-section">
+            <div className="manage-public-section-head">
+              <div>
+                <p>Team</p>
+                <h2>추가 섬기는 사람들</h2>
+              </div>
+              <span className="manage-scope-chip">/about/leaders 담임목사 아래 영역</span>
+            </div>
+
+            <div className="manage-public-card-grid two">
+              {leaders.map((leader, index) => {
+                const photoUrl = getMediaUrl(leader.photo as Media | number | null | undefined)
+                return (
+                  <article className="manage-public-card edit-card" key={index}>
+                    <aside className="manage-public-photo-editor">
+                      <div
+                        aria-hidden="true"
+                        className="manage-public-photo-preview"
+                        style={photoUrl ? { backgroundImage: cssUrl(photoUrl) } : undefined}
+                      >
+                        {photoUrl ? null : <span>사진 없음</span>}
+                      </div>
+                      <label htmlFor={`leaderPhotoFile-${index}`}>
+                        사진 변경
+                        <input
+                          accept="image/*"
+                          id={`leaderPhotoFile-${index}`}
+                          name={`leaderPhotoFile-${index}`}
+                          type="file"
+                        />
+                      </label>
+                      <label className="manage-checkbox compact" htmlFor={`leaderClearPhoto-${index}`}>
+                        <input
+                          id={`leaderClearPhoto-${index}`}
+                          name={`leaderClearPhoto-${index}`}
+                          type="checkbox"
+                        />
+                        사진 제거
+                      </label>
+                    </aside>
+                    <label className="manage-visual-field heading">
+                      <span>이름 (비우면 미노출)</span>
+                      <input defaultValue={leader.name || ''} name="leaderName" />
+                    </label>
+                    <label className="manage-visual-field accent">
+                      <span>직함</span>
+                      <input defaultValue={leader.title || ''} name="leaderTitle" />
+                    </label>
+                    <label className="manage-visual-field muted">
+                      <span>역할/구분</span>
+                      <input defaultValue={leader.role || ''} name="leaderRole" />
+                    </label>
+                    <label className="manage-visual-field muted">
+                      <span>소개</span>
+                      <textarea defaultValue={leader.bio || ''} name="leaderBio" rows={4} />
+                    </label>
+                  </article>
+                )
+              })}
+            </div>
+          </section>
         </div>
       </form>
     </ManageShell>
   )
+}
+
+function padRows<T>(rows: T[] | null | undefined, minLength: number, blank: T): T[] {
+  const filled = [...(rows || [])]
+  while (filled.length < minLength) filled.push(blank)
+  return filled
 }
 
 function getMediaUrl(media: Media | number | null | undefined): string | null {

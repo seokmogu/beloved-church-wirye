@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { DeleteButton, SaveButton } from '@/app/(manage)/manage/_components/FormButtons'
+import { ImageUploadFields } from '@/app/(manage)/manage/_components/ImageUploadFields'
 import { deleteAnnouncementAction, saveAnnouncementAction } from '@/app/(manage)/manage/actions'
 import { toDateTimeInputValue } from '@/lib/manage/date'
 import { lexicalToPlaintext } from '@/lib/manage/lexical'
@@ -24,6 +25,7 @@ export function AnnouncementForm({ doc }: { doc?: Announcement }) {
             rows={10}
           />
         </div>
+        <ImageUploadFields docImages={doc?.images} prefix="announcement" title="행사 사진" />
         <div className="manage-field-grid">
           <div className="manage-field">
             <label htmlFor="publishedAt">게시일</label>

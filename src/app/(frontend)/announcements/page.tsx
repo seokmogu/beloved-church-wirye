@@ -14,8 +14,8 @@ type AnnouncementItem = {
 }
 
 export const metadata: Metadata = {
-  title: '공지사항 | 사랑하는교회',
-  description: '사랑하는교회 공지사항',
+  title: '교회로그 | 사랑하는교회',
+  description: '사랑하는교회 교회로그',
 }
 
 export const revalidate = 300
@@ -57,13 +57,13 @@ export default async function AnnouncementsPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <PageHero label="NOTICE" title="공지사항" subtitle="사랑하는교회의 새 소식을 전합니다" />
+      <PageHero label="NOTICE" title="교회로그" subtitle="사랑하는교회의 새 소식을 전합니다" />
 
       <div className="container max-w-5xl py-12">
         {hasError ? (
           <EmptyState
             icon="error"
-            title="공지사항을 불러올 수 없습니다"
+            title="교회로그을 불러올 수 없습니다"
             description="일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
             ctaText="홈으로 돌아가기"
             ctaLink="/"
@@ -71,7 +71,7 @@ export default async function AnnouncementsPage() {
         ) : announcements.length === 0 ? (
           <EmptyState
             icon="announcement"
-            title="등록된 공지사항이 없습니다"
+            title="등록된 교회로그이 없습니다"
             description="사랑하는교회의 새 소식이 곧 전해질 예정입니다. 자주 방문해주세요!"
             ctaText="예배안내 보기"
             ctaLink="/worship"
@@ -83,7 +83,7 @@ export default async function AnnouncementsPage() {
                 <p className="text-sm font-semibold uppercase tracking-[0.12em] text-primary">
                   Notice Board
                 </p>
-                <h2 className="mt-2 text-2xl font-semibold text-foreground">공지사항 게시판</h2>
+                <h2 className="mt-2 text-2xl font-semibold text-foreground">교회로그 게시판</h2>
               </div>
               <div className="flex gap-2 text-sm text-muted-foreground">
                 <span>전체 {announcements.length}건</span>

@@ -79,6 +79,19 @@ export const Bulletins: CollectionConfig = {
       },
     },
     {
+      name: 'images',
+      type: 'array',
+      label: '주보 이미지',
+      labels: { singular: '이미지', plural: '이미지' },
+      admin: {
+        description: '주보를 이미지로 올릴 경우 여러 장을 순서대로 등록합니다. (PDF 파일과 별개)',
+      },
+      fields: [
+        { name: 'image', type: 'upload', relationTo: 'media', required: true, label: '이미지' },
+        { name: 'caption', type: 'text', label: '캡션' },
+      ],
+    },
+    {
       name: 'description',
       type: 'textarea',
       label: '설교 제목 / 메모',

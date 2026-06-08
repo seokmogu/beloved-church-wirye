@@ -39,6 +39,19 @@ export const Announcements: CollectionConfig = {
       label: '내용',
     },
     {
+      name: 'images',
+      type: 'array',
+      label: '사진',
+      labels: { singular: '사진', plural: '사진' },
+      admin: {
+        description: '행사 사진 등을 여러 장 등록합니다.',
+      },
+      fields: [
+        { name: 'image', type: 'upload', relationTo: 'media', required: true, label: '사진' },
+        { name: 'caption', type: 'text', label: '캡션' },
+      ],
+    },
+    {
       name: 'announcementPreview',
       type: 'ui',
       admin: {
