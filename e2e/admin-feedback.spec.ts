@@ -92,7 +92,7 @@ test.describe('church admin feedback', () => {
       where: { title: { equals: TEST_TITLE } },
     })
     expect(res.docs.length).toBe(1)
-    const images = ((res.docs[0] as Record<string, unknown>).images as Array<{ image?: unknown }>) || []
+    const images = (res.docs[0]?.images ?? []) as Array<{ image?: unknown }>
     expect(images.length).toBeGreaterThan(0)
     const media = images[0].image as { mimeType?: string } | undefined
     expect(media?.mimeType).toBe('image/webp')
