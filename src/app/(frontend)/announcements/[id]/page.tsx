@@ -34,7 +34,7 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
   const title = announcement.title || '교회로그'
   const publishedDate = announcement.publishedAt
     ? formatDate(announcement.publishedAt)
-    : '공지 날짜 미정'
+    : '날짜 미정'
   const hasAttachment = Boolean(announcement.googleDriveLink)
 
   return (
@@ -66,7 +66,7 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
                 <span className="rounded-sm border border-border px-2 py-1">교회로그</span>
                 {announcement.isPinned && (
                   <span className="rounded-sm bg-primary px-2 py-1 font-semibold text-primary-foreground">
-                    고정 공지
+                    고정
                   </span>
                 )}
                 {hasAttachment && (
@@ -90,7 +90,7 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
               <div className="border-r border-border px-5 py-3 md:px-6">
                 <dt className="text-xs font-semibold text-muted-foreground">구분</dt>
                 <dd className="mt-1 text-foreground">
-                  {announcement.isPinned ? '고정 공지' : '일반 공지'}
+                  {announcement.isPinned ? '고정' : '일반'}
                 </dd>
               </div>
               <div className="px-5 py-3 md:px-6">

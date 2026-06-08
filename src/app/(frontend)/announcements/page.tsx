@@ -52,7 +52,7 @@ export default async function AnnouncementsPage() {
   let regularNumber = regularCount
   const boardRows = announcements.map((item) => ({
     ...item,
-    boardNumber: item.isPinned ? '공지' : String(regularNumber--),
+    boardNumber: item.isPinned ? '고정' : String(regularNumber--),
   }))
 
   return (
@@ -119,7 +119,7 @@ export default async function AnnouncementsPage() {
                             href={`/announcements/${item.id}`}
                             className="font-medium text-foreground underline-offset-4 hover:text-primary hover:underline"
                           >
-                            {item.title || '제목 없는 공지'}
+                            {item.title || '제목 없음'}
                           </Link>
                         </td>
                         <td className="px-4 py-4 text-center">
@@ -166,7 +166,7 @@ export default async function AnnouncementsPage() {
                     )}
                   </div>
                   <h3 className="line-clamp-2 font-medium text-foreground">
-                    {item.title || '제목 없는 공지'}
+                    {item.title || '제목 없음'}
                   </h3>
                 </Link>
               ))}

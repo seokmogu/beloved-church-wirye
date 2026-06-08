@@ -47,7 +47,7 @@ export default async function ManageAnnouncementsPage() {
             ) : (
               <tr>
                 <td className="manage-empty" colSpan={4}>
-                  표시할 공지가 없습니다.
+                  표시할 교회로그가 없습니다.
                 </td>
               </tr>
             )}
