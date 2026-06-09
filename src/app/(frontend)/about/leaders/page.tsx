@@ -3,7 +3,6 @@ import Image from 'next/image'
 import { getPayload } from 'payload'
 
 import config from '@payload-config'
-import { FormattedText } from '@/components/FormattedText'
 import { PageHero } from '@/components/PageHero'
 import type { Media, SiteSetting } from '@/payload-types'
 
@@ -35,13 +34,12 @@ type Person = {
   role?: string | null
   photo: string | null
   bio?: string | null
-  quote?: string | null
 }
 
 export default async function LeadersPage() {
   const settings = await getSettings()
 
-  // 담임목사와 함께 섬기는 분들을 하나의 동일한 카드 레이어로 합친다.
+  // 담임목사와 함께 섬기는 분들을 하나의 동일한 카드 레이어로 합친다(인원이 많아도 균일하게 확장).
   const people: Person[] = []
   if (settings?.pastorName) {
     people.push({
@@ -51,7 +49,6 @@ export default async function LeadersPage() {
       role: '담임목사',
       photo: mediaUrl(settings.pastorPhoto as Media | number | null | undefined),
       bio: settings.pastorBio,
-      quote: settings.pastorQuote,
     })
   }
   ;(settings?.leaders ?? []).forEach((leader, index) => {
@@ -77,52 +74,45 @@ export default async function LeadersPage() {
       <section className="py-16 md:py-20">
         <div className="container max-w-5xl">
           {people.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {people.map((person) => (
                 <article
                   key={person.key}
-                  className="flex flex-col overflow-hidden rounded-lg border border-border bg-card"
+                  className="flex flex-col rounded-lg border border-border bg-card p-5"
                 >
-                  <div className="relative aspect-[4/5] w-full bg-muted">
-                    {person.photo ? (
-                      <Image
-                        src={person.photo}
-                        alt={person.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
-                      />
-                    ) : (
-                      <span className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                        사진 준비 중
-                      </span>
-                    )}
+                  <div className="flex items-center gap-4">
+                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
+                      {person.photo ? (
+                        <Image
+                          src={person.photo}
+                          alt={person.name}
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                        />
+                      ) : (
+                        <span className="flex h-full items-center justify-center px-1 text-center text-[11px] leading-tight text-muted-foreground">
+                          사진 준비 중
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      {person.role && (
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                          {person.role}
+                        </p>
+                      )}
+                      <h3 className="truncate text-lg font-bold text-foreground">{person.name}</h3>
+                      {person.title && (
+                        <p className="truncate text-sm font-medium text-primary">{person.title}</p>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex flex-1 flex-col p-5">
-                    {person.role && (
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-                        {person.role}
-                      </p>
-                    )}
-                    <h3 className="mt-1 text-xl font-bold text-foreground">{person.name}</h3>
-                    {person.title && (
-                      <p className="mt-1 text-sm font-medium text-primary">{person.title}</p>
-                    )}
-                    <FormattedText
-                      className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground"
-                      headingClassName="text-sm font-bold leading-snug text-foreground"
-                      listClassName="space-y-1 text-muted-foreground"
-                    >
+                  {person.bio && (
+                    <p className="mt-3 line-clamp-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
                       {person.bio}
-                    </FormattedText>
-                    {person.quote && (
-                      <blockquote className="mt-4 border-l-2 border-secondary pl-4 text-sm italic text-muted-foreground">
-                        <FormattedText className="space-y-1" paragraphClassName="m-0">
-                          {person.quote}
-                        </FormattedText>
-                      </blockquote>
-                    )}
-                  </div>
+                    </p>
+                  )}
                 </article>
               ))}
             </div>
