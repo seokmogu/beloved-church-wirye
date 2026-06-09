@@ -32,10 +32,6 @@ const dirname = path.dirname(filename)
 const allowedOrigins = getPayloadAllowedOrigins()
 const serverURL = getPayloadServerURL()
 
-// TEMP diagnostic: captures the blob-token boolean at the moment THIS config module is
-// evaluated (build vs runtime). Compare with a fresh runtime process.env read.
-export const __BLOB_ENABLED_AT_EVAL = Boolean(process.env.BLOB_READ_WRITE_TOKEN)
-
 const syncInstagramPostsTask: TaskConfig<{
   input: Record<string, never>
   output: { count: number }
