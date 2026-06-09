@@ -14,7 +14,6 @@ export function ChurchIntroSection({
   section?: HomeSectionCopy
   settings?: SiteSetting | null
 }) {
-  const services = (settings?.worshipServices ?? []).filter((item) => item?.name && item?.time)
   const values = (settings?.coreValues ?? []).filter((item) => item?.title && item?.description)
   const address = settings?.address ?? ''
   const addressDetail = settings?.addressDetail ?? ''
@@ -69,28 +68,6 @@ export function ChurchIntroSection({
           </div>
 
           <div className="space-y-6">
-            {services.length > 0 && (
-              <div className="rounded-lg border border-border bg-card p-6 shadow-[0_18px_60px_rgba(20,42,33,0.08)]">
-                <div className="mb-5 flex items-center justify-between gap-4">
-                  <h3 className="text-lg font-bold text-foreground">예배와 모임</h3>
-                  <span className="church-card-accent text-xs font-semibold uppercase">
-                    Worship
-                  </span>
-                </div>
-                <div className="divide-y divide-border">
-                  {services.slice(0, 4).map((item) => (
-                    <div
-                      key={`${item.name}-${item.time}`}
-                      className="grid grid-cols-[1fr_auto] gap-4 py-4 first:pt-0 last:pb-0"
-                    >
-                      <span className="font-medium text-foreground">{item.name}</span>
-                      <span className="text-sm font-semibold text-primary">{item.time}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {quote && (
               <div className="rounded-lg border border-secondary/35 bg-secondary/10 px-6 py-6">
                 <p className="text-center text-base font-semibold leading-relaxed text-primary">
