@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { DeleteButton, SaveButton } from '@/app/(manage)/manage/_components/FormButtons'
+import { ImageCompressor } from '@/app/(manage)/manage/_components/ImageCompressor'
 import { ImageUploadFields } from '@/app/(manage)/manage/_components/ImageUploadFields'
 import { deleteBulletinAction, saveBulletinAction } from '@/app/(manage)/manage/actions'
 import { toDateInputValue } from '@/lib/manage/date'
@@ -10,6 +11,7 @@ export function BulletinForm({ doc }: { doc?: Bulletin }) {
   return (
     <>
       <form action={saveBulletinAction} className="manage-form">
+        <ImageCompressor />
         {doc ? <input name="id" type="hidden" value={doc.id} /> : null}
         <div className="manage-field">
           <label htmlFor="title">제목</label>

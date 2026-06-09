@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { ImageCompressor } from '@/app/(manage)/manage/_components/ImageCompressor'
 import { SaveButton } from '@/app/(manage)/manage/_components/FormButtons'
 import { ManageShell, PageHeader } from '@/app/(manage)/manage/_components/ManageShell'
 import { saveLeadersSettingsAction } from '@/app/(manage)/manage/actions'
@@ -33,6 +34,7 @@ export default async function ManageLeadersPage() {
         </Link>
       </PageHeader>
       <form action={saveLeadersSettingsAction} className="manage-visual-form manage-public-editor">
+        <ImageCompressor />
         <div className="manage-editor-toolbar">
           <Link className="manage-button secondary" href="/manage">
             취소

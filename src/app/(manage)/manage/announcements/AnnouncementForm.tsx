@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { DeleteButton, SaveButton } from '@/app/(manage)/manage/_components/FormButtons'
+import { ImageCompressor } from '@/app/(manage)/manage/_components/ImageCompressor'
 import { ImageUploadFields } from '@/app/(manage)/manage/_components/ImageUploadFields'
 import { deleteAnnouncementAction, saveAnnouncementAction } from '@/app/(manage)/manage/actions'
 import { toDateTimeInputValue } from '@/lib/manage/date'
@@ -11,6 +12,7 @@ export function AnnouncementForm({ doc }: { doc?: Announcement }) {
   return (
     <>
       <form action={saveAnnouncementAction} className="manage-form">
+        <ImageCompressor />
         {doc ? <input name="id" type="hidden" value={doc.id} /> : null}
         <div className="manage-field">
           <label htmlFor="title">제목</label>
