@@ -59,13 +59,20 @@ export function ImageUploadFields({
                 {url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    alt=""
+                    alt={row.caption ?? ''}
                     src={url}
                     style={{ borderRadius: 6, height: 96, objectFit: 'cover', width: 96 }}
                   />
                 ) : (
                   <span style={{ fontSize: 12 }}>이미지</span>
                 )}
+                <input
+                  defaultValue={row.caption ?? ''}
+                  name={`${prefix}Caption-${index}`}
+                  placeholder="설명 (선택)"
+                  style={{ fontSize: 12, padding: '2px 4px', width: 150 }}
+                  type="text"
+                />
                 <label className="manage-checkbox" style={{ fontSize: 12 }}>
                   <input name={`${prefix}RemoveImage-${index}`} type="checkbox" />
                   <span>삭제</span>

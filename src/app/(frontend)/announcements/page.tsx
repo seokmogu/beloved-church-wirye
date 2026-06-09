@@ -63,7 +63,7 @@ export default async function AnnouncementsPage() {
         {hasError ? (
           <EmptyState
             icon="error"
-            title="교회로그을 불러올 수 없습니다"
+            title="교회로그를 불러올 수 없습니다"
             description="일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
             ctaText="홈으로 돌아가기"
             ctaLink="/"
@@ -71,7 +71,7 @@ export default async function AnnouncementsPage() {
         ) : announcements.length === 0 ? (
           <EmptyState
             icon="announcement"
-            title="등록된 교회로그이 없습니다"
+            title="등록된 교회로그가 없습니다"
             description="사랑하는교회의 새 소식이 곧 전해질 예정입니다. 자주 방문해주세요!"
             ctaText="예배안내 보기"
             ctaLink="/worship"
@@ -108,7 +108,7 @@ export default async function AnnouncementsPage() {
                         <td className="px-4 py-4 text-center text-muted-foreground">
                           {item.isPinned ? (
                             <span className="inline-flex min-w-12 justify-center rounded-sm bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground">
-                              공지
+                              고정
                             </span>
                           ) : (
                             item.boardNumber
@@ -155,7 +155,7 @@ export default async function AnnouncementsPage() {
                   <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
                     {item.isPinned ? (
                       <span className="rounded-sm bg-primary px-2 py-1 font-semibold text-primary-foreground">
-                        공지
+                        고정
                       </span>
                     ) : (
                       <span>No. {item.boardNumber}</span>

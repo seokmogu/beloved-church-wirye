@@ -36,12 +36,12 @@ const internalPathOptions = [
 
 const publicMenuStructure = [
   {
-    children: ['교회소개', '섬기는 사람들', '예배안내', '새가족등록', '주보'],
+    children: ['교회소개', '섬기는 사람들', '예배안내', '새가족등록'],
     label: '교회소개',
   },
   { label: '설교영상' },
-  { label: '공지사항' },
-  { children: ['교회소식', '동영상'], label: '교회소식' },
+  { label: '교회로그' },
+  { children: ['교회소식', '동영상', '주보'], label: '교회소식' },
 ]
 
 export default async function ManageMenuPage({ searchParams }: { searchParams: MenuSearchParams }) {

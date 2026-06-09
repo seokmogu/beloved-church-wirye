@@ -872,7 +872,9 @@ function parseExistingImageRows(formData: FormData, prefix: string) {
   return imageIds
     .map((imageId, index) => {
       if (!imageId || formData.get(`${prefix}RemoveImage-${index}`) === 'on') return null
-      return { caption: null as string | null, image: relationValueFromString(imageId) }
+      const caption =
+        (formData.get(`${prefix}Caption-${index}`) as string | null)?.trim() || null
+      return { caption, image: relationValueFromString(imageId) }
     })
     .filter((row): row is { caption: string | null; image: number | string } => Boolean(row))
 }
