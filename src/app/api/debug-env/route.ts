@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server'
 
+import { __BLOB_ENABLED_AT_EVAL } from '@payload-config'
+
 // TEMPORARY diagnostic — remove after verifying dev Blob/storage env.
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
   return NextResponse.json({
-    hasBlobToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
-    blobTokenPrefix: (process.env.BLOB_READ_WRITE_TOKEN || '').slice(0, 14),
-    blobStoreEnv: process.env.BLOB_STORE_ENV ?? null,
+    blobEnabledAtConfigEval: __BLOB_ENABLED_AT_EVAL,
+    hasBlobTokenRuntime: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
     nextPublicServerUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? null,
-    nodeEnv: process.env.NODE_ENV,
     vercelEnv: process.env.VERCEL_ENV ?? null,
   })
 }
