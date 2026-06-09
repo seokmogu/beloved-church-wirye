@@ -24,8 +24,9 @@ export async function optimizeUploadImage(
   data: Buffer,
   file: UploadFileLike,
 ): Promise<OptimizedImage> {
-  // Non-images (e.g. a PDF bulletin) pass through untouched.
-  if (!file.type?.startsWith('image/')) {
+  // Non-images (e.g. a PDF bulletin) and animated GIFs pass through untouched —
+  // sharp's single-frame WebP pass would flatten a GIF's animation.
+  if (!file.type?.startsWith('image/') || file.type === 'image/gif') {
     return {
       data,
       filename: file.name || 'upload',

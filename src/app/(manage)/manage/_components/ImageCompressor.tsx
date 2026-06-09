@@ -13,6 +13,8 @@ const COMPRESS_OVER_BYTES = 2_500_000
 
 async function compressImageFile(file: File): Promise<File> {
   if (!file.type.startsWith('image/')) return file
+  // GIF passes through untouched — drawing it to a canvas would drop the animation.
+  if (file.type === 'image/gif') return file
 
   let bitmap: ImageBitmap
   try {
