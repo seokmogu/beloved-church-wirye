@@ -74,45 +74,43 @@ export default async function LeadersPage() {
       <section className="py-16 md:py-20">
         <div className="container max-w-5xl">
           {people.length > 0 ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
               {people.map((person) => (
                 <article
                   key={person.key}
-                  className="flex flex-col rounded-lg border border-border bg-card p-5"
+                  className="flex gap-4 rounded-lg border border-border bg-card p-5"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
-                      {person.photo ? (
-                        <Image
-                          src={person.photo}
-                          alt={person.name}
-                          fill
-                          className="object-cover"
-                          sizes="80px"
-                        />
-                      ) : (
-                        <span className="flex h-full items-center justify-center px-1 text-center text-[11px] leading-tight text-muted-foreground">
-                          사진 준비 중
-                        </span>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      {person.role && (
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
-                          {person.role}
-                        </p>
-                      )}
-                      <h3 className="truncate text-lg font-bold text-foreground">{person.name}</h3>
-                      {person.title && (
-                        <p className="truncate text-sm font-medium text-primary">{person.title}</p>
-                      )}
-                    </div>
+                  <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
+                    {person.photo ? (
+                      <Image
+                        src={person.photo}
+                        alt={person.name}
+                        fill
+                        className="object-cover"
+                        sizes="96px"
+                      />
+                    ) : (
+                      <span className="flex h-full items-center justify-center px-1 text-center text-[11px] leading-tight text-muted-foreground">
+                        사진 준비 중
+                      </span>
+                    )}
                   </div>
-                  {person.bio && (
-                    <p className="mt-3 line-clamp-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                      {person.bio}
-                    </p>
-                  )}
+                  <div className="min-w-0 flex-1">
+                    {person.role && (
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                        {person.role}
+                      </p>
+                    )}
+                    <h3 className="text-lg font-bold leading-snug text-foreground">{person.name}</h3>
+                    {person.title && (
+                      <p className="mt-0.5 text-sm font-medium text-primary">{person.title}</p>
+                    )}
+                    {person.bio && (
+                      <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                        {person.bio}
+                      </p>
+                    )}
+                  </div>
                 </article>
               ))}
             </div>
