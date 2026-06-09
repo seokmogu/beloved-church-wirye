@@ -28,9 +28,43 @@ async function getSettings(): Promise<SiteSetting | null> {
   }
 }
 
+type Person = {
+  key: string
+  name: string
+  title?: string | null
+  role?: string | null
+  photo: string | null
+  bio?: string | null
+  quote?: string | null
+}
+
 export default async function LeadersPage() {
   const settings = await getSettings()
-  const pastorPhotoUrl = mediaUrl(settings?.pastorPhoto as Media | number | null | undefined)
+
+  // 담임목사와 함께 섬기는 분들을 하나의 동일한 카드 레이어로 합친다.
+  const people: Person[] = []
+  if (settings?.pastorName) {
+    people.push({
+      key: 'pastor',
+      name: settings.pastorName,
+      title: settings.pastorTitle,
+      role: '담임목사',
+      photo: mediaUrl(settings.pastorPhoto as Media | number | null | undefined),
+      bio: settings.pastorBio,
+      quote: settings.pastorQuote,
+    })
+  }
+  ;(settings?.leaders ?? []).forEach((leader, index) => {
+    if (!leader?.name) return
+    people.push({
+      key: leader.id ?? `leader-${index}`,
+      name: leader.name,
+      title: leader.title,
+      role: leader.role,
+      photo: mediaUrl(leader.photo as Media | number | null | undefined),
+      bio: leader.bio,
+    })
+  })
 
   return (
     <main className="min-h-screen bg-background">
@@ -40,105 +74,63 @@ export default async function LeadersPage() {
         subtitle="사랑하는교회를 말씀과 섬김으로 세워갑니다"
       />
 
-      <section className="py-20">
+      <section className="py-16 md:py-20">
         <div className="container max-w-5xl">
-          <div className="grid gap-10 md:grid-cols-[260px_1fr]">
-            <div>
-              {pastorPhotoUrl ? (
-                <div className="relative aspect-square overflow-hidden rounded-lg border border-border bg-card">
-                  <Image
-                    src={pastorPhotoUrl}
-                    alt={settings?.pastorName ?? '담임목사'}
-                    fill
-                    className="object-cover"
-                    sizes="260px"
-                  />
-                </div>
-              ) : (
-                <div className="flex aspect-square items-center justify-center rounded-lg border border-border bg-card text-sm text-muted-foreground">
-                  사진 준비 중
-                </div>
-              )}
+          {people.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {people.map((person) => (
+                <article
+                  key={person.key}
+                  className="flex flex-col overflow-hidden rounded-lg border border-border bg-card"
+                >
+                  <div className="relative aspect-[4/5] w-full bg-muted">
+                    {person.photo ? (
+                      <Image
+                        src={person.photo}
+                        alt={person.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
+                      />
+                    ) : (
+                      <span className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                        사진 준비 중
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col p-5">
+                    {person.role && (
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                        {person.role}
+                      </p>
+                    )}
+                    <h3 className="mt-1 text-xl font-bold text-foreground">{person.name}</h3>
+                    {person.title && (
+                      <p className="mt-1 text-sm font-medium text-primary">{person.title}</p>
+                    )}
+                    <FormattedText
+                      className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground"
+                      headingClassName="text-sm font-bold leading-snug text-foreground"
+                      listClassName="space-y-1 text-muted-foreground"
+                    >
+                      {person.bio}
+                    </FormattedText>
+                    {person.quote && (
+                      <blockquote className="mt-4 border-l-2 border-secondary pl-4 text-sm italic text-muted-foreground">
+                        <FormattedText className="space-y-1" paragraphClassName="m-0">
+                          {person.quote}
+                        </FormattedText>
+                      </blockquote>
+                    )}
+                  </div>
+                </article>
+              ))}
             </div>
-
-            <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
-                Senior Pastor
-              </p>
-              <h2 className="text-3xl font-bold text-foreground">
-                {settings?.pastorName ?? '담임목사'}
-              </h2>
-              {settings?.pastorTitle && (
-                <p className="mt-2 font-medium text-primary">{settings.pastorTitle}</p>
-              )}
-              <FormattedText
-                className="mt-7 space-y-3 leading-relaxed text-muted-foreground"
-                headingClassName="text-lg font-bold leading-snug text-foreground"
-                listClassName="space-y-1 text-muted-foreground"
-              >
-                {settings?.pastorBio}
-              </FormattedText>
-              {settings?.pastorQuote && (
-                <blockquote className="mt-7 border-l-2 border-secondary pl-5 italic text-muted-foreground">
-                  <FormattedText className="space-y-2" paragraphClassName="m-0">
-                    {settings.pastorQuote}
-                  </FormattedText>
-                </blockquote>
-              )}
-            </div>
-          </div>
+          ) : (
+            <p className="text-center text-muted-foreground">소개가 곧 준비될 예정입니다.</p>
+          )}
         </div>
       </section>
-
-      {(settings?.leaders ?? []).length > 0 && (
-        <section className="border-t border-border py-16">
-          <div className="container max-w-5xl">
-            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-primary">Team</p>
-            <h2 className="text-3xl font-bold text-foreground">함께 섬기는 분들</h2>
-            <div className="mt-8 grid gap-6 md:grid-cols-2">
-              {(settings?.leaders ?? []).map((leader, index) => {
-                const photoUrl = mediaUrl(leader.photo as Media | number | null | undefined)
-                return (
-                  <article
-                    key={leader.id ?? index}
-                    className="flex gap-5 rounded-lg border border-border bg-card p-5"
-                  >
-                    <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
-                      {photoUrl ? (
-                        <Image
-                          src={photoUrl}
-                          alt={leader.name ?? '섬기는 사람'}
-                          fill
-                          className="object-cover"
-                          sizes="96px"
-                        />
-                      ) : (
-                        <span className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                          사진 준비 중
-                        </span>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-lg font-bold text-foreground">{leader.name}</h3>
-                      {leader.title && (
-                        <p className="mt-1 text-sm font-medium text-primary">{leader.title}</p>
-                      )}
-                      {leader.role && (
-                        <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-                          {leader.role}
-                        </p>
-                      )}
-                      <FormattedText className="mt-2 space-y-1 text-sm leading-relaxed text-muted-foreground">
-                        {leader.bio}
-                      </FormattedText>
-                    </div>
-                  </article>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-      )}
     </main>
   )
 }
