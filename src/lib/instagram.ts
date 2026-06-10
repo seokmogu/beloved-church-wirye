@@ -2,6 +2,8 @@ import { Buffer } from 'node:buffer'
 
 import type { Payload } from 'payload'
 
+import { optimizeUploadImage } from '@/lib/manage/churchNewsImage'
+
 type InstagramMedia = {
   caption?: string
   children?: {
@@ -250,11 +252,20 @@ async function downloadInstagramImage(post: InstagramPostInput) {
 
   const mimetype = normalizeImageMimeType(res.headers.get('content-type'))
   const data = Buffer.from(await res.arrayBuffer())
-  return {
+  const optimized = await optimizeUploadImage(
     data,
-    mimetype,
-    name: `instagram-${post.postId}.${extensionForMimeType(mimetype)}`,
-    size: data.byteLength,
+    {
+      name: `instagram-${post.postId}.${extensionForMimeType(mimetype)}`,
+      type: mimetype,
+    },
+    `instagram-${post.postId}`,
+  )
+
+  return {
+    data: optimized.data,
+    mimetype: optimized.mimeType,
+    name: optimized.filename,
+    size: optimized.data.byteLength,
   }
 }
 

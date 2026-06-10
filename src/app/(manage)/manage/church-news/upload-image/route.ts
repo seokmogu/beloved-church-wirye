@@ -6,14 +6,11 @@ import { NextResponse } from 'next/server'
 import { requireManageActionUser } from '@/lib/manage/auth'
 import { optimizeChurchNewsImage } from '@/lib/manage/churchNewsImage'
 import { getManagePayload } from '@/lib/manage/payload'
+import { isDurableUploadStorageConfigured } from '@/lib/manage/uploadStorage'
 
 export async function POST(request: Request) {
   try {
     await requireManageActionUser()
-
-    if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN) {
-      return NextResponse.json({ error: 'storage_not_configured' }, { status: 503 })
-    }
 
     const formData = await request.formData()
     const file = formData.get('file')
@@ -21,6 +18,10 @@ export async function POST(request: Request) {
 
     if (!isUploadableFile(file) || !file.size) {
       return NextResponse.json({ error: 'file_required' }, { status: 400 })
+    }
+
+    if (!isDurableUploadStorageConfigured()) {
+      return NextResponse.json({ error: 'storage_not_configured' }, { status: 503 })
     }
 
     const originalData = Buffer.from(await file.arrayBuffer())

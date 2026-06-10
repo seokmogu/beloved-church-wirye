@@ -7,7 +7,7 @@
 - Normal code, content, and configuration changes should use a branch-and-PR workflow: create a new branch from the verified Mac Studio `main`, implement and validate there, then push the branch and open a PR only after current-turn user approval. Do not work directly on `main` for normal changes, and do not merge the PR until the user explicitly approves that merge.
 - Approved Vercel target: `seokmogus-projects/beloved-church-wirye`.
 - Vercel project ID: `prj_rlSbDEXCQBanqqOZorCnYKL6BTnH`.
-- Approved deployment path: GitHub -> Vercel Git integration. Use GitHub CLI to push/PR/merge `seokmogu/beloved-church-wirye`; Vercel should build from Git. Do not use direct `vercel deploy` for normal releases.
+- Approved deployment path: GitHub -> Vercel Git integration. Use GitHub CLI to push/PR/merge `seokmogu/beloved-church-wirye`; Vercel should build from Git. Never run `vercel deploy`, `vercel --prod`, or any other direct Vercel CLI deployment for this project. Vercel CLI may be used only for read-only diagnostics such as logs/status/env inspection.
 - Production admin path is the custom `/manage` app; `/admin` redirects to `/manage`. Admin login uses Supabase Auth in project `fpiqbslkwcyqpbrnbkhr` and the `MANAGE_ADMIN_EMAILS` allowlist.
 - `.env.production` may be tracked for non-secret production defaults only. Do not add passwords, service-role keys, database URLs, or private tokens there; keep those in Vercel Project Settings or git-ignored `.deploy/` files.
 - Production branch: `main` after Vercel Git settings confirm this repository and branch.
