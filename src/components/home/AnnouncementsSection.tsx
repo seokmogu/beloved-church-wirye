@@ -1,5 +1,7 @@
 import Link from 'next/link'
 
+import { FormattedText } from '@/components/FormattedText'
+
 export interface AnnouncementItem {
   id: string
   title: string
@@ -37,11 +39,12 @@ export function AnnouncementsSection({ announcements, description, eyebrow, titl
             <h2 className="church-section-heading font-bold text-foreground">
               {title ?? '교회 소식'}
             </h2>
-            {description && (
-              <p className="church-body-copy church-surface-muted mt-4 max-w-2xl leading-relaxed">
-                {description}
-              </p>
-            )}
+            <FormattedText
+              className="church-body-copy church-surface-muted mt-4 max-w-2xl space-y-3 leading-relaxed"
+              headingClassName="text-xl font-bold leading-snug text-foreground"
+            >
+              {description}
+            </FormattedText>
           </div>
           <Link
             href="/announcements"

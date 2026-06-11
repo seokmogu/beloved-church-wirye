@@ -1,4 +1,5 @@
 import type { SiteSetting } from '@/payload-types'
+import { FormattedText } from '@/components/FormattedText'
 
 type HomeSectionCopy = {
   description?: string | null
@@ -13,7 +14,6 @@ export function ChurchIntroSection({
   section?: HomeSectionCopy
   settings?: SiteSetting | null
 }) {
-  const services = (settings?.worshipServices ?? []).filter((item) => item?.name && item?.time)
   const values = (settings?.coreValues ?? []).filter((item) => item?.title && item?.description)
   const address = settings?.address ?? ''
   const addressDetail = settings?.addressDetail ?? ''
@@ -34,7 +34,12 @@ export function ChurchIntroSection({
               {section?.title ?? settings?.tagline ?? '교회소개'}
             </h2>
             <div className="church-body-copy church-surface-muted mt-6 max-w-xl space-y-4 leading-relaxed">
-              {description && <p>{description}</p>}
+              <FormattedText
+                className="space-y-4"
+                headingClassName="text-xl font-bold leading-snug text-foreground"
+              >
+                {description}
+              </FormattedText>
               {vision && (
                 <p>
                   우리는 <strong className="text-foreground">{vision}</strong>이라는 비전 아래,
@@ -63,28 +68,6 @@ export function ChurchIntroSection({
           </div>
 
           <div className="space-y-6">
-            {services.length > 0 && (
-              <div className="rounded-lg border border-border bg-card p-6 shadow-[0_18px_60px_rgba(20,42,33,0.08)]">
-                <div className="mb-5 flex items-center justify-between gap-4">
-                  <h3 className="text-lg font-bold text-foreground">예배와 모임</h3>
-                  <span className="church-card-accent text-xs font-semibold uppercase">
-                    Worship
-                  </span>
-                </div>
-                <div className="divide-y divide-border">
-                  {services.slice(0, 4).map((item) => (
-                    <div
-                      key={`${item.name}-${item.time}`}
-                      className="grid grid-cols-[1fr_auto] gap-4 py-4 first:pt-0 last:pb-0"
-                    >
-                      <span className="font-medium text-foreground">{item.name}</span>
-                      <span className="text-sm font-semibold text-primary">{item.time}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {quote && (
               <div className="rounded-lg border border-secondary/35 bg-secondary/10 px-6 py-6">
                 <p className="text-center text-base font-semibold leading-relaxed text-primary">
@@ -104,9 +87,12 @@ export function ChurchIntroSection({
                       {String(index + 1).padStart(2, '0')}
                     </span>
                     <h4 className="mt-3 font-semibold text-foreground">{item.title}</h4>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    <FormattedText
+                      className="mt-2 space-y-1 text-sm leading-relaxed text-muted-foreground"
+                      headingClassName="text-sm font-bold leading-snug text-foreground"
+                    >
                       {item.description}
-                    </p>
+                    </FormattedText>
                   </div>
                 ))}
               </div>

@@ -681,6 +681,16 @@ export interface Announcement {
     [k: string]: unknown;
   } | null;
   /**
+   * 행사 사진 등을 여러 장 등록합니다.
+   */
+  images?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * 비워두면 지금 시각으로 저장됩니다.
    */
   publishedAt: string;
@@ -778,6 +788,16 @@ export interface Bulletin {
    * PDF 또는 이미지 파일을 업로드하세요.
    */
   file?: (number | null) | Media;
+  /**
+   * 주보를 이미지로 올릴 경우 여러 장을 순서대로 등록합니다. (PDF 파일과 별개)
+   */
+  images?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * 이번 주 설교 제목이나 특별 사항을 입력하세요.
    */
@@ -1561,6 +1581,13 @@ export interface OfferingBlockSelect<T extends boolean = true> {
 export interface AnnouncementsSelect<T extends boolean = true> {
   title?: T;
   content?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
   publishedAt?: T;
   isPinned?: T;
   googleDriveLink?: T;
@@ -1611,6 +1638,13 @@ export interface BulletinsSelect<T extends boolean = true> {
   date?: T;
   isPublic?: T;
   file?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
   description?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2164,6 +2198,19 @@ export interface SiteSetting {
   pastorPhoto?: (number | null) | Media;
   pastorBio?: string | null;
   pastorQuote?: string | null;
+  /**
+   * 담임목사 외에 소개할 교역자/리더를 등록합니다.
+   */
+  leaders?:
+    | {
+        name: string;
+        title?: string | null;
+        role?: string | null;
+        photo?: (number | null) | Media;
+        bio?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   visitorNotes?:
     | {
         text: string;
@@ -2546,6 +2593,16 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   pastorPhoto?: T;
   pastorBio?: T;
   pastorQuote?: T;
+  leaders?:
+    | T
+    | {
+        name?: T;
+        title?: T;
+        role?: T;
+        photo?: T;
+        bio?: T;
+        id?: T;
+      };
   visitorNotes?:
     | T
     | {

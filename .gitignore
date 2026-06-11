@@ -7,6 +7,10 @@ node_modules
 next-env.d.ts
 .vercel
 
+# Throwaway local diagnostic scripts (prefixed with underscore)
+scripts/_*.mjs
+scripts/_*.mts
+
 # Payload default media upload directory
 public/media/
 

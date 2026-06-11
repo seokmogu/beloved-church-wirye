@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 
+import { FormattedText } from '@/components/FormattedText'
 import type { Media } from '@/payload-types'
 
 type InstagramPost = {
@@ -39,9 +40,13 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
               {eyebrow ?? 'Instagram'}
             </p>
             <h2 className="church-section-heading font-bold">{title ?? '인스타그램'}</h2>
-            <p className="church-body-copy mt-4 max-w-2xl leading-relaxed text-white/64">
+            <FormattedText
+              className="church-body-copy mt-4 max-w-2xl space-y-3 leading-relaxed text-white/72"
+              headingClassName="text-xl font-bold leading-snug text-white"
+              linkClassName="font-semibold text-secondary underline underline-offset-4"
+            >
               {description ?? '사랑하는교회의 일상과 소식을 만나보세요'}
-            </p>
+            </FormattedText>
           </div>
           {accountUrl && (
             <a

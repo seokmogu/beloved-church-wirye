@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 
 import config from '@payload-config'
+import { FormattedText } from '@/components/FormattedText'
 import { PageHero } from '@/components/PageHero'
 import type { SiteSetting } from '@/payload-types'
 
@@ -57,7 +58,7 @@ export default async function AboutPage() {
         <div className="container max-w-5xl">
           <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
                 Church Introduction
               </p>
               <h2 className="text-3xl font-bold leading-tight text-foreground md:text-4xl">
@@ -65,10 +66,17 @@ export default async function AboutPage() {
               </h2>
             </div>
             <div className="space-y-5 leading-relaxed text-muted-foreground">
-              {settings?.churchDescription && <p>{settings.churchDescription}</p>}
+              <FormattedText
+                className="space-y-4"
+                headingClassName="text-xl font-bold leading-snug text-foreground"
+              >
+                {settings?.churchDescription}
+              </FormattedText>
               {settings?.churchQuote && (
                 <blockquote className="border-l-2 border-secondary pl-5 font-medium text-foreground">
-                  &ldquo;{settings.churchQuote}&rdquo;
+                  <FormattedText className="space-y-2" paragraphClassName="m-0">
+                    {settings.churchQuote}
+                  </FormattedText>
                 </blockquote>
               )}
               <dl className="grid gap-4 pt-4 sm:grid-cols-2">
@@ -102,13 +110,16 @@ export default async function AboutPage() {
                   key={value.id ?? value.title}
                   className="rounded-lg border border-border bg-card p-6"
                 >
-                  <span className="text-xs font-bold text-secondary">
+                  <span className="text-xs font-bold text-primary">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <h3 className="mt-4 text-lg font-bold text-foreground">{value.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  <FormattedText
+                    className="mt-3 space-y-1 text-sm leading-relaxed text-muted-foreground"
+                    headingClassName="text-sm font-bold leading-snug text-foreground"
+                  >
                     {value.description}
-                  </p>
+                  </FormattedText>
                 </article>
               ))}
             </div>
@@ -119,7 +130,7 @@ export default async function AboutPage() {
       <section className="py-16">
         <div className="container max-w-5xl">
           <div className="mb-8">
-            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
+            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
               More About Beloved
             </p>
             <h2 className="text-3xl font-bold text-foreground">교회소개 더보기</h2>

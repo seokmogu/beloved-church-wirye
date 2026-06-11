@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
+import { FormattedText } from '@/components/FormattedText'
 import { PageHero } from '@/components/PageHero'
 import type { ChurchNew, Media } from '@/payload-types'
 
@@ -41,7 +42,11 @@ export default async function ChurchNewsDetailPage({ params }: PageProps) {
 
   return (
     <main className="min-h-screen bg-background">
-      <PageHero label="CHURCH NEWS" title={item.title || '교회소식'} subtitle={formatDate(item.date)} />
+      <PageHero
+        label="CHURCH NEWS"
+        title={item.title || '교회소식'}
+        subtitle={formatDate(item.date)}
+      />
 
       <div className="container max-w-5xl py-10">
         <Link
@@ -50,11 +55,12 @@ export default async function ChurchNewsDetailPage({ params }: PageProps) {
         >
           교회소식 목록으로
         </Link>
-        {item.description ? (
-          <p className="mx-auto mb-8 max-w-3xl rounded-md border border-border bg-card p-4 text-muted-foreground">
-            {item.description}
-          </p>
-        ) : null}
+        <FormattedText
+          className="mx-auto mb-8 max-w-3xl space-y-3 rounded-md border border-border bg-card p-4 text-muted-foreground"
+          headingClassName="text-lg font-bold leading-snug text-foreground"
+        >
+          {item.description}
+        </FormattedText>
         <ChurchNewsGallery images={galleryImages} title={item.title || '교회소식'} />
       </div>
     </main>

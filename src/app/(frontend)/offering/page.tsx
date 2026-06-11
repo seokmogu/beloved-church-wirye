@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { PageHero } from '@/components/PageHero'
 import { CopyAccountButton } from '@/components/CopyAccountButton'
+import { FormattedText } from '@/components/FormattedText'
 
 export const metadata: Metadata = {
   title: '헌금안내 | 사랑하는교회',
@@ -30,11 +31,13 @@ export default async function OfferingPage() {
         {/* Intro */}
         {introText && (
           <section className="mb-16 text-center">
-            <div className="prose prose-lg mx-auto text-muted-foreground">
-              {introText.split('\n').map((line, i) => (
-                <p key={i}>{line}</p>
-              ))}
-            </div>
+            <FormattedText
+              className="prose prose-lg mx-auto space-y-4 text-muted-foreground"
+              headingClassName="text-2xl font-bold leading-snug text-foreground"
+              listClassName="inline-block text-left"
+            >
+              {introText}
+            </FormattedText>
           </section>
         )}
 
@@ -77,7 +80,7 @@ export default async function OfferingPage() {
                 <span>💡</span>
                 <span>안내 사항</span>
               </h3>
-              <p className="text-muted-foreground whitespace-pre-line">{notes}</p>
+              <FormattedText className="space-y-2 text-muted-foreground">{notes}</FormattedText>
             </div>
           </section>
         )}
@@ -85,8 +88,10 @@ export default async function OfferingPage() {
         {/* Bible Verse */}
         {bibleVerse && (
           <section className="bg-card border border-border rounded-lg p-8 text-center">
-            <blockquote className="text-lg italic text-muted-foreground mb-4 whitespace-pre-line">
-              &ldquo;{bibleVerse}&rdquo;
+            <blockquote className="text-lg italic text-muted-foreground mb-4">
+              <FormattedText className="space-y-2" paragraphClassName="m-0">
+                {bibleVerse}
+              </FormattedText>
             </blockquote>
             {bibleReference && (
               <cite className="text-sm text-primary font-semibold">{bibleReference}</cite>
@@ -106,7 +111,12 @@ export default async function OfferingPage() {
                 {offeringTypes.map((type, index) => (
                   <div key={type.id ?? index}>
                     <h4 className="font-semibold text-foreground mb-2">{type.title}</h4>
-                    <p className="text-sm text-muted-foreground">{type.description}</p>
+                    <FormattedText
+                      className="space-y-1 text-sm text-muted-foreground"
+                      headingClassName="text-sm font-bold leading-snug text-foreground"
+                    >
+                      {type.description}
+                    </FormattedText>
                   </div>
                 ))}
               </div>

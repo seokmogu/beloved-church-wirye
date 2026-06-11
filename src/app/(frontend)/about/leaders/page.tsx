@@ -17,13 +17,6 @@ function mediaUrl(media: Media | number | null | undefined): string | null {
   return media && typeof media === 'object' && media.url ? media.url : null
 }
 
-function splitLines(value?: string | null): string[] {
-  return (value ?? '')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-}
-
 async function getSettings(): Promise<SiteSetting | null> {
   try {
     const payload = await getPayload({ config })
@@ -34,10 +27,41 @@ async function getSettings(): Promise<SiteSetting | null> {
   }
 }
 
+type Person = {
+  key: string
+  name: string
+  title?: string | null
+  role?: string | null
+  photo: string | null
+  bio?: string | null
+}
+
 export default async function LeadersPage() {
   const settings = await getSettings()
-  const pastorPhotoUrl = mediaUrl(settings?.pastorPhoto as Media | number | null | undefined)
-  const pastorBio = splitLines(settings?.pastorBio)
+
+  // 담임목사와 함께 섬기는 분들을 하나의 동일한 카드 레이어로 합친다(인원이 많아도 균일하게 확장).
+  const people: Person[] = []
+  if (settings?.pastorName) {
+    people.push({
+      key: 'pastor',
+      name: settings.pastorName,
+      title: settings.pastorTitle,
+      role: '담임목사',
+      photo: mediaUrl(settings.pastorPhoto as Media | number | null | undefined),
+      bio: settings.pastorBio,
+    })
+  }
+  ;(settings?.leaders ?? []).forEach((leader, index) => {
+    if (!leader?.name) return
+    people.push({
+      key: leader.id ?? `leader-${index}`,
+      name: leader.name,
+      title: leader.title,
+      role: leader.role,
+      photo: mediaUrl(leader.photo as Media | number | null | undefined),
+      bio: leader.bio,
+    })
+  })
 
   return (
     <main className="min-h-screen bg-background">
@@ -47,51 +71,52 @@ export default async function LeadersPage() {
         subtitle="사랑하는교회를 말씀과 섬김으로 세워갑니다"
       />
 
-      <section className="py-20">
+      <section className="py-16 md:py-20">
         <div className="container max-w-5xl">
-          <div className="grid gap-10 md:grid-cols-[260px_1fr]">
-            <div>
-              {pastorPhotoUrl ? (
-                <div className="relative aspect-square overflow-hidden rounded-lg border border-border bg-card">
-                  <Image
-                    src={pastorPhotoUrl}
-                    alt={settings?.pastorName ?? '담임목사'}
-                    fill
-                    className="object-cover"
-                    sizes="260px"
-                  />
-                </div>
-              ) : (
-                <div className="flex aspect-square items-center justify-center rounded-lg border border-border bg-card text-sm text-muted-foreground">
-                  사진 준비 중
-                </div>
-              )}
+          {people.length > 0 ? (
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              {people.map((person) => (
+                <article
+                  key={person.key}
+                  className="flex gap-4 rounded-lg border border-border bg-card p-5"
+                >
+                  <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
+                    {person.photo ? (
+                      <Image
+                        src={person.photo}
+                        alt={person.name}
+                        fill
+                        className="object-cover"
+                        sizes="96px"
+                      />
+                    ) : (
+                      <span className="flex h-full items-center justify-center px-1 text-center text-[11px] leading-tight text-muted-foreground">
+                        사진 준비 중
+                      </span>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    {person.role && (
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                        {person.role}
+                      </p>
+                    )}
+                    <h3 className="text-lg font-bold leading-snug text-foreground">{person.name}</h3>
+                    {person.title && (
+                      <p className="mt-0.5 text-sm font-medium text-primary">{person.title}</p>
+                    )}
+                    {person.bio && (
+                      <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                        {person.bio}
+                      </p>
+                    )}
+                  </div>
+                </article>
+              ))}
             </div>
-
-            <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
-                Senior Pastor
-              </p>
-              <h2 className="text-3xl font-bold text-foreground">
-                {settings?.pastorName ?? '담임목사'}
-              </h2>
-              {settings?.pastorTitle && (
-                <p className="mt-2 font-medium text-primary">{settings.pastorTitle}</p>
-              )}
-              {pastorBio.length > 0 && (
-                <div className="mt-7 space-y-2 leading-relaxed text-muted-foreground">
-                  {pastorBio.map((line) => (
-                    <p key={line}>{line}</p>
-                  ))}
-                </div>
-              )}
-              {settings?.pastorQuote && (
-                <blockquote className="mt-7 border-l-2 border-secondary pl-5 italic text-muted-foreground">
-                  &ldquo;{settings.pastorQuote}&rdquo;
-                </blockquote>
-              )}
-            </div>
-          </div>
+          ) : (
+            <p className="text-center text-muted-foreground">소개가 곧 준비될 예정입니다.</p>
+          )}
         </div>
       </section>
     </main>

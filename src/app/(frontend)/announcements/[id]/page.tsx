@@ -31,10 +31,10 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
 
   if (!announcement) return notFound()
 
-  const title = announcement.title || '공지사항'
+  const title = announcement.title || '교회로그'
   const publishedDate = announcement.publishedAt
     ? formatDate(announcement.publishedAt)
-    : '공지 날짜 미정'
+    : '날짜 미정'
   const hasAttachment = Boolean(announcement.googleDriveLink)
 
   return (
@@ -44,13 +44,13 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
           <p className="text-sm font-semibold uppercase tracking-[0.12em] text-primary">
             Notice Board
           </p>
-          <h1 className="mt-2 text-3xl font-semibold text-foreground">공지사항</h1>
+          <h1 className="mt-2 text-3xl font-semibold text-foreground">교회로그</h1>
         </div>
       </section>
 
       <div className="container max-w-4xl py-8 md:py-10">
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm font-semibold text-primary">공지사항 상세</p>
+          <p className="text-sm font-semibold text-primary">교회로그 상세</p>
           <Link
             href="/announcements"
             className="rounded-sm border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted/40"
@@ -63,10 +63,10 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
           <header>
             <div className="border-b border-border px-5 py-6 md:px-8">
               <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span className="rounded-sm border border-border px-2 py-1">공지사항</span>
+                <span className="rounded-sm border border-border px-2 py-1">교회로그</span>
                 {announcement.isPinned && (
                   <span className="rounded-sm bg-primary px-2 py-1 font-semibold text-primary-foreground">
-                    고정 공지
+                    고정
                   </span>
                 )}
                 {hasAttachment && (
@@ -90,7 +90,7 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
               <div className="border-r border-border px-5 py-3 md:px-6">
                 <dt className="text-xs font-semibold text-muted-foreground">구분</dt>
                 <dd className="mt-1 text-foreground">
-                  {announcement.isPinned ? '고정 공지' : '일반 공지'}
+                  {announcement.isPinned ? '고정' : '일반'}
                 </dd>
               </div>
               <div className="px-5 py-3 md:px-6">
@@ -104,7 +104,36 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
             {announcement.content ? (
               <RichText data={announcement.content} enableGutter={false} />
             ) : (
-              <p className="text-muted-foreground">공지 본문이 아직 입력되지 않았습니다.</p>
+              <p className="text-muted-foreground">본문이 아직 입력되지 않았습니다.</p>
+            )}
+
+            {Array.isArray(announcement.images) && announcement.images.length > 0 && (
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                {announcement.images.map((row, index) => {
+                  const img = row?.image
+                  const url = img && typeof img === 'object' ? img.url : null
+                  if (!url) return null
+                  return (
+                    <figure
+                      key={row.id ?? index}
+                      className="overflow-hidden rounded-lg border border-border"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt={row.caption || title}
+                        className="w-full object-cover"
+                        loading="lazy"
+                      />
+                      {row.caption && (
+                        <figcaption className="px-3 py-2 text-sm text-muted-foreground">
+                          {row.caption}
+                        </figcaption>
+                      )}
+                    </figure>
+                  )
+                })}
+              </div>
             )}
           </div>
 
@@ -145,8 +174,8 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const announcement = await queryAnnouncementByID(id)
 
   return {
-    title: announcement?.title ? `${announcement.title} | 사랑하는교회` : '공지사항 | 사랑하는교회',
-    description: '사랑하는교회 공지사항',
+    title: announcement?.title ? `${announcement.title} | 사랑하는교회` : '교회로그 | 사랑하는교회',
+    description: '사랑하는교회 교회로그',
   }
 }
 

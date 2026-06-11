@@ -77,7 +77,7 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
           )}
 
           {badges.length > 0 && (
-            <div className="mt-8 flex flex-wrap gap-2.5">
+            <div className="mt-8 flex flex-wrap gap-2.5 lg:hidden">
               {badges.map((item) => (
                 <span
                   key={`${item.name}-${item.time}`}

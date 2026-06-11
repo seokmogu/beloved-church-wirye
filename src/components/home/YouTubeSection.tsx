@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import type { YouTubeVideo } from '@/lib/youtube'
+import { FormattedText } from '@/components/FormattedText'
 
 interface Props {
   channelUrl?: string | null
@@ -32,11 +33,12 @@ export function YouTubeSection({ channelUrl, description, eyebrow, title, videos
             <h2 className="church-section-heading font-bold text-foreground">
               {title ?? '최신 설교'}
             </h2>
-            {description && (
-              <p className="church-body-copy mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-                {description}
-              </p>
-            )}
+            <FormattedText
+              className="church-body-copy mt-4 max-w-2xl space-y-3 leading-relaxed text-muted-foreground"
+              headingClassName="text-xl font-bold leading-snug text-foreground"
+            >
+              {description}
+            </FormattedText>
           </div>
           {channelUrl && (
             <a
