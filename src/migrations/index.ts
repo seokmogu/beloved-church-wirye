@@ -13,6 +13,7 @@ import * as migration_20260531_020000_media_content_hash from './20260531_020000
 import * as migration_20260531_030000_compact_korean_menu_labels from './20260531_030000_compact_korean_menu_labels';
 import * as migration_20260531_040000_church_videos from './20260531_040000_church_videos';
 import * as migration_20260608_025211_church_admin_image_leaders from './20260608_025211_church_admin_image_leaders';
+import * as migration_20260612_000000_newcomers_extended_fields from './20260612_000000_newcomers_extended_fields';
 
 export const migrations = [
   {
@@ -89,5 +90,10 @@ export const migrations = [
     up: migration_20260608_025211_church_admin_image_leaders.up,
     down: migration_20260608_025211_church_admin_image_leaders.down,
     name: '20260608_025211_church_admin_image_leaders'
+  },
+  {
+    up: migration_20260612_000000_newcomers_extended_fields.up,
+    down: migration_20260612_000000_newcomers_extended_fields.down,
+    name: '20260612_000000_newcomers_extended_fields',
   },
 ];
