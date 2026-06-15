@@ -47,6 +47,7 @@ export default async function ManageNewcomersPage() {
               <th>방문경로</th>
               <th>상태</th>
               <th>메모</th>
+              <th>작업</th>
             </tr>
           </thead>
           <tbody>
@@ -56,7 +57,11 @@ export default async function ManageNewcomersPage() {
 
                 return (
                   <tr key={doc.id}>
-                    <td className="manage-table-title">{doc.name}</td>
+                    <td className="manage-table-title">
+                      <Link className="manage-table-link" href={`/manage/newcomers/${doc.id}`}>
+                        {doc.name}
+                      </Link>
+                    </td>
                     <td>{doc.phone}</td>
                     <td>{formatKoreanDate(doc.visitDate || doc.createdAt)}</td>
                     <td>{sourceLabels[doc.source]}</td>
@@ -72,12 +77,17 @@ export default async function ManageNewcomersPage() {
                         <span className="manage-muted">-</span>
                       )}
                     </td>
+                    <td>
+                      <Link className="manage-button secondary" href={`/manage/newcomers/${doc.id}`}>
+                        상세
+                      </Link>
+                    </td>
                   </tr>
                 )
               })
             ) : (
               <tr>
-                <td className="manage-empty" colSpan={6}>
+                <td className="manage-empty" colSpan={7}>
                   표시할 새가족 등록이 없습니다.
                 </td>
               </tr>
