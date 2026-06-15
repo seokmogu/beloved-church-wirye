@@ -1,6 +1,7 @@
 import {
   Bell,
   BookOpen,
+  ClipboardList,
   FileText,
   HandCoins,
   HelpCircle,
@@ -36,6 +37,7 @@ type ActiveKey =
   | 'instagram'
   | 'leaders'
   | 'menu'
+  | 'newcomers'
   | 'offering'
   | 'sermons'
   | 'videos'
@@ -71,6 +73,12 @@ const navSections: {
           { href: '/manage/leaders', icon: UserRound, key: 'leaders', label: '섬기는 사람들' },
           { href: '/manage/worship', icon: MapPin, key: 'worship', label: '예배안내' },
           { external: true, href: '/newcomer', icon: Plus, label: '새가족등록' },
+          {
+            href: '/manage/newcomers',
+            icon: ClipboardList,
+            key: 'newcomers',
+            label: '새가족조회',
+          },
           { href: '/manage/bulletins', icon: FileText, key: 'bulletins', label: '주보' },
         ],
         label: '교회소개',
