@@ -20,7 +20,7 @@ export default async function EditAnnouncementPage({
   if (!doc) notFound()
   return (
     <ManageShell active="announcements" user={user}>
-      <PageHeader title="공지 편집" />
+      <PageHeader title="교회로그 편집" />
       <AnnouncementForm doc={doc} />
     </ManageShell>
   )

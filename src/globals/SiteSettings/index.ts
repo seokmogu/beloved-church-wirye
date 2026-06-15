@@ -380,6 +380,23 @@ export const SiteSettings: GlobalConfig = {
               defaultValue: '우리는 사랑으로 교회를 세웁니다.',
             },
             {
+              name: 'leaders',
+              type: 'array',
+              label: '추가 섬기는 사람들',
+              labels: { singular: '섬기는 사람', plural: '섬기는 사람들' },
+              admin: {
+                initCollapsed: true,
+                description: '담임목사 외에 소개할 교역자/리더를 등록합니다.',
+              },
+              fields: [
+                { name: 'name', type: 'text', label: '이름', required: true },
+                { name: 'title', type: 'text', label: '직함' },
+                { name: 'role', type: 'text', label: '역할/구분' },
+                { name: 'photo', type: 'upload', relationTo: 'media', label: '사진' },
+                { name: 'bio', type: 'textarea', label: '소개' },
+              ],
+            },
+            {
               name: 'visitorNotes',
               type: 'array',
               label: '처음 오시는 분 안내',

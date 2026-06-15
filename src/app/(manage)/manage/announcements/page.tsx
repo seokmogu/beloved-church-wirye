@@ -16,7 +16,7 @@ export default async function ManageAnnouncementsPage() {
 
   return (
     <ManageShell active="announcements" user={user}>
-      <PageHeader actionHref="/manage/announcements/new" actionLabel="공지 추가" title="공지사항" />
+      <PageHeader actionHref="/manage/announcements/new" actionLabel="글 추가" title="교회로그" />
       <div className="manage-table-wrap">
         <table className="manage-table">
           <thead>
@@ -47,7 +47,7 @@ export default async function ManageAnnouncementsPage() {
             ) : (
               <tr>
                 <td className="manage-empty" colSpan={4}>
-                  표시할 공지가 없습니다.
+                  표시할 교회로그가 없습니다.
                 </td>
               </tr>
             )}

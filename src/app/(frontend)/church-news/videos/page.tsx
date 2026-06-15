@@ -67,7 +67,7 @@ export default async function ChurchNewsVideosPage() {
       <section className="py-14 md:py-20">
         <div className="container">
           <div className="mb-8">
-            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-secondary">
+            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-primary">
               Church Videos
             </p>
             <h2 className="church-section-heading font-bold text-foreground">동영상</h2>

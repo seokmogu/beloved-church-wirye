@@ -24,6 +24,10 @@ export default async function ManageDashboardPage() {
           <span>관리가이드</span>
           <strong>안내</strong>
         </Link>
+        <Link className="manage-card manage-stat" href="/manage/about">
+          <span>교회소개</span>
+          <strong>소개</strong>
+        </Link>
         <Link className="manage-card manage-stat" href="/manage/home">
           <span>홈관리</span>
           <strong>5</strong>
@@ -41,7 +45,7 @@ export default async function ManageDashboardPage() {
           <strong>SNS</strong>
         </Link>
         <Link className="manage-card manage-stat" href="/manage/announcements">
-          <span>공지사항</span>
+          <span>교회로그</span>
           <strong>{announcements.totalDocs}</strong>
         </Link>
         <Link className="manage-card manage-stat" href="/manage/church-news">
@@ -77,7 +81,7 @@ export default async function ManageDashboardPage() {
             id: doc.id,
             title: doc.title,
           }))}
-          title="최근 공지"
+          title="최근 교회로그"
         />
         <RecentList
           hrefPrefix="/manage/church-news"

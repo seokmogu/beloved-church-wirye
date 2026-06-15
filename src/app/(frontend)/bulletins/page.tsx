@@ -64,6 +64,15 @@ export default async function BulletinsPage() {
               const fileUrl = file?.url ?? null
               const isImage = file?.mimeType?.startsWith('image/')
               const isPdf = file?.mimeType === 'application/pdf'
+              const images = Array.isArray(bulletin.images) ? bulletin.images : []
+              const firstImageUrl =
+                images
+                  .map((row: any) =>
+                    row?.image && typeof row.image === 'object' ? row.image.url : null,
+                  )
+                  .find((url: any) => Boolean(url)) ?? null
+              const coverUrl = firstImageUrl ?? (isImage ? fileUrl : null)
+              const linkUrl = fileUrl ?? firstImageUrl
 
               return (
                 <div
@@ -72,9 +81,9 @@ export default async function BulletinsPage() {
                 >
                   {/* Preview */}
                   <div className="aspect-[3/4] bg-muted flex items-center justify-center relative overflow-hidden">
-                    {isImage && fileUrl ? (
+                    {coverUrl ? (
                       <img
-                        src={fileUrl}
+                        src={coverUrl}
                         alt={bulletin.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -116,9 +125,9 @@ export default async function BulletinsPage() {
                         timeZone: 'Asia/Seoul',
                       })}
                     </p>
-                    {fileUrl && (
+                    {linkUrl && (
                       <a
-                        href={fileUrl}
+                        href={linkUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         download={isPdf}

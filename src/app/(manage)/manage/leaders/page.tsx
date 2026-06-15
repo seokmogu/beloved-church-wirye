@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { ImageCompressor } from '@/app/(manage)/manage/_components/ImageCompressor'
 import { SaveButton } from '@/app/(manage)/manage/_components/FormButtons'
 import { ManageShell, PageHeader } from '@/app/(manage)/manage/_components/ManageShell'
 import { saveLeadersSettingsAction } from '@/app/(manage)/manage/actions'
@@ -7,11 +8,20 @@ import { requireManageUser } from '@/lib/manage/auth'
 import { getManagePayload } from '@/lib/manage/payload'
 import type { Media } from '@/payload-types'
 
+import { LeaderRowsEditor, type LeaderRowData } from './LeaderRowsEditor'
+
 export default async function ManageLeadersPage() {
   const user = await requireManageUser()
   const payload = await getManagePayload()
   const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
   const pastorPhotoUrl = getMediaUrl(settings.pastorPhoto as Media | number | null | undefined)
+  const initialLeaders: LeaderRowData[] = (settings.leaders ?? []).map((leader) => ({
+    name: leader.name,
+    title: leader.title,
+    role: leader.role,
+    bio: leader.bio,
+    photoUrl: getMediaUrl(leader.photo as Media | number | null | undefined),
+  }))
 
   return (
     <ManageShell active="leaders" user={user}>
@@ -23,56 +33,100 @@ export default async function ManageLeadersPage() {
           공개페이지 보기
         </Link>
       </PageHeader>
-      <form
-        action={saveLeadersSettingsAction}
-        className="manage-form"
-        encType="multipart/form-data"
-      >
-        <div className="manage-field-grid">
-          <div className="manage-field">
-            <label htmlFor="pastorName">이름</label>
-            <input defaultValue={settings.pastorName || ''} id="pastorName" name="pastorName" />
-          </div>
-          <div className="manage-field">
-            <label htmlFor="pastorTitle">직함</label>
-            <input defaultValue={settings.pastorTitle || ''} id="pastorTitle" name="pastorTitle" />
-          </div>
-        </div>
-
-        <div className="manage-field">
-          <label htmlFor="pastorBio">소개</label>
-          <textarea defaultValue={settings.pastorBio || ''} id="pastorBio" name="pastorBio" />
-        </div>
-
-        <div className="manage-field">
-          <label htmlFor="pastorQuote">인용 문구</label>
-          <input defaultValue={settings.pastorQuote || ''} id="pastorQuote" name="pastorQuote" />
-        </div>
-
-        <div className="manage-media-control">
-          <div>
-            <strong>담임목사 사진</strong>
-            <div
-              aria-hidden="true"
-              className="manage-media-thumb"
-              style={pastorPhotoUrl ? { backgroundImage: cssUrl(pastorPhotoUrl) } : undefined}
-            />
-          </div>
-          <label htmlFor="pastorPhotoFile">
-            이미지 선택
-            <input accept="image/*" id="pastorPhotoFile" name="pastorPhotoFile" type="file" />
-          </label>
-          <label className="manage-checkbox compact" htmlFor="clearPastorPhoto">
-            <input id="clearPastorPhoto" name="clearPastorPhoto" type="checkbox" />
-            제거
-          </label>
-        </div>
-
-        <div className="manage-form-actions">
+      <form action={saveLeadersSettingsAction} className="manage-visual-form manage-public-editor">
+        <ImageCompressor />
+        <div className="manage-editor-toolbar">
           <Link className="manage-button secondary" href="/manage">
             취소
           </Link>
           <SaveButton />
+        </div>
+
+        <div className="manage-public-canvas">
+          <section className="manage-public-hero">
+            <p>LEADERS</p>
+            <h2>섬기는 사람들</h2>
+            <span>사랑하는교회를 말씀과 섬김으로 세워갑니다</span>
+          </section>
+
+          <section className="manage-public-section">
+            <div className="manage-public-section-head">
+              <div>
+                <p>Senior Pastor</p>
+                <h2>담임목사 소개</h2>
+              </div>
+              <span className="manage-scope-chip">/about/leaders 본문 영역</span>
+            </div>
+
+            <div className="manage-leader-editor-layout">
+              <aside className="manage-public-photo-editor">
+                <div
+                  aria-hidden="true"
+                  className="manage-public-photo-preview"
+                  style={pastorPhotoUrl ? { backgroundImage: cssUrl(pastorPhotoUrl) } : undefined}
+                >
+                  {pastorPhotoUrl ? null : <span>사진 준비 중</span>}
+                </div>
+                <label htmlFor="pastorPhotoFile">
+                  사진 변경
+                  <input accept="image/*" id="pastorPhotoFile" name="pastorPhotoFile" type="file" />
+                </label>
+                <label className="manage-checkbox compact" htmlFor="clearPastorPhoto">
+                  <input id="clearPastorPhoto" name="clearPastorPhoto" type="checkbox" />
+                  사진 제거
+                </label>
+              </aside>
+
+              <article className="manage-public-card edit-card">
+                <label className="manage-visual-field accent" htmlFor="pastorTitle">
+                  <span>직함</span>
+                  <input
+                    defaultValue={settings.pastorTitle || ''}
+                    id="pastorTitle"
+                    name="pastorTitle"
+                  />
+                </label>
+                <label className="manage-visual-field heading" htmlFor="pastorName">
+                  <span>이름</span>
+                  <input
+                    defaultValue={settings.pastorName || ''}
+                    id="pastorName"
+                    name="pastorName"
+                  />
+                </label>
+                <label className="manage-visual-field muted" htmlFor="pastorBio">
+                  <span>소개</span>
+                  <textarea
+                    defaultValue={settings.pastorBio || ''}
+                    id="pastorBio"
+                    name="pastorBio"
+                    rows={7}
+                  />
+                </label>
+                <label className="manage-visual-field quote" htmlFor="pastorQuote">
+                  <span>인용 문구</span>
+                  <textarea
+                    defaultValue={settings.pastorQuote || ''}
+                    id="pastorQuote"
+                    name="pastorQuote"
+                    rows={3}
+                  />
+                </label>
+              </article>
+            </div>
+          </section>
+
+          <section className="manage-public-section">
+            <div className="manage-public-section-head">
+              <div>
+                <p>Team</p>
+                <h2>추가 섬기는 사람들</h2>
+              </div>
+              <span className="manage-scope-chip">/about/leaders 담임목사 아래 영역</span>
+            </div>
+
+            <LeaderRowsEditor initialLeaders={initialLeaders} />
+          </section>
         </div>
       </form>
     </ManageShell>

@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation'
 import { requireManageActionUser } from '@/lib/manage/auth'
 import { InstagramSyncConfigError, syncInstagramPosts } from '@/lib/instagram'
 import { dateInputToISO } from '@/lib/manage/date'
+import { optimizeUploadImage } from '@/lib/manage/imageOptimize'
 import { plaintextToLexical } from '@/lib/manage/lexical'
 import { getManagePayload } from '@/lib/manage/payload'
 
@@ -29,18 +30,31 @@ export async function saveAnnouncementAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
   const id = optionalNumber(formData, 'id')
-  const data = {
-    content: plaintextToLexical(stringValue(formData, 'content')),
-    googleDriveLink: optionalString(formData, 'googleDriveLink'),
-    isPinned: checkboxValue(formData, 'isPinned'),
-    publishedAt: dateInputToISO(stringValue(formData, 'publishedAt')),
-    title: requiredString(formData, 'title'),
-  }
 
-  if (id) {
-    await payload.update({ collection: 'announcements', data: data as any, id })
-  } else {
-    await payload.create({ collection: 'announcements', data: data as any })
+  try {
+    const uploaded = await uploadMediaFilesFromForm(
+      payload,
+      formData,
+      'announcementImageFiles',
+      '교회로그 사진',
+    )
+    const data = {
+      content: plaintextToLexical(stringValue(formData, 'content')),
+      googleDriveLink: optionalString(formData, 'googleDriveLink'),
+      images: [...parseExistingImageRows(formData, 'announcement'), ...uploaded],
+      isPinned: checkboxValue(formData, 'isPinned'),
+      publishedAt: dateInputToISO(stringValue(formData, 'publishedAt')),
+      title: requiredString(formData, 'title'),
+    }
+
+    if (id) {
+      await payload.update({ collection: 'announcements', data: data as any, id })
+    } else {
+      await payload.create({ collection: 'announcements', data: data as any })
+    }
+  } catch (error) {
+    console.error('Failed to save announcement:', error)
+    redirect('/manage/announcements?error=save')
   }
 
   revalidateManageAndPublic('/manage/announcements')
@@ -152,17 +166,30 @@ export async function saveBulletinAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
   const id = optionalNumber(formData, 'id')
-  const data = {
-    date: dateInputToISO(stringValue(formData, 'date')),
-    description: optionalString(formData, 'description'),
-    isPublic: checkboxValue(formData, 'isPublic'),
-    title: optionalString(formData, 'title'),
-  }
 
-  if (id) {
-    await payload.update({ collection: 'bulletins', data: data as any, id })
-  } else {
-    await payload.create({ collection: 'bulletins', data: data as any })
+  try {
+    const uploaded = await uploadMediaFilesFromForm(
+      payload,
+      formData,
+      'bulletinImageFiles',
+      '주보 이미지',
+    )
+    const data = {
+      date: dateInputToISO(stringValue(formData, 'date')),
+      description: optionalString(formData, 'description'),
+      images: [...parseExistingImageRows(formData, 'bulletin'), ...uploaded],
+      isPublic: checkboxValue(formData, 'isPublic'),
+      title: optionalString(formData, 'title'),
+    }
+
+    if (id) {
+      await payload.update({ collection: 'bulletins', data: data as any, id })
+    } else {
+      await payload.create({ collection: 'bulletins', data: data as any })
+    }
+  } catch (error) {
+    console.error('Failed to save bulletin:', error)
+    redirect('/manage/bulletins?error=save')
   }
 
   revalidateManageAndPublic('/manage/bulletins')
@@ -330,6 +357,25 @@ export async function saveHomeSettingsAction(formData: FormData) {
   redirect('/manage/home')
 }
 
+export async function saveAboutSettingsAction(formData: FormData) {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+
+  await payload.updateGlobal({
+    data: {
+      churchDescription: optionalString(formData, 'churchDescription'),
+      churchQuote: optionalString(formData, 'churchQuote'),
+      churchVision: optionalString(formData, 'churchVision'),
+      coreValues: parseCoreValues(formData),
+      denomination: optionalString(formData, 'denomination'),
+    } as any,
+    slug: 'site-settings',
+  })
+
+  revalidateManageAndPublic('/manage/about')
+  redirect('/manage/about')
+}
+
 export async function saveWorshipSettingsAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
@@ -343,7 +389,6 @@ export async function saveWorshipSettingsAction(formData: FormData) {
       parkingInfo: optionalString(formData, 'parkingInfo'),
       transitInfo: optionalString(formData, 'transitInfo'),
       visitorNotes: parseVisitorNotes(formData),
-      worshipOrder: parseWorshipOrder(formData),
       worshipServices: parseWorshipServices(formData),
     } as any,
     slug: 'site-settings',
@@ -367,8 +412,11 @@ export async function saveLeadersSettingsAction(formData: FormData) {
     optionalString(formData, 'pastorName') || '담임목사 사진',
   )
 
+  const leaders = await parseLeaders(payload, formData, currentSettings.leaders)
+
   await payload.updateGlobal({
     data: {
+      leaders,
       pastorBio: optionalString(formData, 'pastorBio'),
       pastorName: optionalString(formData, 'pastorName') || '담임목사',
       pastorPhoto: checkboxValue(formData, 'clearPastorPhoto')
@@ -513,14 +561,15 @@ async function uploadMediaFromForm(
   const file = value as File
   if (!file.size) return null
 
+  const optimized = await optimizeUploadImage(Buffer.from(await file.arrayBuffer()), file)
   const uploaded = await payload.create({
     collection: 'media',
     data: { alt },
     file: {
-      data: Buffer.from(await file.arrayBuffer()),
-      mimetype: file.type || 'application/octet-stream',
-      name: file.name || `${key}.upload`,
-      size: file.size,
+      data: optimized.data,
+      mimetype: optimized.mimeType,
+      name: optimized.filename || file.name || `${key}.upload`,
+      size: optimized.data.length,
     },
   } as any)
 
@@ -541,14 +590,15 @@ async function uploadMediaFilesFromForm(
   assertUploadStorageConfigured(files.length)
 
   for (const [index, file] of files.entries()) {
+    const optimized = await optimizeUploadImage(Buffer.from(await file.arrayBuffer()), file)
     const uploaded = await payload.create({
       collection: 'media',
       data: { alt: `${altPrefix} ${index + 1}` },
       file: {
-        data: Buffer.from(await file.arrayBuffer()),
-        mimetype: file.type || 'application/octet-stream',
-        name: file.name || `${key}-${index + 1}.upload`,
-        size: file.size,
+        data: optimized.data,
+        mimetype: optimized.mimeType,
+        name: optimized.filename || file.name || `${key}-${index + 1}.upload`,
+        size: optimized.data.length,
       },
     } as any)
 
@@ -808,16 +858,65 @@ function parseWorshipServices(formData: FormData) {
     .filter((service) => service.name && service.time)
 }
 
-function parseWorshipOrder(formData: FormData) {
-  const titles = stringValues(formData, 'worshipOrderTitle')
-  const descriptions = stringValues(formData, 'worshipOrderDescription')
+function parseCoreValues(formData: FormData) {
+  const titles = stringValues(formData, 'coreValueTitle')
+  const descriptions = stringValues(formData, 'coreValueDescription')
 
   return titles
-    .map((title, index) => ({
-      description: descriptions[index] || null,
-      title,
-    }))
-    .filter((item) => item.title)
+    .map((title, index) => ({ description: descriptions[index] || '', title }))
+    .filter((value) => value.title && value.description)
+}
+
+function parseExistingImageRows(formData: FormData, prefix: string) {
+  const imageIds = stringValues(formData, `${prefix}ImageId`)
+  return imageIds
+    .map((imageId, index) => {
+      if (!imageId || formData.get(`${prefix}RemoveImage-${index}`) === 'on') return null
+      const caption =
+        (formData.get(`${prefix}Caption-${index}`) as string | null)?.trim() || null
+      return { caption, image: relationValueFromString(imageId) }
+    })
+    .filter((row): row is { caption: string | null; image: number | string } => Boolean(row))
+}
+
+async function parseLeaders(
+  payload: Awaited<ReturnType<typeof getManagePayload>>,
+  formData: FormData,
+  currentLeaders: unknown,
+) {
+  const current = Array.isArray(currentLeaders)
+    ? (currentLeaders as Array<Record<string, unknown>>)
+    : []
+  const names = stringValues(formData, 'leaderName')
+  const titles = stringValues(formData, 'leaderTitle')
+  const roles = stringValues(formData, 'leaderRole')
+  const bios = stringValues(formData, 'leaderBio')
+
+  const leaders = await Promise.all(
+    names.map(async (name, index) => {
+      if (!name) return null
+
+      const uploadedPhoto = await uploadMediaFromForm(
+        payload,
+        formData,
+        `leaderPhotoFile-${index}`,
+        `${name} 사진`,
+      )
+      const photo = checkboxValue(formData, `leaderClearPhoto-${index}`)
+        ? null
+        : uploadedPhoto || mediaRelationValue(current[index]?.photo)
+
+      return {
+        bio: optionalIndexedString(bios, index),
+        name,
+        photo,
+        role: optionalIndexedString(roles, index),
+        title: optionalIndexedString(titles, index),
+      }
+    }),
+  )
+
+  return leaders.filter((leader): leader is NonNullable<typeof leader> => Boolean(leader))
 }
 
 function parseVisitorNotes(formData: FormData) {
