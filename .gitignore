@@ -5,7 +5,9 @@ node_modules
 .env
 .next
 next-env.d.ts
+tsconfig.tsbuildinfo
 .vercel
+output/
 
 # Throwaway local diagnostic scripts (prefixed with underscore)
 scripts/_*.mjs
