@@ -34,6 +34,8 @@ const nextConfig: NextConfig = {
           protocol: url.protocol.replace(':', '') as 'http' | 'https',
         }
       }),
+      { hostname: 'belovedchurch.co.kr', protocol: 'https' },
+      { hostname: 'www.belovedchurch.co.kr', protocol: 'https' },
       { hostname: 'images.unsplash.com', protocol: 'https' },
       { hostname: '*.ytimg.com', protocol: 'https' },
       { hostname: 'img.youtube.com', protocol: 'https' },

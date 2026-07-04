@@ -90,9 +90,28 @@ export async function syncInstagramPosts(
     .filter((post): post is InstagramPostInput => Boolean(post))
     .slice(0, limit)
 
+  // API가 200이지만 빈 목록을 주는 이상 응답(권한 변경 등)에서 기존 게시물을 전부 지우지 않는다
+  if (posts.length === 0) {
+    payload.logger.warn('Instagram API가 사용할 게시물을 반환하지 않아 기존 목록을 유지합니다.')
+    return { count: 0, posts: [] }
+  }
+
+  const previousThumbnails = await fetchPreviousThumbnails(payload)
+
   const instagramPosts = await Promise.all(
     posts.map(async (post) => {
-      const thumbnail = await ensureInstagramThumbnail(payload, post).catch(() => null)
+      let thumbnail: number | string | null = null
+      try {
+        thumbnail = await ensureInstagramThumbnail(payload, post)
+      } catch (error) {
+        payload.logger.error({ err: error }, `Instagram 썸네일 저장 실패: ${post.postId}`)
+      }
+
+      // 저장 실패 시 이전 동기화에서 확보한 영구 썸네일을 유지한다.
+      // CDN 핫링크(imageUrl)는 서명이 수일 내 만료되므로 최후 수단으로만 쓴다.
+      if (!thumbnail) {
+        thumbnail = previousThumbnails.get(post.postId) ?? null
+      }
 
       return {
         caption: post.caption,
@@ -209,6 +228,29 @@ function normalizeTimestamp(timestamp: string | undefined) {
 
   const date = new Date(timestamp)
   return Number.isNaN(date.getTime()) ? null : date.toISOString()
+}
+
+async function fetchPreviousThumbnails(payload: Payload): Promise<Map<string, number | string>> {
+  const thumbnails = new Map<string, number | string>()
+
+  try {
+    const settings = (await payload.findGlobal({ depth: 0, slug: 'site-settings' })) as {
+      instagramPosts?: Array<{
+        postId?: string | null
+        thumbnail?: number | string | { id: number | string } | null
+      }> | null
+    }
+
+    for (const post of settings.instagramPosts ?? []) {
+      if (!post.postId || !post.thumbnail) continue
+      const id = typeof post.thumbnail === 'object' ? post.thumbnail.id : post.thumbnail
+      if (id) thumbnails.set(post.postId, id)
+    }
+  } catch (error) {
+    payload.logger.warn({ err: error }, '기존 Instagram 썸네일 조회 실패')
+  }
+
+  return thumbnails
 }
 
 async function ensureInstagramThumbnail(payload: Payload, post: InstagramPostInput) {

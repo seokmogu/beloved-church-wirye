@@ -375,16 +375,30 @@ export async function saveAboutSettingsAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
 
-  await payload.updateGlobal({
-    data: {
-      churchDescription: optionalString(formData, 'churchDescription'),
-      churchQuote: optionalString(formData, 'churchQuote'),
-      churchVision: optionalString(formData, 'churchVision'),
-      coreValues: parseCoreValues(formData),
-      denomination: optionalString(formData, 'denomination'),
-    } as any,
-    slug: 'site-settings',
-  })
+  try {
+    await payload.updateGlobal({
+      data: {
+        churchDescription: optionalString(formData, 'churchDescription'),
+        churchQuote: optionalString(formData, 'churchQuote'),
+        churchVision: optionalString(formData, 'churchVision'),
+        coreValues: parseCoreValues(formData),
+        denomination: optionalString(formData, 'denomination'),
+      } as any,
+      slug: 'site-settings',
+    })
+
+    // 연락처/주소는 푸터 전역에 표기된다 (하단 메뉴/푸터 global)
+    await payload.updateGlobal({
+      data: {
+        address: optionalString(formData, 'footerAddress')?.replace(/\r\n/g, '\n') ?? null,
+        churchPhone: optionalString(formData, 'churchPhone'),
+      } as any,
+      slug: 'footer',
+    })
+  } catch (error) {
+    console.error('Failed to save about settings:', error)
+    redirect('/manage/about?error=save')
+  }
 
   revalidateManageAndPublic('/manage/about')
   redirect('/manage/about')

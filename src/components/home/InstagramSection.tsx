@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useState } from 'react'
 
 import { FormattedText } from '@/components/FormattedText'
 import type { Media } from '@/payload-types'
@@ -77,17 +78,11 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
                 className="group min-w-0 overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-all duration-300 hover:-translate-y-1 hover:border-secondary/40 hover:bg-white/[0.09]"
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-primary/70 sm:aspect-[4/5]">
-                  {thumbnailUrl ? (
-                    <Image
-                      src={thumbnailUrl}
-                      alt={`${handle ?? 'Instagram'} 게시물 썸네일`}
-                      fill
-                      className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-                      sizes="(min-width: 1024px) 24vw, (min-width: 640px) 48vw, 100vw"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:44px_44px]" />
-                  )}
+                  <PostThumbnail
+                    key={thumbnailUrl ?? 'none'}
+                    alt={`${handle ?? 'Instagram'} 게시물 썸네일`}
+                    src={thumbnailUrl}
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5 p-3">
                   <div className="flex items-center justify-between gap-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/58">
@@ -115,6 +110,28 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
         </div>
       </div>
     </section>
+  )
+}
+
+function PostThumbnail({ alt, src }: { alt: string; src: string | null | undefined }) {
+  // 만료된 Instagram CDN URL 등 로드 실패 시 깨진 이미지 대신 패턴 배경을 보여준다.
+  const [failed, setFailed] = useState(false)
+
+  if (!src || failed) {
+    return (
+      <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:44px_44px]" />
+    )
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+      sizes="(min-width: 1024px) 24vw, (min-width: 640px) 48vw, 100vw"
+      onError={() => setFailed(true)}
+    />
   )
 }
 
