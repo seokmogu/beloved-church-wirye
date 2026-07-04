@@ -99,19 +99,26 @@ export function ChatWidget(): React.ReactElement {
         buffer = lines.pop() ?? '' // keep incomplete last line
         for (const line of lines) {
           const trimmed = line.trim()
-          if (!trimmed) continue
-          if (trimmed.startsWith('data: ')) {
-            const text = trimmed.slice(6)
-            if (text === '[DONE]') { reader.cancel(); break }
-            setMessages((prev) => {
-              const updated = [...prev]
-              updated[updated.length - 1] = {
-                ...updated[updated.length - 1],
-                content: updated[updated.length - 1].content + text,
-              }
-              return updated
-            })
+          if (!trimmed || !trimmed.startsWith('data: ')) continue
+          const data = trimmed.slice(6)
+          if (data === '[DONE]') { reader.cancel(); break }
+          // The proxy JSON-encodes each delta (`data: {"t":"..."}`) so newlines/spaces
+          // survive. Parse it back; skip any partial/garbled frame rather than appending raw.
+          let text = ''
+          try {
+            text = (JSON.parse(data) as { t?: string }).t ?? ''
+          } catch {
+            continue
           }
+          if (!text) continue
+          setMessages((prev) => {
+            const updated = [...prev]
+            updated[updated.length - 1] = {
+              ...updated[updated.length - 1],
+              content: updated[updated.length - 1].content + text,
+            }
+            return updated
+          })
         }
         setTimeout(scrollToBottom, 50)
       }

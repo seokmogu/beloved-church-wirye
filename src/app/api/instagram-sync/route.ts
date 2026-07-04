@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getPayload } from 'payload'
 
+import { isAuthorizedCronRequest } from '@/lib/cronAuth'
 import { InstagramSyncConfigError, syncInstagramPosts } from '@/lib/instagram'
 
 export const dynamic = 'force-dynamic'
@@ -26,13 +27,6 @@ export async function GET(request: NextRequest) {
     payload.logger.error({ err: error }, 'Instagram sync failed')
     return NextResponse.json({ ok: false }, { status: 500 })
   }
-}
-
-function isAuthorizedCronRequest(request: NextRequest) {
-  const secret = process.env.CRON_SECRET
-  if (!secret) return false
-
-  return request.headers.get('authorization') === `Bearer ${secret}`
 }
 
 function revalidateInstagramPaths() {

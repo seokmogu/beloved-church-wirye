@@ -24,6 +24,7 @@ type FormData = {
   sourceChannels: string[]
   sourceDetail: string
   visitDate: string
+  website: string
 }
 
 const initialFormData: FormData = {
@@ -46,6 +47,7 @@ const initialFormData: FormData = {
   sourceChannels: [],
   sourceDetail: '',
   visitDate: new Date().toISOString().split('T')[0],
+  website: '',
 }
 
 const sourceOptions = [
@@ -173,6 +175,18 @@ export function NewcomerForm() {
       onSubmit={handleSubmit}
       className="space-y-7 rounded-xl border border-border bg-card p-6 md:p-8"
     >
+      {/* Honeypot: hidden from real users; bots that fill it are silently dropped server-side. */}
+      <input
+        aria-hidden="true"
+        autoComplete="off"
+        className="hidden"
+        name="website"
+        onChange={handleChange}
+        tabIndex={-1}
+        type="text"
+        value={formData.website}
+      />
+
       <div className="border-b border-border pb-5">
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Welcome</p>
         <h2 className="mt-2 text-2xl font-bold text-foreground">새가족 등록카드</h2>

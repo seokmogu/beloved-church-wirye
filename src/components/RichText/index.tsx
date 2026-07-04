@@ -17,11 +17,18 @@ import { cn } from '@/utilities/ui'
 type NodeTypes = DefaultNodeTypes | SerializedBlockNode<MediaBlockProps>
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
-  const { value, relationTo } = linkNode.fields.doc!
-  if (typeof value !== 'object') {
-    throw new Error('Expected value to be an object')
-  }
+  const doc = linkNode.fields?.doc
+  if (!doc) return '/'
+
+  const { value, relationTo } = doc
+  // A dangling/unpopulated internal link (e.g. the referenced doc was deleted) leaves
+  // `value` as a bare ID instead of a populated object. Fall back to '/' rather than
+  // throwing at render time, which would take the whole route to a 500.
+  if (typeof value !== 'object' || value === null) return '/'
+
   const slug = value.slug
+  if (!slug) return '/'
+
   return relationTo === 'posts' ? `/posts/${slug}` : `/${slug}`
 }
 
