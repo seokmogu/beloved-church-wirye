@@ -25,6 +25,8 @@ export const Media: CollectionConfig = {
   admin: {
     defaultColumns: ['filename', 'alt', 'updatedAt'],
     description: '사이트에서 사용하는 이미지, 주보 파일, QR 코드 등을 보관합니다.',
+    // 복제는 원본 파일명을 그대로 재사용해 파일명 안전화 훅을 우회하므로 막는다
+    disableDuplicate: true,
     group: '5. 이미지/파일',
     useAsTitle: 'filename',
   },

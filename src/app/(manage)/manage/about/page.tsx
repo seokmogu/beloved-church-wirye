@@ -77,11 +77,12 @@ export default async function ManageAboutPage() {
             />
           </div>
           <div className="manage-field">
-            <label htmlFor="footerAddress">주소 (사이트 하단에 표기)</label>
-            <input
+            <label htmlFor="footerAddress">주소 (사이트 하단에 표기, 줄바꿈 유지)</label>
+            <textarea
               defaultValue={footer.address || ''}
               id="footerAddress"
               name="footerAddress"
+              rows={2}
             />
           </div>
         </div>

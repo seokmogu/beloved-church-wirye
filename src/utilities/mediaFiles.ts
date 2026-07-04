@@ -37,5 +37,7 @@ export function sanitizeMediaFilename(original: string): string {
     .replace(/^[-.]+|[-.]+$/g, '')
     .slice(0, MAX_BASENAME_LENGTH)
 
-  return `${base || `file-${Date.now().toString(36)}`}${extension}`
+  // 전부 비-ASCII인 이름은 밀리초 타임스탬프만으로는 동시 업로드끼리 충돌하므로 난수를 붙인다
+  const fallback = `file-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+  return `${base || fallback}${extension}`
 }

@@ -90,6 +90,12 @@ export async function syncInstagramPosts(
     .filter((post): post is InstagramPostInput => Boolean(post))
     .slice(0, limit)
 
+  // API가 200이지만 빈 목록을 주는 이상 응답(권한 변경 등)에서 기존 게시물을 전부 지우지 않는다
+  if (posts.length === 0) {
+    payload.logger.warn('Instagram API가 사용할 게시물을 반환하지 않아 기존 목록을 유지합니다.')
+    return { count: 0, posts: [] }
+  }
+
   const previousThumbnails = await fetchPreviousThumbnails(payload)
 
   const instagramPosts = await Promise.all(

@@ -79,6 +79,7 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-primary/70 sm:aspect-[4/5]">
                   <PostThumbnail
+                    key={thumbnailUrl ?? 'none'}
                     alt={`${handle ?? 'Instagram'} 게시물 썸네일`}
                     src={thumbnailUrl}
                   />
