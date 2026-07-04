@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
+import { sanitizeMediaFilename, toRelativeMediaURL } from '../utilities/mediaFiles'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -60,6 +61,38 @@ export const Media: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    beforeOperation: [
+      ({ args, operation, req }) => {
+        if ((operation !== 'create' && operation !== 'update') || !req.file?.name) return args
+
+        const original = req.file.name
+        const sanitized = sanitizeMediaFilename(original)
+        if (sanitized !== original) {
+          req.file.name = sanitized
+          // 원본 파일명은 관리 화면 가독성을 위해 대체 텍스트로 보존
+          if (args?.data && !args.data.alt) {
+            args.data.alt = original.normalize('NFC').replace(/\.[^.]+$/, '')
+          }
+        }
+
+        return args
+      },
+    ],
+    afterRead: [
+      ({ doc }) => {
+        if (!doc) return doc
+        if (doc.url) doc.url = toRelativeMediaURL(doc.url)
+        if (doc.thumbnailURL) doc.thumbnailURL = toRelativeMediaURL(doc.thumbnailURL)
+        if (doc.sizes) {
+          for (const size of Object.values(doc.sizes) as Array<{ url?: string | null }>) {
+            if (size?.url) size.url = toRelativeMediaURL(size.url)
+          }
+        }
+        return doc
+      },
+    ],
+  },
   upload: {
     // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload
     staticDir: path.resolve(dirname, '../../public/media'),

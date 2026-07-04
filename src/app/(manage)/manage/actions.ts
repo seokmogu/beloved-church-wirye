@@ -386,6 +386,15 @@ export async function saveAboutSettingsAction(formData: FormData) {
     slug: 'site-settings',
   })
 
+  // 연락처/주소는 푸터 전역에 표기된다 (하단 메뉴/푸터 global)
+  await payload.updateGlobal({
+    data: {
+      address: optionalString(formData, 'footerAddress'),
+      churchPhone: optionalString(formData, 'churchPhone'),
+    } as any,
+    slug: 'footer',
+  })
+
   revalidateManageAndPublic('/manage/about')
   redirect('/manage/about')
 }
