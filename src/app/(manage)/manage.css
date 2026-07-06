@@ -1494,6 +1494,16 @@ textarea {
   cursor: default;
   opacity: 0.35;
 }
+.manage-image-card-thumb[draggable='true'] {
+  cursor: grab;
+}
+.manage-image-card.dragging {
+  opacity: 0.5;
+}
+.manage-image-card.drag-over {
+  border-color: var(--manage-accent, #b0713b);
+  box-shadow: 0 0 0 2px rgba(176, 113, 59, 0.35);
+}
 .manage-image-row {
   align-items: center;
   background: #fffaf2;
