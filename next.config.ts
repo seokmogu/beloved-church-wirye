@@ -24,7 +24,8 @@ const nextConfig: NextConfig = {
         pathname: '/api/media/file/**',
       },
     ],
-    qualities: [100],
+    // 75(기본)로 대부분의 썸네일을 서빙해 전송량을 줄이고, 원본급이 필요한 곳만 100 사용
+    qualities: [75, 100],
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map((item) => {
         const url = new URL(item)

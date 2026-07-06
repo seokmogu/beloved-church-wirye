@@ -46,7 +46,8 @@ const initialFormData: FormData = {
   schoolOrWork: '',
   sourceChannels: [],
   sourceDetail: '',
-  visitDate: new Date().toISOString().split('T')[0],
+  // toISOString은 UTC 기준이라 KST 자정~09시에 어제 날짜가 나온다 — 서울 시간대로 계산
+  visitDate: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date()),
   website: '',
 }
 
@@ -157,8 +158,9 @@ export function NewcomerForm() {
       })
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || '등록에 실패했습니다.')
+        // JSON이 아닌 에러 응답(게이트웨이 오류 등)에서 파서 원문이 노출되지 않게 한다
+        const data = await response.json().catch(() => null)
+        throw new Error(data?.error || '등록에 실패했습니다. 잠시 후 다시 시도해 주세요.')
       }
 
       router.push('/newcomer/thank-you')

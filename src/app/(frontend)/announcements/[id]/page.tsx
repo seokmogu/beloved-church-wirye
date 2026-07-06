@@ -16,6 +16,11 @@ type Args = {
 export const dynamic = 'force-dynamic'
 export const revalidate = 300
 
+// CMS에 스킴 없이 저장된 링크(drive.google.com/... 등)가 상대경로로 해석되지 않게 보정
+function withHttps(url: string) {
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`
+}
+
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString('ko-KR', {
     day: 'numeric',
@@ -78,12 +83,9 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
               </h2>
             </div>
 
-            <dl className="grid grid-cols-2 border-b border-border bg-muted/30 text-sm md:grid-cols-4">
-              <div className="border-b border-r border-border px-5 py-3 md:border-b-0 md:px-6">
-                <dt className="text-xs font-semibold text-muted-foreground">번호</dt>
-                <dd className="mt-1 text-foreground">{announcement.id}</dd>
-              </div>
-              <div className="border-b border-border px-5 py-3 md:border-b-0 md:border-r md:px-6">
+            {/* 목록의 '번호'는 정렬 순번이라 DB id와 달라 혼동을 준다 — 상세에서는 번호를 표기하지 않는다 */}
+            <dl className="grid grid-cols-3 border-b border-border bg-muted/30 text-sm">
+              <div className="border-r border-border px-5 py-3 md:px-6">
                 <dt className="text-xs font-semibold text-muted-foreground">작성일</dt>
                 <dd className="mt-1 text-foreground">{publishedDate}</dd>
               </div>
@@ -144,7 +146,7 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
                 <dd>
                   <a
                     className="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-light"
-                    href={announcement.googleDriveLink}
+                    href={withHttps(announcement.googleDriveLink)}
                     rel="noreferrer"
                     target="_blank"
                   >
