@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 
 import { DeleteButton, SaveButton } from '@/app/(manage)/manage/_components/FormButtons'
@@ -6,6 +5,7 @@ import { deleteChurchNewsAction, saveChurchNewsAction } from '@/app/(manage)/man
 import { toDateInputValue } from '@/lib/manage/date'
 import type { ChurchNew, Media } from '@/payload-types'
 
+import { ChurchNewsImageGallery } from './ChurchNewsImageGallery'
 import { ChurchNewsImagePicker } from './ChurchNewsImagePicker'
 
 type ChurchNewsImage = NonNullable<ChurchNew['images']>[number]
@@ -62,44 +62,18 @@ export function ChurchNewsForm({ doc, error }: { doc?: ChurchNew; error?: string
           </div>
         ) : null}
 
-        {images.length ? (
-          <section className="manage-image-list" aria-label="등록된 이미지">
-            {images.map((item, index) => {
-              const media = resolveMedia(item)
-              const url = imageUrl(media)
-              const mediaId = mediaRelationId(item)
-              return (
-                <div className="manage-image-row" key={item.id || `${mediaId}-${index}`}>
-                  <input name="churchNewsImageRowId" type="hidden" value={item.id || ''} />
-                  <input name="churchNewsImageId" type="hidden" value={mediaId} />
-                  <div className="manage-image-preview">
-                    {url ? (
-                      <Image
-                        alt={media?.alt || item.caption || `교회소식 이미지 ${index + 1}`}
-                        height={150}
-                        src={url}
-                        unoptimized
-                        width={120}
-                      />
-                    ) : (
-                      <span>이미지 미리보기 없음</span>
-                    )}
-                  </div>
-                  <input
-                    defaultValue={item.caption || ''}
-                    name="churchNewsImageCaption"
-                    placeholder="이미지 설명 (선택)"
-                    type="text"
-                  />
-                  <label className="manage-checkbox compact">
-                    <input name={`churchNewsRemoveImage-${index}`} type="checkbox" />
-                    삭제
-                  </label>
-                </div>
-              )
-            })}
-          </section>
-        ) : null}
+        <ChurchNewsImageGallery
+          items={images.map((item, index) => {
+            const media = resolveMedia(item)
+            return {
+              alt: media?.alt || item.caption || `교회소식 이미지 ${index + 1}`,
+              caption: item.caption || '',
+              mediaId: mediaRelationId(item),
+              rowId: item.id || '',
+              url: imageUrl(media),
+            }
+          })}
+        />
 
         <div className="manage-form-actions">
           <Link className="manage-button secondary" href="/manage/church-news">

@@ -1435,6 +1435,65 @@ textarea {
   display: grid;
   gap: 12px;
 }
+
+/* 교회소식 이미지 갤러리: 그리드 카드 + 순서 이동 */
+.manage-image-gallery {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+.manage-image-card {
+  background: #fffaf2;
+  border: 1px solid #ebe0d0;
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 10px;
+}
+.manage-image-card-thumb {
+  aspect-ratio: 4 / 5;
+  background: #f3eee6;
+  border: 1px solid var(--manage-border);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+.manage-image-card-thumb img {
+  object-fit: cover;
+}
+.manage-image-card-thumb span {
+  color: var(--manage-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  height: 100%;
+  padding: 8px;
+  text-align: center;
+}
+.manage-image-card-order {
+  align-items: center;
+  color: var(--manage-muted);
+  display: flex;
+  font-size: 12px;
+  gap: 8px;
+  justify-content: space-between;
+}
+.manage-image-order-button {
+  background: #fff;
+  border: 1px solid var(--manage-border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  min-width: 40px;
+  padding: 6px 10px;
+}
+.manage-image-order-button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
 .manage-image-row {
   align-items: center;
   background: #fffaf2;
