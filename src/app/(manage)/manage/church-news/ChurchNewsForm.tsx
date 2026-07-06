@@ -5,7 +5,8 @@ import { deleteChurchNewsAction, saveChurchNewsAction } from '@/app/(manage)/man
 import { toDateInputValue } from '@/lib/manage/date'
 import type { ChurchNew, Media } from '@/payload-types'
 
-import { ChurchNewsImageGallery } from './ChurchNewsImageGallery'
+import { ManageImageGallery } from '@/app/(manage)/manage/_components/ManageImageGallery'
+
 import { ChurchNewsImagePicker } from './ChurchNewsImagePicker'
 
 type ChurchNewsImage = NonNullable<ChurchNew['images']>[number]
@@ -62,17 +63,23 @@ export function ChurchNewsForm({ doc, error }: { doc?: ChurchNew; error?: string
           </div>
         ) : null}
 
-        <ChurchNewsImageGallery
+        <ManageImageGallery
           items={images.map((item, index) => {
             const media = resolveMedia(item)
             return {
               alt: media?.alt || item.caption || `교회소식 이미지 ${index + 1}`,
               caption: item.caption || '',
-              mediaId: mediaRelationId(item),
+              imageId: mediaRelationId(item),
               rowId: item.id || '',
               url: imageUrl(media),
             }
           })}
+          names={{
+            caption: 'churchNewsImageCaption',
+            imageId: 'churchNewsImageId',
+            remove: 'churchNewsRemoveImage-{i}',
+            rowId: 'churchNewsImageRowId',
+          }}
         />
 
         <div className="manage-form-actions">

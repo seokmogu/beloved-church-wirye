@@ -27,7 +27,6 @@ export function AnnouncementForm({ doc }: { doc?: Announcement }) {
             rows={10}
           />
         </div>
-        <ImageUploadFields docImages={doc?.images} prefix="announcement" title="행사 사진" />
         <div className="manage-field-grid">
           <div className="manage-field">
             <label htmlFor="publishedAt">게시일</label>
@@ -53,6 +52,8 @@ export function AnnouncementForm({ doc }: { doc?: Announcement }) {
           <input defaultChecked={Boolean(doc?.isPinned)} name="isPinned" type="checkbox" />
           <span>상단 고정</span>
         </label>
+        {/* 이미지 섹션은 교회소식/주보 폼과 동일하게 마지막에 배치 */}
+        <ImageUploadFields docImages={doc?.images} prefix="announcement" title="행사 사진" />
         <div className="manage-form-actions">
           <Link className="manage-button secondary" href="/manage/announcements">
             취소
