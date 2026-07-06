@@ -21,18 +21,41 @@ export const metadata: Metadata = {
 export const revalidate = 300
 export const dynamic = 'force-dynamic'
 
-export default async function AnnouncementsPage() {
+const PAGE_SIZE = 30
+
+export default async function AnnouncementsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const { page: pageParam } = await searchParams
+  const requestedPage = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1)
+
   let announcements: AnnouncementItem[] = []
   let hasError = false
+  let totalDocs = 0
+  let totalPages = 1
+  let currentPage = 1
+  let pinnedTotal = 0
 
   try {
     const payload = await getPayload({ config: configPromise })
     const result = await payload.find({
       collection: 'announcements',
-      limit: 30,
+      limit: PAGE_SIZE,
+      page: requestedPage,
       sort: '-isPinned,-publishedAt',
     })
     announcements = result.docs
+    totalDocs = result.totalDocs
+    totalPages = result.totalPages || 1
+    currentPage = result.page || requestedPage
+    pinnedTotal = (
+      await payload.count({
+        collection: 'announcements',
+        where: { isPinned: { equals: true } },
+      })
+    ).totalDocs
   } catch (error) {
     console.error('Failed to fetch announcements:', error)
     hasError = true
@@ -48,12 +71,16 @@ export default async function AnnouncementsPage() {
   }
 
   const pinnedCount = announcements.filter((item) => item.isPinned).length
-  const regularCount = announcements.length - pinnedCount
-  let regularNumber = regularCount
-  const boardRows = announcements.map((item) => ({
-    ...item,
-    boardNumber: item.isPinned ? '고정' : String(regularNumber--),
-  }))
+  // 고정글은 항상 목록 맨 앞에 오므로, 일반글 순번은 전체 기준으로 이어서 매긴다
+  const totalRegular = totalDocs - pinnedTotal
+  const boardRows = announcements.map((item, index) => {
+    const globalIndex = (currentPage - 1) * PAGE_SIZE + index
+    const regularsBefore = Math.max(0, globalIndex - pinnedTotal)
+    return {
+      ...item,
+      boardNumber: item.isPinned ? '고정' : String(totalRegular - regularsBefore),
+    }
+  })
 
   return (
     <main className="min-h-screen bg-background">
@@ -86,7 +113,7 @@ export default async function AnnouncementsPage() {
                 <h2 className="mt-2 text-2xl font-semibold text-foreground">교회로그 게시판</h2>
               </div>
               <div className="flex gap-2 text-sm text-muted-foreground">
-                <span>전체 {announcements.length}건</span>
+                <span>전체 {totalDocs}건</span>
                 {pinnedCount > 0 && <span>고정 {pinnedCount}건</span>}
               </div>
             </div>
@@ -172,6 +199,41 @@ export default async function AnnouncementsPage() {
                 </Link>
               ))}
             </div>
+
+            {totalPages > 1 && (
+              <nav
+                aria-label="교회로그 목록 페이지"
+                className="mt-8 flex items-center justify-center gap-4"
+              >
+                {currentPage > 1 ? (
+                  <Link
+                    href={`/announcements?page=${currentPage - 1}`}
+                    className="rounded-md border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary/30 hover:bg-primary/5"
+                  >
+                    &larr; 이전
+                  </Link>
+                ) : (
+                  <span className="rounded-md border border-border px-4 py-2 text-sm text-muted-foreground/50">
+                    &larr; 이전
+                  </span>
+                )}
+                <span className="text-sm text-muted-foreground">
+                  {currentPage} / {totalPages}
+                </span>
+                {currentPage < totalPages ? (
+                  <Link
+                    href={`/announcements?page=${currentPage + 1}`}
+                    className="rounded-md border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary/30 hover:bg-primary/5"
+                  >
+                    다음 &rarr;
+                  </Link>
+                ) : (
+                  <span className="rounded-md border border-border px-4 py-2 text-sm text-muted-foreground/50">
+                    다음 &rarr;
+                  </span>
+                )}
+              </nav>
+            )}
           </div>
         )}
       </div>

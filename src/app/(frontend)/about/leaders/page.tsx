@@ -17,6 +17,11 @@ function mediaUrl(media: Media | number | null | undefined): string | null {
   return media && typeof media === 'object' && media.url ? media.url : null
 }
 
+// CMS 입력의 여분 개행(3줄+)을 단락 구분 1줄로 정규화해 카드 안 빈 공백을 없앤다
+function normalizeBio(bio: string): string {
+  return bio.replace(/\r/g, '').replace(/\n{2,}/g, '\n\n').trim()
+}
+
 async function getSettings(): Promise<SiteSetting | null> {
   try {
     const payload = await getPayload({ config })
@@ -107,7 +112,7 @@ export default async function LeadersPage() {
                     )}
                     {person.bio && (
                       <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                        {person.bio}
+                        {normalizeBio(person.bio)}
                       </p>
                     )}
                   </div>

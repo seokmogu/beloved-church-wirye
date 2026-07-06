@@ -6,17 +6,42 @@ interface CopyAccountButtonProps {
   accountNumber: string
 }
 
+// clipboard API가 막힌 환경(구형 브라우저, 일부 인앱 웹뷰) 폴백
+function copyViaTextarea(text: string): boolean {
+  try {
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    const ok = document.execCommand('copy')
+    document.body.removeChild(textarea)
+    return ok
+  } catch {
+    return false
+  }
+}
+
 export function CopyAccountButton({ accountNumber }: CopyAccountButtonProps) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
+    let ok = true
     try {
       await navigator.clipboard.writeText(accountNumber)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      alert('계좌번호 복사에 실패했습니다')
+    } catch {
+      ok = copyViaTextarea(accountNumber)
     }
+
+    if (!ok) {
+      // 복사가 불가능한 환경이면 번호를 바로 보여줘 수동 복사를 돕는다
+      window.prompt('자동 복사가 지원되지 않습니다. 계좌번호를 직접 복사해 주세요.', accountNumber)
+      return
+    }
+
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
