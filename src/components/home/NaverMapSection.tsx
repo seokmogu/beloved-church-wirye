@@ -63,6 +63,7 @@ export function NaverMapSection({
   const mapInstanceRef = useRef<unknown>(null)
 
   const naverClientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID
+  const mapSearchUrl = `https://map.naver.com/p/search/${encodeURIComponent(`${churchName} ${address}`)}`
 
   function initMap() {
     if (!mapRef.current || !window.naver?.maps) return
@@ -123,7 +124,7 @@ export function NaverMapSection({
                     )}
                   </p>
                   <a
-                    href={`https://map.naver.com/p/search/${encodeURIComponent(`${churchName} ${address}`)}`}
+                    href={mapSearchUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-5 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-light"
@@ -230,6 +231,14 @@ export function NaverMapSection({
                     </>
                   )}
                 </p>
+                <a
+                  href={mapSearchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-light"
+                >
+                  네이버 지도에서 길찾기
+                </a>
               </div>
 
               <div>
