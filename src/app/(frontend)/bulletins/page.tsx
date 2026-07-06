@@ -1,6 +1,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import type { Media } from '@/payload-types'
 import { EmptyState } from '@/components/EmptyState'
 import { PageHero } from '@/components/PageHero'
@@ -63,7 +64,6 @@ export default async function BulletinsPage() {
               const file = bulletin.file as Media | null
               const fileUrl = file?.url ?? null
               const isImage = file?.mimeType?.startsWith('image/')
-              const isPdf = file?.mimeType === 'application/pdf'
               const images = Array.isArray(bulletin.images) ? bulletin.images : []
               const firstImageUrl =
                 images
@@ -72,12 +72,12 @@ export default async function BulletinsPage() {
                   )
                   .find((url: any) => Boolean(url)) ?? null
               const coverUrl = firstImageUrl ?? (isImage ? fileUrl : null)
-              const linkUrl = fileUrl ?? firstImageUrl
 
               return (
-                <div
+                <Link
                   key={bulletin.id}
-                  className="group border border-border rounded-xl overflow-hidden bg-card hover:shadow-md transition-shadow"
+                  href={`/bulletins/${bulletin.id}`}
+                  className="group block border border-border rounded-xl overflow-hidden bg-card hover:shadow-md transition-shadow"
                 >
                   {/* Preview */}
                   <div className="aspect-[3/4] bg-muted flex items-center justify-center relative overflow-hidden">
@@ -125,32 +125,11 @@ export default async function BulletinsPage() {
                         timeZone: 'Asia/Seoul',
                       })}
                     </p>
-                    {linkUrl && (
-                      <a
-                        href={linkUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download={isPdf}
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-secondary transition-colors"
-                      >
-                        <svg
-                          className="w-3.5 h-3.5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                          />
-                        </svg>
-                        {isPdf ? '다운로드' : '보기'}
-                      </a>
-                    )}
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary transition-colors group-hover:text-secondary">
+                      자세히 보기 &rarr;
+                    </span>
                   </div>
-                </div>
+                </Link>
               )
             })}
           </div>
