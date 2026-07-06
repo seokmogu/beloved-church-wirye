@@ -104,7 +104,7 @@ export default async function AnnouncementsPage() {
                 <tbody className="divide-y divide-border">
                   {boardRows.map((item) => {
                     return (
-                      <tr key={item.id} className="transition-colors hover:bg-muted/25">
+                      <tr key={item.id} className="relative transition-colors hover:bg-muted/25">
                         <td className="px-4 py-4 text-center text-muted-foreground">
                           {item.isPinned ? (
                             <span className="inline-flex min-w-12 justify-center rounded-sm bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground">
@@ -115,9 +115,10 @@ export default async function AnnouncementsPage() {
                           )}
                         </td>
                         <td className="px-4 py-4">
+                          {/* after:inset-0가 행 전체를 클릭 영역으로 확장 (tr이 relative) */}
                           <Link
                             href={`/announcements/${item.id}`}
-                            className="font-medium text-foreground underline-offset-4 hover:text-primary hover:underline"
+                            className="font-medium text-foreground underline-offset-4 after:absolute after:inset-0 hover:text-primary hover:underline"
                           >
                             {item.title || '제목 없음'}
                           </Link>

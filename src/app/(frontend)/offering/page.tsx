@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { PageHero } from '@/components/PageHero'
@@ -7,7 +8,7 @@ import { FormattedText } from '@/components/FormattedText'
 
 export const metadata: Metadata = {
   title: '헌금안내 | 사랑하는교회',
-  description: '사랑하는교회 위례 헌금안내 - 은행 계좌 및 카카오페이 송금 방법',
+  description: '사랑하는교회 위례 헌금안내 - 헌금 종류와 계좌이체 방법',
 }
 
 export const dynamic = 'force-dynamic'
@@ -81,6 +82,14 @@ export default async function OfferingPage() {
                 <span>안내 사항</span>
               </h3>
               <FormattedText className="space-y-2 text-muted-foreground">{notes}</FormattedText>
+              <div className="mt-4 flex flex-wrap gap-4 border-t border-primary/15 pt-4">
+                <Link href="/worship" className="text-sm font-medium text-primary hover:underline">
+                  예배안내·오시는 길 &rarr;
+                </Link>
+                <Link href="/newcomer" className="text-sm font-medium text-primary hover:underline">
+                  새가족 등록 &rarr;
+                </Link>
+              </div>
             </div>
           </section>
         )}

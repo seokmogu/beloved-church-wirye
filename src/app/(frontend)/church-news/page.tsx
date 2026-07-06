@@ -50,6 +50,14 @@ export default async function ChurchNewsPage() {
       />
 
       <div className="container py-12">
+        <div className="mb-6 flex justify-end">
+          <Link
+            href="/church-news/videos"
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            동영상 모아보기 &rarr;
+          </Link>
+        </div>
         {items.length === 0 ? (
           hasError ? (
             <EmptyState

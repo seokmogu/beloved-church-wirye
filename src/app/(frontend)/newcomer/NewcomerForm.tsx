@@ -329,7 +329,9 @@ export function NewcomerForm() {
       </div>
 
       <fieldset className="space-y-3">
-        <legend className="text-sm font-semibold text-foreground">방문경로</legend>
+        <legend className="text-sm font-semibold text-foreground">
+          방문경로 <span className="text-red-500">*</span>
+        </legend>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {sourceOptions.map((option) => (
             <CheckboxField

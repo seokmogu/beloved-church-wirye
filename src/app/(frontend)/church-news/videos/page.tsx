@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import Link from 'next/link'
 import { ExternalLink, Play } from 'lucide-react'
 import { getPayload } from 'payload'
 
 import config from '@payload-config'
+import { extractYouTubeId } from '@/lib/youtube'
 import { PageHero } from '@/components/PageHero'
 
 export const metadata: Metadata = {
@@ -72,7 +74,7 @@ export default async function ChurchNewsVideosPage() {
             </p>
             <h2 className="church-section-heading font-bold text-foreground">동영상</h2>
             <p className="church-body-copy mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-              관리자가 직접 등록한 YouTube 영상만 표시됩니다.
+              교회의 현장과 소식을 영상으로 만나보세요.
             </p>
           </div>
 
@@ -86,7 +88,7 @@ export default async function ChurchNewsVideosPage() {
             <div className="rounded-lg border border-dashed border-border bg-card/70 px-5 py-10 text-center">
               <p className="text-base font-semibold text-foreground">표시할 동영상이 없습니다.</p>
               <p className="mt-2 text-sm text-muted-foreground">
-                관리자에서 동영상을 직접 등록해 주세요.
+                곧 새로운 영상으로 찾아뵙겠습니다.
               </p>
             </div>
           )}
@@ -98,14 +100,16 @@ export default async function ChurchNewsVideosPage() {
 
 function VideoCard({ video }: { video: ManualVideo }) {
   const thumbnail = getVideoThumbnail(video)
+  const embeddable = Boolean(video.youtubeId || extractYouTubeId(video.youtubeUrl))
+
+  // 임베드 가능한 영상은 사이트 내 상세에서 재생, 아니면 기존처럼 외부로
+  const cardProps = embeddable
+    ? { href: `/church-news/videos/${video.id}` }
+    : { href: video.youtubeUrl, rel: 'noopener noreferrer', target: '_blank' }
+  const CardTag = embeddable ? Link : 'a'
 
   return (
-    <a
-      href={video.youtubeUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group block min-w-0"
-    >
+    <CardTag {...cardProps} className="group block min-w-0">
       <div className="relative aspect-video overflow-hidden rounded-lg bg-muted">
         {thumbnail ? (
           <Image
@@ -138,8 +142,10 @@ function VideoCard({ video }: { video: ManualVideo }) {
             </p>
           ) : null}
         </div>
-        <ExternalLink className="mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+        {!embeddable && (
+          <ExternalLink className="mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+        )}
       </div>
-    </a>
+    </CardTag>
   )
 }

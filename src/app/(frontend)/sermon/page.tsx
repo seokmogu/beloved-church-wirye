@@ -163,11 +163,19 @@ function SermonArchiveSection({
   )
 }
 
-export default async function SermonPage() {
+export default async function SermonPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
   const payload = await getPayload({ config })
+  const { page: pageParam } = await searchParams
+  const requestedPage = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1)
 
   let settings: SiteSetting | null = null
   let cmsVideos: YouTubeVideo[] = []
+  let totalPages = 1
+  let currentPage = 1
 
   try {
     settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
@@ -189,8 +197,11 @@ export default async function SermonPage() {
         },
       },
       limit: videoCount,
+      page: requestedPage,
       sort: '-sermonDate',
     })
+    totalPages = sermonsData.totalPages || 1
+    currentPage = sermonsData.page || requestedPage
     cmsVideos = sermonsData.docs
       .filter((sermon) => sermon.youtubeId)
       .map((sermon) => ({
@@ -204,11 +215,13 @@ export default async function SermonPage() {
     console.error('Failed to fetch sermons:', error)
   }
 
-  const fallbackVideos =
-    cmsVideos.length === 0
-      ? await fetchLatestVideos(videoCount, settings?.youtubeChannelId, settings?.youtubeChannelUrl)
-      : []
+  // CMS에 설교가 아예 없을 때만 YouTube RSS로 폴백 (RSS는 페이지네이션 불가)
+  const usingFallback = cmsVideos.length === 0 && currentPage === 1
+  const fallbackVideos = usingFallback
+    ? await fetchLatestVideos(videoCount, settings?.youtubeChannelId, settings?.youtubeChannelUrl)
+    : []
   const videos = cmsVideos.length > 0 ? cmsVideos : fallbackVideos
+  const showPagination = !usingFallback && totalPages > 1
   const section = getSermonsSection(settings)
 
   return (
@@ -222,6 +235,41 @@ export default async function SermonPage() {
         title={section.title}
         videos={videos}
       />
+
+      {showPagination && (
+        <nav
+          aria-label="설교 목록 페이지"
+          className="container flex items-center justify-center gap-4 pb-16"
+        >
+          {currentPage > 1 ? (
+            <Link
+              href={`/sermon?page=${currentPage - 1}`}
+              className="rounded-md border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary/30 hover:bg-primary/5"
+            >
+              &larr; 이전
+            </Link>
+          ) : (
+            <span className="rounded-md border border-border px-4 py-2 text-sm text-muted-foreground/50">
+              &larr; 이전
+            </span>
+          )}
+          <span className="text-sm text-muted-foreground">
+            {currentPage} / {totalPages}
+          </span>
+          {currentPage < totalPages ? (
+            <Link
+              href={`/sermon?page=${currentPage + 1}`}
+              className="rounded-md border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary/30 hover:bg-primary/5"
+            >
+              다음 &rarr;
+            </Link>
+          ) : (
+            <span className="rounded-md border border-border px-4 py-2 text-sm text-muted-foreground/50">
+              다음 &rarr;
+            </span>
+          )}
+        </nav>
+      )}
     </main>
   )
 }
