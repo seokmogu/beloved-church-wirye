@@ -6,7 +6,11 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { requireManageActionUser } from '@/lib/manage/auth'
-import { InstagramSyncConfigError, syncInstagramPosts } from '@/lib/instagram'
+import {
+  InstagramSyncConfigError,
+  normalizeInstagramPostInput,
+  syncInstagramPosts,
+} from '@/lib/instagram'
 import { dateInputToISO } from '@/lib/manage/date'
 import { optimizeUploadImage } from '@/lib/manage/imageOptimize'
 import { plaintextToLexical } from '@/lib/manage/lexical'
@@ -972,7 +976,11 @@ async function parseInstagramPosts(
   const dates = stringValues(formData, 'instagramPostPublishedAt')
   const hashtags = stringValues(formData, 'instagramPostHashtags')
   const posts = await Promise.all(
-    postIds.map(async (postId, index) => {
+    postIds.map(async (rawPostId, index) => {
+      if (!rawPostId) return null
+
+      // URL을 붙여넣으면 ID를 추출하고, URL 경로(/reel/, /p/)로 종류를 자동 인식
+      const { isReel, postId } = normalizeInstagramPostInput(rawPostId)
       if (!postId) return null
 
       const uploadedThumbnail = await uploadMediaFromForm(
@@ -1003,7 +1011,7 @@ async function parseInstagramPosts(
           optionalDateInputToISO(dates[index]) || stringOrNull(currentPosts?.[index]?.publishedAt),
         thumbnail,
         thumbnailUrl,
-        type: types[index] === 'reel' ? 'reel' : 'p',
+        type: isReel === null ? (types[index] === 'reel' ? 'reel' : 'p') : isReel ? 'reel' : 'p',
       }
     }),
   )

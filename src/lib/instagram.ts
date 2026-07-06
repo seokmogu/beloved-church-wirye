@@ -188,6 +188,24 @@ function toPostInput(media: InstagramMedia): InstagramPostInput | null {
   }
 }
 
+/**
+ * 관리 화면에서 게시물 URL을 그대로 붙여넣어도 ID와 종류(reel/p)를 인식한다.
+ * URL이 아니면(이미 ID면) 그대로 돌려준다.
+ */
+export function normalizeInstagramPostInput(value: string): {
+  isReel: boolean | null
+  postId: string
+} {
+  const trimmed = value.trim()
+  if (!trimmed.includes('/')) {
+    return { isReel: null, postId: trimmed }
+  }
+
+  const extracted = parseInstagramPostId(trimmed)
+  const isReel = /\/reel\//.test(trimmed) ? true : /\/(?:p|tv)\//.test(trimmed) ? false : null
+  return { isReel, postId: extracted ?? trimmed }
+}
+
 function parseInstagramPostId(permalink?: string) {
   if (!permalink) return null
 

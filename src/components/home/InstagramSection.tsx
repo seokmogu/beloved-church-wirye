@@ -1,18 +1,8 @@
-'use client'
-
-import Image from 'next/image'
-import { useState } from 'react'
-
 import { FormattedText } from '@/components/FormattedText'
-import type { Media } from '@/payload-types'
 
 type InstagramPost = {
-  caption?: string | null
-  hashtags?: string | null
   postId?: string | null
   publishedAt?: string | null
-  thumbnail?: (number | null) | Media
-  thumbnailUrl?: string | null
   type?: 'p' | 'reel' | null
 }
 
@@ -25,6 +15,10 @@ type Props = {
   url?: string | null
 }
 
+/**
+ * 게시물을 인스타그램 공식 임베드(iframe)로 렌더한다.
+ * API 토큰/썸네일 관리 없이 게시물 ID만으로 항상 최신 내용이 보인다.
+ */
 export function InstagramSection({ description, eyebrow, handle, posts, title, url }: Props) {
   const visiblePosts = (posts ?? [])
     .filter((post) => post?.postId)
@@ -62,49 +56,22 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {visiblePosts.map((post, index) => {
-            const postUrl = `https://www.instagram.com/${post.type ?? 'p'}/${post.postId}/`
-            const thumbnailUrl = getMediaUrl(post.thumbnail) || post.thumbnailUrl
-            const displayDate = formatPostDate(post.publishedAt)
-            const tags = getDisplayHashtags(post.hashtags, post.caption)
-            const summary = getCaptionSummary(post.caption)
+          {visiblePosts.map((post) => {
+            const kind = post.type === 'reel' ? 'reel' : 'p'
 
             return (
-              <a
+              <div
                 key={post.postId}
-                href={postUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group min-w-0 overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-all duration-300 hover:-translate-y-1 hover:border-secondary/40 hover:bg-white/[0.09]"
+                className="relative w-full overflow-hidden rounded-lg border border-white/10 bg-black/20"
+                style={{ paddingBottom: '125%' }}
               >
-                <div className="relative aspect-[16/10] overflow-hidden bg-primary/70 sm:aspect-[4/5]">
-                  <PostThumbnail
-                    key={thumbnailUrl ?? 'none'}
-                    alt={`${handle ?? 'Instagram'} 게시물 썸네일`}
-                    src={thumbnailUrl}
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5 p-3">
-                  <div className="flex items-center justify-between gap-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/58">
-                    <span>{post.type === 'reel' ? 'Reel' : 'Post'}</span>
-                    {displayDate ? (
-                      <time dateTime={post.publishedAt ?? undefined}>{displayDate}</time>
-                    ) : (
-                      <span>{String(index + 1).padStart(2, '0')}</span>
-                    )}
-                  </div>
-                  {summary ? (
-                    <p className="text-sm font-semibold leading-snug text-white [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1] [overflow:hidden]">
-                      {summary}
-                    </p>
-                  ) : null}
-                  {tags.length > 0 ? (
-                    <p className="truncate text-xs font-semibold text-secondary/90">
-                      {tags.join(' ')}
-                    </p>
-                  ) : null}
-                </div>
-              </a>
+                <iframe
+                  src={`https://www.instagram.com/${kind}/${post.postId}/embed/`}
+                  className="absolute inset-0 h-full w-full border-0"
+                  loading="lazy"
+                  title={`Instagram ${kind === 'reel' ? 'Reel' : 'Post'} ${post.postId}`}
+                />
+              </div>
             )
           })}
         </div>
@@ -113,75 +80,8 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
   )
 }
 
-function PostThumbnail({ alt, src }: { alt: string; src: string | null | undefined }) {
-  // 만료된 Instagram CDN URL 등 로드 실패 시 깨진 이미지 대신 패턴 배경을 보여준다.
-  const [failed, setFailed] = useState(false)
-
-  if (!src || failed) {
-    return (
-      <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:44px_44px]" />
-    )
-  }
-
-  return (
-    <Image
-      src={src}
-      alt={alt}
-      fill
-      className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-      sizes="(min-width: 1024px) 24vw, (min-width: 640px) 48vw, 100vw"
-      onError={() => setFailed(true)}
-    />
-  )
-}
-
-function getMediaUrl(media: Media | number | null | undefined): string | null {
-  return media && typeof media === 'object' && media.url ? media.url : null
-}
-
 function compareInstagramPosts(a: string | null | undefined, b: string | null | undefined) {
   const aTime = a ? Date.parse(a) : 0
   const bTime = b ? Date.parse(b) : 0
   return bTime - aTime
-}
-
-function getCaptionSummary(caption: string | null | undefined): string | null {
-  if (!caption) return null
-
-  const text = caption
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith('#'))
-    .join(' ')
-    .replace(/#[^\s#]+/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-
-  return text || null
-}
-
-function getDisplayHashtags(
-  hashtags: string | null | undefined,
-  caption: string | null | undefined,
-) {
-  const source = hashtags || caption || ''
-  const explicit = source
-    .split(/[\s,]+/)
-    .map((tag) => tag.trim())
-    .filter((tag) => tag.startsWith('#'))
-
-  const extracted = source.match(/#[^\s#]+/g) ?? []
-  return Array.from(new Set([...explicit, ...extracted])).slice(0, 3)
-}
-
-function formatPostDate(value: string | null | undefined): string | null {
-  if (!value) return null
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return null
-
-  return new Intl.DateTimeFormat('ko-KR', {
-    day: '2-digit',
-    month: 'short',
-    timeZone: 'Asia/Seoul',
-  }).format(date)
 }
