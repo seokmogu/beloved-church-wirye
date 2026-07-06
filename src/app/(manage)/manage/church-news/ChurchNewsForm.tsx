@@ -44,6 +44,16 @@ export function ChurchNewsForm({ doc, error }: { doc?: ChurchNew; error?: string
             <span>공개</span>
           </label>
         </div>
+        {/* 폼에 이 필드가 없으면 저장 액션이 description을 null로 덮어써 기존값이 소실된다 */}
+        <div className="manage-field">
+          <label htmlFor="description">설명 / 메모</label>
+          <textarea
+            defaultValue={doc?.description || ''}
+            id="description"
+            name="description"
+            rows={3}
+          />
+        </div>
         <ChurchNewsImagePicker />
 
         {error ? (
@@ -75,7 +85,12 @@ export function ChurchNewsForm({ doc, error }: { doc?: ChurchNew; error?: string
                       <span>이미지 미리보기 없음</span>
                     )}
                   </div>
-                  <input name="churchNewsImageCaption" type="hidden" value={item.caption || ''} />
+                  <input
+                    defaultValue={item.caption || ''}
+                    name="churchNewsImageCaption"
+                    placeholder="이미지 설명 (선택)"
+                    type="text"
+                  />
                   <label className="manage-checkbox compact">
                     <input name={`churchNewsRemoveImage-${index}`} type="checkbox" />
                     삭제
