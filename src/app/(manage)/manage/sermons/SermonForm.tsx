@@ -48,29 +48,7 @@ export function SermonForm({ doc, error }: { doc?: Sermon; error?: string }) {
             </select>
           </div>
         </div>
-        <div className="manage-field-grid">
-          <div className="manage-field">
-            <label htmlFor="preacher">설교자</label>
-            <input defaultValue={doc?.preacher || '사랑하는교회'} id="preacher" name="preacher" />
-          </div>
-          <div className="manage-field">
-            <label htmlFor="scriptureRef">성경 본문</label>
-            <input defaultValue={doc?.scriptureRef || ''} id="scriptureRef" name="scriptureRef" />
-          </div>
-        </div>
-        <div className="manage-field">
-          <label htmlFor="sermonSeries">설교 시리즈</label>
-          <input defaultValue={doc?.sermonSeries || ''} id="sermonSeries" name="sermonSeries" />
-        </div>
-        <div className="manage-field">
-          <label htmlFor="description">설명</label>
-          <textarea
-            defaultValue={doc?.description || ''}
-            id="description"
-            name="description"
-            rows={6}
-          />
-        </div>
+        {/* 설교자/성경본문/시리즈/설명은 공개 화면에 표시되지 않아 입력을 받지 않는다 */}
         <div className="manage-form-actions">
           <Link className="manage-button secondary" href="/manage/sermons">
             취소

@@ -2,10 +2,10 @@ import Link from 'next/link'
 
 import { SaveButton } from '@/app/(manage)/manage/_components/FormButtons'
 import { ManageShell, PageHeader } from '@/app/(manage)/manage/_components/ManageShell'
-import { saveMenuAction } from '@/app/(manage)/manage/actions'
+import { saveFooterMenuAction, saveMenuAction } from '@/app/(manage)/manage/actions'
 import { requireManageUser } from '@/lib/manage/auth'
 import { getManagePayload } from '@/lib/manage/payload'
-import type { Header } from '@/payload-types'
+import type { Footer, Header } from '@/payload-types'
 
 type MenuLinkRow = {
   internalPath: string
@@ -49,8 +49,12 @@ export default async function ManageMenuPage({ searchParams }: { searchParams: M
   const payload = await getManagePayload()
   const params = await searchParams
   const error = getStringParam(params.error)
-  const header = await payload.findGlobal({ slug: 'header', depth: 0 })
+  const [header, footer] = await Promise.all([
+    payload.findGlobal({ slug: 'header', depth: 0 }),
+    payload.findGlobal({ slug: 'footer', depth: 0 }),
+  ])
   const rows = padMenuRows(header.navItems)
+  const footerRows = padFooterRows(footer.navItems)
 
   return (
     <ManageShell active="menu" user={user}>
@@ -75,6 +79,11 @@ export default async function ManageMenuPage({ searchParams }: { searchParams: M
       {error === 'save' ? (
         <div className="manage-alert danger" role="alert">
           메뉴를 저장하지 못했습니다. 입력한 메뉴항목을 확인한 뒤 다시 저장해 주세요.
+        </div>
+      ) : null}
+      {error === 'footer-save' ? (
+        <div className="manage-alert danger" role="alert">
+          푸터 링크를 저장하지 못했습니다. 입력한 항목을 확인한 뒤 다시 저장해 주세요.
         </div>
       ) : null}
       <form action={saveMenuAction} className="manage-form">
@@ -203,6 +212,79 @@ export default async function ManageMenuPage({ searchParams }: { searchParams: M
           <SaveButton />
         </div>
       </form>
+
+      <PageHeader
+        description="사이트 하단(푸터) '링크' 컬럼에 표시되는 항목을 관리합니다. 메뉴명이 비어 있으면 저장 시 제외됩니다."
+        title="푸터 링크"
+      />
+      <form action={saveFooterMenuAction} className="manage-form">
+        <section className="manage-grid">
+          {footerRows.map((row, index) => (
+            <div className="manage-subform" key={index}>
+              <div className="manage-field-grid cols-3">
+                <div className="manage-field">
+                  <label htmlFor={`footerMenuLabel-${index}`}>메뉴명</label>
+                  <input
+                    defaultValue={row.label}
+                    id={`footerMenuLabel-${index}`}
+                    name="footerMenuLabel"
+                  />
+                </div>
+                <div className="manage-field">
+                  <label htmlFor={`footerMenuType-${index}`}>종류</label>
+                  <select
+                    defaultValue={row.type}
+                    id={`footerMenuType-${index}`}
+                    name="footerMenuType"
+                  >
+                    <option value="internal">고정페이지</option>
+                    <option value="custom">직접 주소</option>
+                  </select>
+                </div>
+                <label
+                  className="manage-checkbox menu-checkbox"
+                  htmlFor={`footerMenuNewTab-${index}`}
+                >
+                  <input
+                    defaultChecked={row.newTab}
+                    id={`footerMenuNewTab-${index}`}
+                    name={`footerMenuNewTab-${index}`}
+                    type="checkbox"
+                  />
+                  새 창
+                </label>
+              </div>
+              <div className="manage-field-grid">
+                <div className="manage-field">
+                  <label htmlFor={`footerMenuInternalPath-${index}`}>고정페이지</label>
+                  <select
+                    defaultValue={row.internalPath}
+                    id={`footerMenuInternalPath-${index}`}
+                    name="footerMenuInternalPath"
+                  >
+                    {internalPathOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="manage-field">
+                  <label htmlFor={`footerMenuUrl-${index}`}>직접 주소</label>
+                  <input defaultValue={row.url} id={`footerMenuUrl-${index}`} name="footerMenuUrl" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        <div className="manage-form-actions">
+          <Link className="manage-button secondary" href="/manage">
+            취소
+          </Link>
+          <SaveButton />
+        </div>
+      </form>
     </ManageShell>
   )
 }
@@ -238,6 +320,26 @@ function padMenuRows(items: Header['navItems']): MenuRow[] {
   while (rows.length < 8) {
     rows.push({ ...blankMenuRow, children: padChildRows() })
   }
+
+  return rows
+}
+
+// 푸터 링크는 하위메뉴 없는 평면 목록 (Footer config maxRows: 6)
+function padFooterRows(items: Footer['navItems']): MenuLinkRow[] {
+  const rows: MenuLinkRow[] = (items || []).map((item) => {
+    const link = item.link
+    const isCustom = link.type === 'custom'
+
+    return {
+      internalPath: link.internalPath || '/',
+      label: link.label || '',
+      newTab: Boolean(link.newTab),
+      type: isCustom ? ('custom' as const) : ('internal' as const),
+      url: link.url || '',
+    }
+  })
+
+  while (rows.length < 6) rows.push({ ...blankMenuRow })
 
   return rows
 }

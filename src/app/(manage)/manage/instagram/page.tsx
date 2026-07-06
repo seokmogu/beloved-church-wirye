@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 
 import { SaveButton } from '@/app/(manage)/manage/_components/FormButtons'
@@ -11,7 +10,7 @@ import { hasInstagramSyncConfig } from '@/lib/instagram'
 import { requireManageUser } from '@/lib/manage/auth'
 import { toDateInputValue } from '@/lib/manage/date'
 import { getManagePayload } from '@/lib/manage/payload'
-import type { Media, SiteSetting } from '@/payload-types'
+import type { SiteSetting } from '@/payload-types'
 
 type InstagramPost = NonNullable<SiteSetting['instagramPosts']>[number]
 type InstagramSearchParams = Promise<Record<string, string | string[] | undefined>>
@@ -90,11 +89,6 @@ export default async function ManageInstagramPage({
         <section className="manage-grid">
           <h2 className="manage-section-title">게시물</h2>
           {posts.map((post, index) => {
-            const externalThumbnailUrl = getOptionalString(post.thumbnailUrl)
-            const thumbnailUrl =
-              getMediaUrl(post.thumbnail as Media | number | null | undefined) ||
-              externalThumbnailUrl
-            const thumbnailId = getMediaId(post.thumbnail as Media | number | null | undefined)
 
             return (
               <div className="manage-field-grid" key={index}>
@@ -118,16 +112,7 @@ export default async function ManageInstagramPage({
                     placeholder="https://www.instagram.com/p/... 붙여넣기"
                   />
                 </div>
-                <div className="manage-field" style={{ gridColumn: '1 / -1' }}>
-                  <label htmlFor={`instagramPostCaption-${index}`}>캡션/제목</label>
-                  <textarea
-                    defaultValue={post.caption || ''}
-                    id={`instagramPostCaption-${index}`}
-                    name="instagramPostCaption"
-                    placeholder="게시물의 첫 문장, 안내 문구, 또는 짧은 제목"
-                    rows={3}
-                  />
-                </div>
+                {/* 캡션/해시태그/썸네일은 임베드 전환 후 공개 화면에 쓰이지 않아 입력을 받지 않는다 */}
                 <div className="manage-field">
                   <label htmlFor={`instagramPostPublishedAt-${index}`}>게시일</label>
                   <input
@@ -136,55 +121,6 @@ export default async function ManageInstagramPage({
                     name="instagramPostPublishedAt"
                     type="date"
                   />
-                </div>
-                <div className="manage-field">
-                  <label htmlFor={`instagramPostHashtags-${index}`}>해시태그</label>
-                  <input
-                    defaultValue={post.hashtags || ''}
-                    id={`instagramPostHashtags-${index}`}
-                    name="instagramPostHashtags"
-                    placeholder="#주일예배 #사랑하는교회"
-                  />
-                </div>
-                <div className="manage-media-control" style={{ gridColumn: '1 / -1' }}>
-                  <div>
-                    <strong>썸네일 이미지</strong>
-                    <div aria-hidden="true" className="manage-media-thumb">
-                      {thumbnailUrl ? (
-                        <Image alt="" height={90} src={thumbnailUrl} unoptimized width={96} />
-                      ) : null}
-                    </div>
-                  </div>
-                  <input
-                    name={`instagramPostThumbnail-${index}`}
-                    type="hidden"
-                    value={thumbnailId ?? ''}
-                  />
-                  <input
-                    name={`instagramPostThumbnailUrl-${index}`}
-                    type="hidden"
-                    value={externalThumbnailUrl ?? ''}
-                  />
-                  <label htmlFor={`instagramPostThumbnailFile-${index}`}>
-                    이미지 선택
-                    <input
-                      accept="image/*"
-                      id={`instagramPostThumbnailFile-${index}`}
-                      name={`instagramPostThumbnailFile-${index}`}
-                      type="file"
-                    />
-                  </label>
-                  <label
-                    className="manage-checkbox compact"
-                    htmlFor={`instagramPostClearThumbnail-${index}`}
-                  >
-                    <input
-                      id={`instagramPostClearThumbnail-${index}`}
-                      name={`instagramPostClearThumbnail-${index}`}
-                      type="checkbox"
-                    />
-                    제거
-                  </label>
                 </div>
               </div>
             )
@@ -208,18 +144,8 @@ function padPosts(posts: SiteSetting['instagramPosts']): InstagramPost[] {
   return filled
 }
 
-function getMediaUrl(media: Media | number | null | undefined): string | null {
-  return media && typeof media === 'object' && media.url ? media.url : null
-}
 
-function getMediaId(media: Media | number | null | undefined): number | null {
-  if (typeof media === 'number') return media
-  return media && typeof media === 'object' ? media.id : null
-}
 
-function getOptionalString(value: unknown): string | null {
-  return typeof value === 'string' && value.trim() ? value.trim() : null
-}
 
 function getStringParam(value: string | string[] | undefined): string {
   return Array.isArray(value) ? (value[0] ?? '') : (value ?? '')

@@ -13,7 +13,10 @@ type VisitorNote = NonNullable<SiteSetting['visitorNotes']>[number]
 export default async function ManageWorshipPage() {
   const user = await requireManageUser()
   const payload = await getManagePayload()
-  const settings = await payload.findGlobal({ slug: 'site-settings', depth: 0 })
+  const [settings, footer] = await Promise.all([
+    payload.findGlobal({ slug: 'site-settings', depth: 0 }),
+    payload.findGlobal({ slug: 'footer', depth: 0 }),
+  ])
   const services = padRows<WorshipService>(settings.worshipServices, 6, {
     description: '',
     name: '',
@@ -37,6 +40,18 @@ export default async function ManageWorshipPage() {
             취소
           </Link>
           <SaveButton />
+        </div>
+
+        <div className="manage-field" style={{ marginBottom: 16 }}>
+          <label htmlFor="footerWorshipSchedule">
+            사이트 하단(푸터) 예배안내 — 한 줄에 하나씩, 예배 시간이 바뀌면 여기도 함께 수정하세요
+          </label>
+          <textarea
+            defaultValue={footer.worshipSchedule || ''}
+            id="footerWorshipSchedule"
+            name="footerWorshipSchedule"
+            rows={3}
+          />
         </div>
 
         <div className="manage-public-canvas">

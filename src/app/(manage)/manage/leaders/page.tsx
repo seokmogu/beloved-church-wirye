@@ -103,15 +103,7 @@ export default async function ManageLeadersPage() {
                     rows={7}
                   />
                 </label>
-                <label className="manage-visual-field quote" htmlFor="pastorQuote">
-                  <span>인용 문구</span>
-                  <textarea
-                    defaultValue={settings.pastorQuote || ''}
-                    id="pastorQuote"
-                    name="pastorQuote"
-                    rows={3}
-                  />
-                </label>
+                {/* 인용 문구(pastorQuote)는 공개 화면에 표시되지 않아 입력을 받지 않는다 */}
               </article>
             </div>
           </section>

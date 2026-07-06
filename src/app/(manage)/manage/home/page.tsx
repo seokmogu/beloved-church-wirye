@@ -53,6 +53,7 @@ export default async function ManageHomePage() {
   const sections = normalizeSections(settings.homeSections)
   const design = (settings.design || {}) as DesignSettings
   const heroImageUrl = getMediaUrl(settings.heroImage as Media | number | null | undefined)
+  const logoUrl = getMediaUrl(settings.logo as Media | number | null | undefined)
   const pageBackgroundImageUrl = getMediaUrl(
     design.pageBackgroundImage as Media | number | null | undefined,
   )
@@ -298,6 +299,15 @@ export default async function ManageHomePage() {
           </div>
 
           <aside className="manage-style-panel">
+            <section className="manage-style-group">
+              <h2>브랜딩</h2>
+              <MediaPickerControl
+                clearName="clearLogo"
+                currentUrl={logoUrl}
+                fileName="logoFile"
+                label="로고 (헤더·푸터·홈 히어로, 비우면 기본 로고)"
+              />
+            </section>
             <section className="manage-style-group">
               <h2>배경 이미지</h2>
               <MediaPickerControl
