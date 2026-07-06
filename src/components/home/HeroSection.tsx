@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { Media, SiteSetting } from '@/payload-types'
+import { toRelativeInternalURL } from '@/utilities/internalUrl'
 
 function getMediaUrl(media: Media | number | null | undefined): string | null {
   return media && typeof media === 'object' && media.url ? media.url : null
@@ -21,9 +22,9 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
   const body = settings?.subTagline ?? ''
   const badges = getWorshipBadges(settings)
   const primaryLabel = settings?.heroPrimaryLabel ?? '예배안내'
-  const primaryUrl = settings?.heroPrimaryUrl ?? '/worship'
+  const primaryUrl = toRelativeInternalURL(settings?.heroPrimaryUrl) ?? '/worship'
   const secondaryLabel = settings?.heroSecondaryLabel ?? '최신 설교 보기'
-  const secondaryUrl = settings?.heroSecondaryUrl ?? '/sermon'
+  const secondaryUrl = toRelativeInternalURL(settings?.heroSecondaryUrl) ?? '/sermon'
   const location = [settings?.address, settings?.addressDetail].filter(Boolean).join(' · ')
   const scheduleItems =
     badges.length > 0

@@ -28,20 +28,12 @@ function getSourceFromUrlAndFilename(
 ): ChurchNewsImageSource | null {
   if (!url && !filename) return null
 
+  // Blob에 저장된 파일은 /media/{filename} 정적 경로에 존재하지 않으므로
+  // Payload가 준 URL을 1차로 쓰고, 레포에 커밋된 레거시 파일용 정적 경로는 폴백으로만 둔다.
   const staticSrc = filename ? `/media/${encodeURIComponent(filename)}` : undefined
-  if (!url && staticSrc) return { src: staticSrc }
-
-  if (isPayloadMediaFileUrl(url) && staticSrc) {
-    return {
-      fallbackSrc: url || undefined,
-      src: staticSrc,
-    }
+  if (url) {
+    return staticSrc ? { fallbackSrc: staticSrc, src: url } : { src: url }
   }
 
-  return { src: url || staticSrc || '' }
-}
-
-function isPayloadMediaFileUrl(url: null | string | undefined): boolean {
-  if (!url) return false
-  return url.startsWith('/api/media/file/') || url.includes('/api/media/file/')
+  return { src: staticSrc || '' }
 }

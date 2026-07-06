@@ -49,16 +49,14 @@ export default async function WorshipPage() {
               </p>
               <h2 className="text-3xl font-bold text-foreground">예배와 모임</h2>
             </div>
-            {settings?.youtubeChannelUrl && (
-              <a
-                href={settings.youtubeChannelUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-medium text-primary hover:underline"
-              >
+            <div className="flex flex-wrap items-center gap-4">
+              <Link href="/sermon" className="text-sm font-medium text-primary hover:underline">
                 설교영상 보기 &rarr;
-              </a>
-            )}
+              </Link>
+              <Link href="/offering" className="text-sm font-medium text-primary hover:underline">
+                헌금 안내 &rarr;
+              </Link>
+            </div>
           </div>
 
           {services.length > 0 && (
