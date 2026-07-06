@@ -110,11 +110,12 @@ export default async function ManageInstagramPage({
                   </select>
                 </div>
                 <div className="manage-field">
-                  <label htmlFor={`instagramPostId-${index}`}>게시물 ID</label>
+                  <label htmlFor={`instagramPostId-${index}`}>게시물 URL 또는 ID</label>
                   <input
                     defaultValue={post.postId || ''}
                     id={`instagramPostId-${index}`}
                     name="instagramPostId"
+                    placeholder="https://www.instagram.com/p/... 붙여넣기"
                   />
                 </div>
                 <div className="manage-field" style={{ gridColumn: '1 / -1' }}>
