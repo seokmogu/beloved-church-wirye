@@ -58,6 +58,50 @@ export class InstagramSyncConfigError extends Error {
   }
 }
 
+export type PushedInstagramPost = {
+  postId: string
+  publishedAt?: string | null
+  type: 'p' | 'reel'
+}
+
+const MAX_PUSHED_POSTS = 12
+
+/**
+ * Replace the Instagram post list from an external watcher (no Meta API involved — the
+ * watcher discovers shortcodes itself and pushes just {postId, type, publishedAt}).
+ * Mirrors syncInstagramPosts' "empty result keeps existing list" guard.
+ */
+export async function applyPushedInstagramPosts(
+  payload: Payload,
+  posts: PushedInstagramPost[],
+): Promise<InstagramSyncResult> {
+  if (posts.length === 0) {
+    payload.logger.warn('Instagram push 요청에 게시물이 없어 기존 목록을 유지합니다.')
+    return { count: 0, posts: [] }
+  }
+
+  const instagramPosts = posts
+    .sort((a, b) => Date.parse(b.publishedAt ?? '') - Date.parse(a.publishedAt ?? ''))
+    .slice(0, MAX_PUSHED_POSTS)
+    .map((post) => ({
+      postId: post.postId,
+      publishedAt: post.publishedAt ?? null,
+      type: post.type,
+    }))
+
+  await payload.updateGlobal({
+    data: {
+      instagramPosts,
+    } as any,
+    slug: 'site-settings',
+  })
+
+  return {
+    count: instagramPosts.length,
+    posts: instagramPosts,
+  }
+}
+
 const DEFAULT_LIMIT = 4
 const DEFAULT_API_VERSION = 'v21.0'
 const INSTAGRAM_API_TIMEOUT_MS = 8000
