@@ -83,12 +83,10 @@ export async function saveSermonAction(formData: FormData) {
   const id = optionalNumber(formData, 'id')
   const youtubeUrl = requiredString(formData, 'youtubeUrl')
   const youtubeId = extractYouTubeId(youtubeUrl)
+  // preacher/scriptureRef/sermonSeries/description은 공개 화면에 표시되지 않아 폼에서 제거됨.
+  // 키를 아예 보내지 않아 기존 저장값은 보존한다.
   const data = {
-    description: optionalString(formData, 'description'),
-    preacher: optionalString(formData, 'preacher') || '사랑하는교회',
-    scriptureRef: optionalString(formData, 'scriptureRef'),
     sermonDate: dateInputToISO(stringValue(formData, 'sermonDate')),
-    sermonSeries: optionalString(formData, 'sermonSeries'),
     status: stringValue(formData, 'status') === 'draft' ? 'draft' : 'published',
     thumbnail: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : undefined,
     title: requiredString(formData, 'title'),
@@ -193,12 +191,24 @@ export async function saveBulletinAction(formData: FormData) {
       'bulletinImageFiles',
       '주보 이미지',
     )
+    const fileUpload = await uploadMediaFromForm(
+      payload,
+      formData,
+      'file',
+      `${optionalString(formData, 'title') || '주보'} 파일`,
+    )
     const data = {
       date: dateInputToISO(stringValue(formData, 'date')),
       description: optionalString(formData, 'description'),
       images: [...parseExistingImageRows(formData, 'bulletin'), ...uploaded],
       isPublic: checkboxValue(formData, 'isPublic'),
       title: optionalString(formData, 'title'),
+      // 새 파일 업로드 시 교체, 삭제 체크 시 제거, 그 외에는 기존값 보존(키 생략)
+      ...(fileUpload
+        ? { file: fileUpload }
+        : checkboxValue(formData, 'removeFile')
+          ? { file: null }
+          : {}),
     }
 
     if (id) {
@@ -346,10 +356,14 @@ export async function saveHomeSettingsAction(formData: FormData) {
     'darkSectionBackgroundImageFile',
     '어두운 섹션 배경 이미지',
   )
+  const logoUpload = await uploadMediaFromForm(payload, formData, 'logoFile', '교회 로고')
 
   await payload.updateGlobal({
     data: {
       churchName: optionalString(formData, 'churchName') || '사랑하는교회',
+      logo: checkboxValue(formData, 'clearLogo')
+        ? null
+        : logoUpload || mediaRelationValue(currentSettings.logo),
       design: parseDesignSettings(formData, currentDesign, {
         darkSectionBackgroundImage: darkSectionBackgroundUpload,
         pageBackgroundImage: pageBackgroundUpload,
@@ -427,6 +441,15 @@ export async function saveWorshipSettingsAction(formData: FormData) {
     slug: 'site-settings',
   })
 
+  // 사이트 하단(푸터) 예배안내 컬럼 텍스트 — footer 전역에 함께 저장
+  await payload.updateGlobal({
+    data: {
+      worshipSchedule:
+        optionalString(formData, 'footerWorshipSchedule')?.replace(/\r\n/g, '\n') ?? null,
+    } as any,
+    slug: 'footer',
+  })
+
   revalidateManageAndPublic('/manage/worship')
   redirect('/manage/worship')
 }
@@ -455,7 +478,7 @@ export async function saveLeadersSettingsAction(formData: FormData) {
       pastorPhoto: checkboxValue(formData, 'clearPastorPhoto')
         ? null
         : pastorPhotoUpload || mediaRelationValue(currentSettings.pastorPhoto),
-      pastorQuote: optionalString(formData, 'pastorQuote'),
+      // pastorQuote는 공개 화면에 표시되지 않아 폼에서 제거됨 — 키 생략으로 기존값 보존
       pastorTitle: optionalString(formData, 'pastorTitle'),
     } as any,
     slug: 'site-settings',
@@ -513,6 +536,43 @@ export async function syncInstagramSettingsAction() {
 
   revalidateManageAndPublic('/manage/instagram')
   redirect(`/manage/instagram?sync=success&count=${syncedCount}`)
+}
+
+export async function saveFooterMenuAction(formData: FormData) {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+
+  try {
+    const labels = stringValues(formData, 'footerMenuLabel')
+    const types = stringValues(formData, 'footerMenuType')
+    const internalPaths = stringValues(formData, 'footerMenuInternalPath')
+    const urls = stringValues(formData, 'footerMenuUrl')
+
+    const navItems = labels
+      .map((label, index) =>
+        buildMenuLink({
+          internalPath: internalPaths[index],
+          label,
+          newTab: formData.get(`footerMenuNewTab-${index}`) === 'on',
+          type: types[index],
+          url: urls[index],
+        }),
+      )
+      .filter((link): link is NonNullable<typeof link> => Boolean(link))
+      .map((link) => ({ link }))
+
+    // 주소/전화번호 등 다른 footer 필드는 건드리지 않는다 (/manage/about과 분담)
+    await payload.updateGlobal({
+      data: { navItems } as any,
+      slug: 'footer',
+    })
+  } catch (error) {
+    console.error('Failed to save footer menu:', error)
+    redirect('/manage/menu?error=footer-save')
+  }
+
+  revalidateManageAndPublic('/manage/menu')
+  redirect('/manage/menu')
 }
 
 export async function saveMenuAction(formData: FormData) {

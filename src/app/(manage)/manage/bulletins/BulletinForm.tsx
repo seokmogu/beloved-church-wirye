@@ -8,6 +8,9 @@ import { toDateInputValue } from '@/lib/manage/date'
 import type { Bulletin } from '@/payload-types'
 
 export function BulletinForm({ doc }: { doc?: Bulletin }) {
+  const file = doc?.file
+  const currentFileUrl = file && typeof file === 'object' && file.url ? file.url : null
+
   return (
     <>
       <form action={saveBulletinAction} className="manage-form">
@@ -43,6 +46,21 @@ export function BulletinForm({ doc }: { doc?: Bulletin }) {
           />
         </div>
         <ImageUploadFields docImages={doc?.images} prefix="bulletin" title="주보 이미지" />
+        <div className="manage-field">
+          <label htmlFor="file">원본 파일 (PDF 등, 선택 — 상세 페이지에 다운로드 버튼으로 표시)</label>
+          <input accept="application/pdf,image/*" id="file" name="file" type="file" />
+          {currentFileUrl ? (
+            <div style={{ display: 'flex', gap: 12, marginTop: 8, alignItems: 'center' }}>
+              <a href={currentFileUrl} rel="noopener noreferrer" target="_blank">
+                현재 파일 보기
+              </a>
+              <label className="manage-checkbox compact">
+                <input name="removeFile" type="checkbox" />
+                파일 삭제
+              </label>
+            </div>
+          ) : null}
+        </div>
         <div className="manage-form-actions">
           <Link className="manage-button secondary" href="/manage/bulletins">
             취소
