@@ -20,6 +20,22 @@ export const redirects: NextConfig['redirects'] = async () => {
       destination: '/',
       permanent: true,
     },
+    // Payload 템플릿 잔재 경로 — 시드된 'home' 페이지 문서와 미사용 posts/search 기능
+    {
+      source: '/home',
+      destination: '/',
+      permanent: true,
+    },
+    {
+      source: '/posts/:path*',
+      destination: '/',
+      permanent: true,
+    },
+    {
+      source: '/search',
+      destination: '/',
+      permanent: true,
+    },
     {
       source: '/sermons',
       destination: '/sermon',

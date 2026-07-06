@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import type { YouTubeVideo } from '@/lib/youtube'
 import { FormattedText } from '@/components/FormattedText'
 
@@ -54,10 +55,8 @@ export function YouTubeSection({ channelUrl, description, eyebrow, title, videos
 
         {featured ? (
           <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-            <a
-              href={`https://www.youtube.com/watch?v=${featured.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href={`/sermon/${featured.id}`}
               className="group overflow-hidden rounded-lg border border-border bg-card shadow-[0_20px_70px_rgba(20,42,33,0.1)] transition-all duration-300 hover:border-primary/25"
             >
               <div className="relative aspect-video overflow-hidden">
@@ -94,15 +93,13 @@ export function YouTubeSection({ channelUrl, description, eyebrow, title, videos
                   </svg>
                 </div>
               </div>
-            </a>
+            </Link>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               {rest.slice(0, 3).map((video) => (
-                <a
+                <Link
                   key={video.id}
-                  href={`https://www.youtube.com/watch?v=${video.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={`/sermon/${video.id}`}
                   className="group grid grid-cols-[128px_minmax(0,1fr)] overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:border-primary/25 hover:bg-primary/5 sm:grid-cols-1 lg:grid-cols-[180px_minmax(0,1fr)]"
                 >
                   <div className="relative min-h-[112px] overflow-hidden sm:aspect-video lg:aspect-auto lg:h-full">
@@ -137,7 +134,7 @@ export function YouTubeSection({ channelUrl, description, eyebrow, title, videos
                       {formatDate(video.publishedAt)}
                     </time>
                   </div>
-                </a>
+                </Link>
               ))}
             </div>
           </div>

@@ -11,6 +11,7 @@ import {
   normalizeInstagramPostInput,
   syncInstagramPosts,
 } from '@/lib/instagram'
+import { toRelativeInternalURL } from '@/utilities/internalUrl'
 import { dateInputToISO } from '@/lib/manage/date'
 import { optimizeUploadImage } from '@/lib/manage/imageOptimize'
 import { plaintextToLexical } from '@/lib/manage/lexical'
@@ -359,9 +360,9 @@ export async function saveHomeSettingsAction(formData: FormData) {
         ? null
         : heroImageUpload || mediaRelationValue(currentSettings.heroImage),
       heroPrimaryLabel: optionalString(formData, 'heroPrimaryLabel'),
-      heroPrimaryUrl: optionalString(formData, 'heroPrimaryUrl'),
+      heroPrimaryUrl: toRelativeInternalURL(optionalString(formData, 'heroPrimaryUrl')),
       heroSecondaryLabel: optionalString(formData, 'heroSecondaryLabel'),
-      heroSecondaryUrl: optionalString(formData, 'heroSecondaryUrl'),
+      heroSecondaryUrl: toRelativeInternalURL(optionalString(formData, 'heroSecondaryUrl')),
       heroSubtitle: optionalString(formData, 'heroSubtitle'),
       heroTitle: optionalString(formData, 'heroTitle'),
       homeSections: parseHomeSections(formData),

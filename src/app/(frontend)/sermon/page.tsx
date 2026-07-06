@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import Image from 'next/image'
-import { ExternalLink, MoreVertical, Play, Youtube } from 'lucide-react'
+import Link from 'next/link'
+import { ExternalLink, Play, Youtube } from 'lucide-react'
 import { FormattedText } from '@/components/FormattedText'
 import { PageHero } from '@/components/PageHero'
 import { fetchLatestVideos, type YouTubeVideo } from '@/lib/youtube'
@@ -110,13 +111,7 @@ function SermonArchiveSection({
               const relativeDate = formatRelativeDate(video.publishedAt)
 
               return (
-                <a
-                  key={video.id}
-                  href={`https://www.youtube.com/watch?v=${video.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block"
-                >
+                <Link key={video.id} href={`/sermon/${video.id}`} className="group block">
                   <div className="relative aspect-video overflow-hidden rounded-lg bg-muted">
                     <Image
                       src={video.thumbnail}
@@ -132,25 +127,17 @@ function SermonArchiveSection({
                       보기
                     </span>
                   </div>
-                  <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-3">
-                    <div>
-                      <h3 className="line-clamp-2 text-lg font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
-                        {video.title}
-                      </h3>
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {relativeDate
-                          ? `${formatDate(video.publishedAt)} · ${relativeDate}`
-                          : formatDate(video.publishedAt)}
-                      </p>
-                    </div>
-                    <span
-                      aria-hidden="true"
-                      className="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors group-hover:bg-primary/5 group-hover:text-primary"
-                    >
-                      <MoreVertical className="h-5 w-5" />
-                    </span>
+                  <div className="mt-4">
+                    <h3 className="line-clamp-2 text-lg font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
+                      {video.title}
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {relativeDate
+                        ? `${formatDate(video.publishedAt)} · ${relativeDate}`
+                        : formatDate(video.publishedAt)}
+                    </p>
                   </div>
-                </a>
+                </Link>
               )
             })}
           </div>
