@@ -174,6 +174,122 @@ async function fetchVideosByChannelId(
  * invalidates the YouTube cache tag during the Sunday publishing window.
  */
 /**
+ * "N일 전" / "3 weeks ago" 류 상대 시간을 근사 ISO 날짜로 변환한다.
+ * InnerTube 목록 응답에는 절대 날짜가 없어 근사값으로 정렬/표시를 지탱한다.
+ */
+export function relativeTimeToISO(text: string, now = Date.now()): string {
+  const match = text.match(
+    /(\d+)\s*(초|분|시간|일|주|개월|달|년|second|minute|hour|day|week|month|year)/i,
+  )
+  if (!match) return ''
+
+  const value = Number(match[1])
+  const unit = match[2].toLowerCase()
+  const msPer: Record<string, number> = {
+    초: 1e3,
+    second: 1e3,
+    분: 6e4,
+    minute: 6e4,
+    시간: 36e5,
+    hour: 36e5,
+    일: 864e5,
+    day: 864e5,
+    주: 6048e5,
+    week: 6048e5,
+    개월: 2592e6,
+    달: 2592e6,
+    month: 2592e6,
+    년: 31536e6,
+    year: 31536e6,
+  }
+  const ms = msPer[unit]
+  if (!ms) return ''
+  return new Date(now - value * ms).toISOString()
+}
+
+type InnerTubeLockup = {
+  contentId?: string
+  contentType?: string
+  metadata?: {
+    lockupMetadataViewModel?: {
+      metadata?: {
+        contentMetadataViewModel?: {
+          metadataRows?: Array<{ metadataParts?: Array<{ text?: { content?: string } }> }>
+        }
+      }
+      title?: { content?: string }
+    }
+  }
+}
+
+/**
+ * 키 없이 동작하는 최후 폴백: 유튜브 웹 클라이언트가 쓰는 내장(InnerTube) browse API로
+ * 채널 '동영상' 탭을 조회한다. RSS가 플랫폼 광역 장애(2026년 반복)일 때를 대비한다.
+ */
+async function fetchVideosByInnerTube(
+  count: number,
+  channelId: string,
+): Promise<YouTubeVideo[] | null> {
+  const res = await fetch('https://www.youtube.com/youtubei/v1/browse', {
+    body: JSON.stringify({
+      browseId: channelId,
+      context: {
+        client: { clientName: 'WEB', clientVersion: '2.20260101.00.00', gl: 'KR', hl: 'ko' },
+      },
+      params: 'EgZ2aWRlb3PyBgQKAjoA', // '동영상' 탭
+    }),
+    cache: 'no-store',
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    signal: AbortSignal.timeout(YOUTUBE_FETCH_TIMEOUT_MS * 2),
+  })
+  if (!res.ok) return null
+
+  const json = (await res.json().catch(() => null)) as unknown
+  if (!json) return null
+
+  const lockups: InnerTubeLockup[] = []
+  collectLockups(json, lockups)
+
+  const seen = new Set<string>()
+  const videos: YouTubeVideo[] = []
+  for (const lockup of lockups) {
+    const id = lockup.contentId ?? ''
+    if (!/^[A-Za-z0-9_-]{11}$/.test(id) || seen.has(id)) continue
+    seen.add(id)
+
+    const meta = lockup.metadata?.lockupMetadataViewModel
+    const parts =
+      meta?.metadata?.contentMetadataViewModel?.metadataRows?.flatMap(
+        (row) => row.metadataParts ?? [],
+      ) ?? []
+    const relative = parts.map((part) => part.text?.content ?? '').find((text) => /전|ago/.test(text))
+
+    videos.push({
+      id,
+      publishedAt: relative ? relativeTimeToISO(relative) : '',
+      thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+      title: meta?.title?.content ?? '',
+    })
+    if (videos.length >= count) break
+  }
+
+  return videos.length > 0 ? videos : null
+}
+
+function collectLockups(node: unknown, out: InnerTubeLockup[]) {
+  if (Array.isArray(node)) {
+    for (const item of node) collectLockups(item, out)
+    return
+  }
+  if (node && typeof node === 'object') {
+    const record = node as Record<string, unknown>
+    if (record.lockupViewModel) out.push(record.lockupViewModel as InnerTubeLockup)
+    for (const value of Object.values(record)) collectLockups(value, out)
+  }
+}
+
+/**
  * YouTube RSS가 간헐적으로 500을 반환할 때를 대비한 Data API 폴백.
  * (RSS 실패가 ISR 캐시에 박히면 홈 설교 섹션이 통째로 비어 보인다.)
  */
@@ -225,23 +341,25 @@ export async function fetchLatestVideos(
   options?: YouTubeFetchOptions,
 ): Promise<YouTubeVideo[]> {
   try {
+    // RSS → Data API(키 있을 때) → InnerTube(키 불필요) 순 폴백
+    const fetchWithFallbacks = async (id: string) => {
+      const rss = await fetchVideosByChannelId(count, id, options)
+      if (rss?.length) return rss
+      const api = await fetchVideosByDataApi(count, id, options)
+      if (api?.length) return api
+      return await fetchVideosByInnerTube(count, id)
+    }
+
     const explicitChannelId = parseChannelId(channelId?.trim() ?? '')
     if (explicitChannelId) {
-      const videos = await fetchVideosByChannelId(count, explicitChannelId, options)
-      if (videos && videos.length > 0) return videos
-
-      // RSS 실패/빈 결과 → Data API 폴백
-      const fallback = await fetchVideosByDataApi(count, explicitChannelId, options)
-      if (fallback) return fallback
+      const videos = await fetchWithFallbacks(explicitChannelId)
+      if (videos?.length) return videos
     }
 
     const resolvedChannelId = await resolveChannelIdFromURL(channelUrl, options)
     if (!resolvedChannelId || resolvedChannelId === explicitChannelId) return []
 
-    const videos = await fetchVideosByChannelId(count, resolvedChannelId, options)
-    if (videos && videos.length > 0) return videos
-
-    return (await fetchVideosByDataApi(count, resolvedChannelId, options)) ?? []
+    return (await fetchWithFallbacks(resolvedChannelId)) ?? []
   } catch (error) {
     console.error('Failed to fetch YouTube videos:', error)
     return []
