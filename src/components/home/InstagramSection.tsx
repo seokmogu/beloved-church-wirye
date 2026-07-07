@@ -64,15 +64,16 @@ export function InstagramSection({
           )}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* 데스크탑: 4열 그리드 / 모바일·태블릿: 가로 스와이프 캐럴셀(scroll-snap) —
+            게시물이 많아도 세로로 길어지지 않는다 */}
+        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 lg:pb-0">
           {visiblePosts.map((post) => {
             const kind = post.type === 'reel' ? 'reel' : 'p'
 
             return (
               <div
                 key={post.postId}
-                className="relative w-full overflow-hidden rounded-lg border border-white/10 bg-black/20"
-                style={{ paddingBottom: '125%' }}
+                className="relative aspect-[4/5] w-[78%] shrink-0 snap-center overflow-hidden rounded-lg border border-white/10 bg-black/20 sm:w-[46%] lg:w-full lg:shrink"
               >
                 <iframe
                   src={`https://www.instagram.com/${kind}/${post.postId}/embed/`}
@@ -84,6 +85,9 @@ export function InstagramSection({
             )
           })}
         </div>
+        <p className="mt-3 text-center text-xs text-white/40 lg:hidden">
+          옆으로 넘겨서 더 보기 &rarr;
+        </p>
       </div>
     </section>
   )
