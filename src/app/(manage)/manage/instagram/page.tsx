@@ -12,7 +12,8 @@ import { toDateInputValue } from '@/lib/manage/date'
 import { getManagePayload } from '@/lib/manage/payload'
 import type { SiteSetting } from '@/payload-types'
 
-type InstagramPost = NonNullable<SiteSetting['instagramPosts']>[number]
+import { InstagramPostsEditor, type EditorPost } from './InstagramPostsEditor'
+
 type InstagramSearchParams = Promise<Record<string, string | string[] | undefined>>
 
 export default async function ManageInstagramPage({
@@ -27,7 +28,7 @@ export default async function ManageInstagramPage({
   const syncedCount = getStringParam(params.count)
   const canSyncInstagram = hasInstagramSyncConfig()
   const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
-  const posts = padPosts(settings.instagramPosts)
+  const posts = toEditorPosts(settings.instagramPosts)
 
   return (
     <ManageShell active="instagram" user={user}>
@@ -86,46 +87,7 @@ export default async function ManageInstagramPage({
           </div>
         </div>
 
-        <section className="manage-grid">
-          <h2 className="manage-section-title">게시물</h2>
-          {posts.map((post, index) => {
-
-            return (
-              <div className="manage-field-grid" key={index}>
-                <div className="manage-field">
-                  <label htmlFor={`instagramPostType-${index}`}>종류</label>
-                  <select
-                    defaultValue={post.type || 'p'}
-                    id={`instagramPostType-${index}`}
-                    name="instagramPostType"
-                  >
-                    <option value="p">게시물</option>
-                    <option value="reel">릴스</option>
-                  </select>
-                </div>
-                <div className="manage-field">
-                  <label htmlFor={`instagramPostId-${index}`}>게시물 URL 또는 ID</label>
-                  <input
-                    defaultValue={post.postId || ''}
-                    id={`instagramPostId-${index}`}
-                    name="instagramPostId"
-                    placeholder="https://www.instagram.com/p/... 붙여넣기"
-                  />
-                </div>
-                {/* 캡션/해시태그/썸네일은 임베드 전환 후 공개 화면에 쓰이지 않아 입력을 받지 않는다 */}
-                <div className="manage-field">
-                  <label htmlFor={`instagramPostPublishedAt-${index}`}>게시일</label>
-                  <input
-                    defaultValue={post.publishedAt ? toDateInputValue(post.publishedAt) : ''}
-                    id={`instagramPostPublishedAt-${index}`}
-                    name="instagramPostPublishedAt"
-                    type="date"
-                  />
-                </div>
-              </div>
-            )
-          })}
-        </section>
+        <InstagramPostsEditor initialPosts={posts} />
 
         <div className="manage-form-actions">
           <Link className="manage-button secondary" href="/manage">
@@ -138,10 +100,14 @@ export default async function ManageInstagramPage({
   )
 }
 
-function padPosts(posts: SiteSetting['instagramPosts']): InstagramPost[] {
-  const filled = [...(posts || [])]
-  while (filled.length < 6) filled.push({ postId: '', type: 'p' })
-  return filled
+function toEditorPosts(posts: SiteSetting['instagramPosts']): EditorPost[] {
+  return (posts || [])
+    .filter((post) => post.postId)
+    .map((post) => ({
+      postId: post.postId || '',
+      publishedAt: post.publishedAt ? toDateInputValue(post.publishedAt) : '',
+      type: post.type === 'reel' ? ('reel' as const) : ('p' as const),
+    }))
 }
 
 
