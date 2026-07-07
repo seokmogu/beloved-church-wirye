@@ -158,6 +158,7 @@ export default async function HomePage() {
               <InstagramSection
                 key={section.id ?? section.sectionType}
                 description={section.description}
+                displayCount={settings?.instagramDisplayCount}
                 eyebrow={section.eyebrow}
                 handle={settings?.instagramHandle}
                 posts={settings?.instagramPosts}

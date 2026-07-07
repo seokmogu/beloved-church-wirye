@@ -2,6 +2,10 @@ import { Buffer } from 'node:buffer'
 
 import type { Payload } from 'payload'
 
+import { normalizeInstagramPostInput, parseInstagramPostId } from './instagramPost'
+
+export { normalizeInstagramPostInput } from './instagramPost'
+
 type InstagramMedia = {
   caption?: string
   children?: {
@@ -232,36 +236,6 @@ function toPostInput(media: InstagramMedia): InstagramPostInput | null {
   }
 }
 
-/**
- * 관리 화면에서 게시물 URL을 그대로 붙여넣어도 ID와 종류(reel/p)를 인식한다.
- * URL이 아니면(이미 ID면) 그대로 돌려준다.
- */
-export function normalizeInstagramPostInput(value: string): {
-  isReel: boolean | null
-  postId: string
-} {
-  const trimmed = value.trim()
-  if (!trimmed.includes('/')) {
-    return { isReel: null, postId: trimmed }
-  }
-
-  const extracted = parseInstagramPostId(trimmed)
-  const isReel = /\/reel\//.test(trimmed) ? true : /\/(?:p|tv)\//.test(trimmed) ? false : null
-  return { isReel, postId: extracted ?? trimmed }
-}
-
-function parseInstagramPostId(permalink?: string) {
-  if (!permalink) return null
-
-  try {
-    const parsed = new URL(permalink)
-    const match = parsed.pathname.match(/\/(?:p|reel|tv)\/([^/]+)/)
-    return match?.[1] ?? null
-  } catch {
-    const match = permalink.match(/\/(?:p|reel|tv)\/([^/?#]+)/)
-    return match?.[1] ?? null
-  }
-}
 
 function resolveMediaImageUrl(media: InstagramMedia) {
   if (media.thumbnail_url) return media.thumbnail_url

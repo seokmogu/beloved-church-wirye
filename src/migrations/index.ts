@@ -14,6 +14,7 @@ import * as migration_20260531_030000_compact_korean_menu_labels from './2026053
 import * as migration_20260531_040000_church_videos from './20260531_040000_church_videos';
 import * as migration_20260608_025211_church_admin_image_leaders from './20260608_025211_church_admin_image_leaders';
 import * as migration_20260612_000000_newcomers_extended_fields from './20260612_000000_newcomers_extended_fields';
+import * as migration_20260707_000000_instagram_display_count from './20260707_000000_instagram_display_count';
 
 export const migrations = [
   {
@@ -95,5 +96,10 @@ export const migrations = [
     up: migration_20260612_000000_newcomers_extended_fields.up,
     down: migration_20260612_000000_newcomers_extended_fields.down,
     name: '20260612_000000_newcomers_extended_fields',
+  },
+  {
+    up: migration_20260707_000000_instagram_display_count.up,
+    down: migration_20260707_000000_instagram_display_count.down,
+    name: '20260707_000000_instagram_display_count',
   },
 ];

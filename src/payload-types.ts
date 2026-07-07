@@ -2282,6 +2282,10 @@ export interface SiteSetting {
   instagramUrl?: string | null;
   instagramHandle?: string | null;
   /**
+   * 비우면 전체 노출. 4의 배수면 데스크탑(4열)·태블릿(2열)에서 빈칸 없이 표시됩니다.
+   */
+  instagramDisplayCount?: number | null;
+  /**
    * Instagram API 제약 때문에 안정 운영은 게시물 ID를 관리자가 등록하는 방식으로 시작합니다.
    */
   instagramPosts?:
@@ -2660,6 +2664,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   youtubeVideoCount?: T;
   instagramUrl?: T;
   instagramHandle?: T;
+  instagramDisplayCount?: T;
   instagramPosts?:
     | T
     | {

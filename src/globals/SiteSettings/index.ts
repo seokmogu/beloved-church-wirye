@@ -746,6 +746,14 @@ export const SiteSettings: GlobalConfig = {
               defaultValue: '@beloved_ch_',
             },
             {
+              name: 'instagramDisplayCount',
+              type: 'number',
+              label: '홈 노출 개수',
+              admin: {
+                description: '비우면 전체 노출. 4의 배수면 데스크탑(4열)·태블릿(2열)에서 빈칸 없이 표시됩니다.',
+              },
+            },
+            {
               name: 'instagramPosts',
               type: 'array',
               label: 'Instagram 임베드 게시물',

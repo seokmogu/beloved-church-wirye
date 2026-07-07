@@ -2,12 +2,12 @@ import { FormattedText } from '@/components/FormattedText'
 
 type InstagramPost = {
   postId?: string | null
-  publishedAt?: string | null
   type?: 'p' | 'reel' | null
 }
 
 type Props = {
   description?: string | null
+  displayCount?: number | null
   eyebrow?: string | null
   handle?: string | null
   posts?: InstagramPost[] | null
@@ -18,11 +18,20 @@ type Props = {
 /**
  * 게시물을 인스타그램 공식 임베드(iframe)로 렌더한다.
  * API 토큰/썸네일 관리 없이 게시물 ID만으로 항상 최신 내용이 보인다.
+ * 노출 순서는 관리자에서 정한 배열 순서 그대로, 개수는 displayCount로 제한한다.
  */
-export function InstagramSection({ description, eyebrow, handle, posts, title, url }: Props) {
+export function InstagramSection({
+  description,
+  displayCount,
+  eyebrow,
+  handle,
+  posts,
+  title,
+  url,
+}: Props) {
   const visiblePosts = (posts ?? [])
     .filter((post) => post?.postId)
-    .sort((a, b) => compareInstagramPosts(a.publishedAt, b.publishedAt))
+    .slice(0, displayCount && displayCount > 0 ? displayCount : undefined)
   if (visiblePosts.length === 0) return null
   const accountUrl = url ?? 'https://www.instagram.com/'
 
@@ -55,15 +64,16 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
           )}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* 데스크탑: 4열 그리드 / 모바일·태블릿: 가로 스와이프 캐럴셀(scroll-snap) —
+            게시물이 많아도 세로로 길어지지 않는다 */}
+        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 lg:pb-0">
           {visiblePosts.map((post) => {
             const kind = post.type === 'reel' ? 'reel' : 'p'
 
             return (
               <div
                 key={post.postId}
-                className="relative w-full overflow-hidden rounded-lg border border-white/10 bg-black/20"
-                style={{ paddingBottom: '125%' }}
+                className="relative aspect-[4/5] w-[78%] shrink-0 snap-center overflow-hidden rounded-lg border border-white/10 bg-black/20 sm:w-[46%] lg:w-full lg:shrink"
               >
                 <iframe
                   src={`https://www.instagram.com/${kind}/${post.postId}/embed/`}
@@ -75,13 +85,11 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
             )
           })}
         </div>
+        <p className="mt-3 text-center text-xs text-white/40 lg:hidden">
+          옆으로 넘겨서 더 보기 &rarr;
+        </p>
       </div>
     </section>
   )
 }
 
-function compareInstagramPosts(a: string | null | undefined, b: string | null | undefined) {
-  const aTime = a ? Date.parse(a) : 0
-  const bTime = b ? Date.parse(b) : 0
-  return bTime - aTime
-}

@@ -1504,6 +1504,79 @@ textarea {
   border-color: var(--manage-accent, #b0713b);
   box-shadow: 0 0 0 2px rgba(176, 113, 59, 0.35);
 }
+
+/* 인스타그램 게시물 편집기 */
+.manage-insta-add {
+  align-items: flex-end;
+  display: flex;
+  gap: 10px;
+}
+.manage-insta-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.manage-insta-card {
+  background: #fffaf2;
+  border: 1px solid #ebe0d0;
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 10px;
+}
+.manage-insta-preview {
+  aspect-ratio: 4 / 5;
+  background: #f3eee6;
+  border: 1px solid var(--manage-border);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+.manage-insta-preview iframe {
+  border: 0;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+.manage-insta-preview span {
+  align-items: center;
+  color: var(--manage-muted);
+  display: flex;
+  font-size: 12px;
+  height: 100%;
+  justify-content: center;
+  padding: 8px;
+  text-align: center;
+}
+.manage-insta-meta {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+.manage-insta-meta input[type='date'] {
+  flex: 1;
+  min-width: 0;
+}
+.manage-insta-kind {
+  background: #eef4ef;
+  border-radius: 6px;
+  color: #2f5d43;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+.manage-insta-kind.reel {
+  background: #f4eaf0;
+  color: #8a3a63;
+}
+.manage-empty-hint {
+  color: var(--manage-muted);
+  font-size: 13px;
+}
 .manage-image-row {
   align-items: center;
   background: #fffaf2;
