@@ -6,7 +6,6 @@ import { normalizeInstagramPostInput } from '@/lib/instagramPost'
 
 export type EditorPost = {
   postId: string
-  publishedAt: string
   type: 'p' | 'reel'
 }
 
@@ -14,14 +13,10 @@ type Row = EditorPost & { key: string }
 
 const POST_ID_PATTERN = /^[A-Za-z0-9_-]{5,}$/
 
-function todaySeoul() {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date())
-}
-
 /**
  * 인스타그램 게시물 편집기: URL을 붙여넣으면 ID·종류를 자동 인식해 카드로 추가하고,
- * 카드마다 실제 임베드 미리보기를 보여준다. 폼 필드명은 기존 저장 액션과 동일
- * (instagramPostType/Id/PublishedAt, 위치 기반)이라 서버 변경이 없다.
+ * 카드마다 실제 임베드 미리보기를 보여준다. 카드 순서(드래그 또는 ←/→)가 그대로
+ * 홈 노출 순서가 된다. 폼 필드명은 기존 저장 액션과 동일(위치 기반)이라 서버 변경이 없다.
  */
 export function InstagramPostsEditor({ initialPosts }: { initialPosts: EditorPost[] }) {
   const inputId = useId()
@@ -30,6 +25,8 @@ export function InstagramPostsEditor({ initialPosts }: { initialPosts: EditorPos
   )
   const [draft, setDraft] = useState('')
   const [addError, setAddError] = useState<string | null>(null)
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [overIndex, setOverIndex] = useState<number | null>(null)
 
   const addFromDraft = () => {
     const { isReel, postId } = normalizeInstagramPostInput(draft)
@@ -43,20 +40,26 @@ export function InstagramPostsEditor({ initialPosts }: { initialPosts: EditorPos
     }
 
     setRows((prev) => [
-      {
-        key: `added-${postId}-${Date.now()}`,
-        postId,
-        publishedAt: todaySeoul(),
-        type: isReel ? 'reel' : 'p',
-      },
+      { key: `added-${postId}-${prev.length}`, postId, type: isReel ? 'reel' : 'p' },
       ...prev,
     ])
     setDraft('')
     setAddError(null)
   }
 
-  const updateRow = (key: string, patch: Partial<EditorPost>) => {
-    setRows((prev) => prev.map((row) => (row.key === key ? { ...row, ...patch } : row)))
+  const move = (from: number, to: number) => {
+    if (to < 0 || to >= rows.length) return
+    setRows((prev) => {
+      const next = [...prev]
+      const [moved] = next.splice(from, 1)
+      next.splice(to, 0, moved)
+      return next
+    })
+  }
+
+  const endDrag = () => {
+    setDragIndex(null)
+    setOverIndex(null)
   }
 
   return (
@@ -98,15 +101,39 @@ export function InstagramPostsEditor({ initialPosts }: { initialPosts: EditorPos
         </p>
       ) : (
         <div className="manage-insta-grid">
-          {rows.map((row) => {
+          {rows.map((row, index) => {
             const embeddable = POST_ID_PATTERN.test(row.postId)
 
             return (
-              <figure className="manage-insta-card" key={row.key}>
+              <figure
+                className={`manage-insta-card${overIndex === index && dragIndex !== index ? ' drag-over' : ''}${dragIndex === index ? ' dragging' : ''}`}
+                key={row.key}
+                onDragLeave={() => setOverIndex((current) => (current === index ? null : current))}
+                onDragOver={(event) => {
+                  if (dragIndex === null) return
+                  event.preventDefault()
+                  event.dataTransfer.dropEffect = 'move'
+                  setOverIndex(index)
+                }}
+                onDrop={(event) => {
+                  event.preventDefault()
+                  if (dragIndex !== null && dragIndex !== index) move(dragIndex, index)
+                  endDrag()
+                }}
+              >
                 <input name="instagramPostType" type="hidden" value={row.type} />
                 <input name="instagramPostId" type="hidden" value={row.postId} />
 
-                <div className="manage-insta-preview">
+                <div
+                  className="manage-insta-preview"
+                  draggable
+                  onDragEnd={endDrag}
+                  onDragStart={(event) => {
+                    setDragIndex(index)
+                    event.dataTransfer.effectAllowed = 'move'
+                  }}
+                  title="끌어서 순서 변경"
+                >
                   {embeddable ? (
                     <iframe
                       loading="lazy"
@@ -122,13 +149,27 @@ export function InstagramPostsEditor({ initialPosts }: { initialPosts: EditorPos
                   <span className={`manage-insta-kind${row.type === 'reel' ? ' reel' : ''}`}>
                     {row.type === 'reel' ? '릴스' : '게시물'}
                   </span>
-                  <input
-                    aria-label="게시일"
-                    name="instagramPostPublishedAt"
-                    onChange={(event) => updateRow(row.key, { publishedAt: event.target.value })}
-                    type="date"
-                    value={row.publishedAt}
-                  />
+                  <span className="manage-insta-order-label">
+                    {index + 1} / {rows.length}
+                  </span>
+                  <button
+                    aria-label="앞으로 이동"
+                    className="manage-image-order-button"
+                    disabled={index === 0}
+                    onClick={() => move(index, index - 1)}
+                    type="button"
+                  >
+                    &larr;
+                  </button>
+                  <button
+                    aria-label="뒤로 이동"
+                    className="manage-image-order-button"
+                    disabled={index === rows.length - 1}
+                    onClick={() => move(index, index + 1)}
+                    type="button"
+                  >
+                    &rarr;
+                  </button>
                   <button
                     className="manage-image-order-button"
                     onClick={() => setRows((prev) => prev.filter((item) => item.key !== row.key))}
@@ -144,7 +185,8 @@ export function InstagramPostsEditor({ initialPosts }: { initialPosts: EditorPos
       )}
 
       <p className="manage-empty-hint">
-        홈 화면에는 게시일이 최신인 순서로 노출됩니다. 저장을 눌러야 반영됩니다.
+        카드 순서(왼쪽 위부터)가 그대로 홈 노출 순서입니다. 미리보기를 끌어서 순서를 바꾸고,
+        저장을 눌러야 반영됩니다.
       </p>
     </section>
   )

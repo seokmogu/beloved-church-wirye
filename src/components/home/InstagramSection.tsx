@@ -2,12 +2,12 @@ import { FormattedText } from '@/components/FormattedText'
 
 type InstagramPost = {
   postId?: string | null
-  publishedAt?: string | null
   type?: 'p' | 'reel' | null
 }
 
 type Props = {
   description?: string | null
+  displayCount?: number | null
   eyebrow?: string | null
   handle?: string | null
   posts?: InstagramPost[] | null
@@ -18,11 +18,20 @@ type Props = {
 /**
  * 게시물을 인스타그램 공식 임베드(iframe)로 렌더한다.
  * API 토큰/썸네일 관리 없이 게시물 ID만으로 항상 최신 내용이 보인다.
+ * 노출 순서는 관리자에서 정한 배열 순서 그대로, 개수는 displayCount로 제한한다.
  */
-export function InstagramSection({ description, eyebrow, handle, posts, title, url }: Props) {
+export function InstagramSection({
+  description,
+  displayCount,
+  eyebrow,
+  handle,
+  posts,
+  title,
+  url,
+}: Props) {
   const visiblePosts = (posts ?? [])
     .filter((post) => post?.postId)
-    .sort((a, b) => compareInstagramPosts(a.publishedAt, b.publishedAt))
+    .slice(0, displayCount && displayCount > 0 ? displayCount : undefined)
   if (visiblePosts.length === 0) return null
   const accountUrl = url ?? 'https://www.instagram.com/'
 
@@ -80,8 +89,3 @@ export function InstagramSection({ description, eyebrow, handle, posts, title, u
   )
 }
 
-function compareInstagramPosts(a: string | null | undefined, b: string | null | undefined) {
-  const aTime = a ? Date.parse(a) : 0
-  const bTime = b ? Date.parse(b) : 0
-  return bTime - aTime
-}

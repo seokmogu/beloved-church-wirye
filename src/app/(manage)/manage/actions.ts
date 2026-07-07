@@ -506,6 +506,7 @@ export async function saveInstagramSettingsAction(formData: FormData) {
 
   await payload.updateGlobal({
     data: {
+      instagramDisplayCount: optionalNumber(formData, 'instagramDisplayCount'),
       instagramHandle: optionalString(formData, 'instagramHandle'),
       instagramPosts: await parseInstagramPosts(payload, formData, currentSettings.instagramPosts),
       instagramUrl: optionalString(formData, 'instagramUrl'),
