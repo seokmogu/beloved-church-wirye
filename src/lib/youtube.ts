@@ -173,6 +173,51 @@ async function fetchVideosByChannelId(
  * No API key required. Results cached and revalidated every 12 hours unless a cron refresh
  * invalidates the YouTube cache tag during the Sunday publishing window.
  */
+/**
+ * YouTube RSS가 간헐적으로 500을 반환할 때를 대비한 Data API 폴백.
+ * (RSS 실패가 ISR 캐시에 박히면 홈 설교 섹션이 통째로 비어 보인다.)
+ */
+async function fetchVideosByDataApi(
+  count: number,
+  channelId: string,
+  options?: YouTubeFetchOptions,
+): Promise<YouTubeVideo[] | null> {
+  const apiKey = process.env.YOUTUBE_API_KEY
+  if (!apiKey) return null
+
+  const url =
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&order=date` +
+    `&maxResults=${Math.max(1, Math.min(50, count))}&channelId=${channelId}&key=${apiKey}`
+  const res = await fetch(url, getYouTubeFetchInit(options))
+  if (!res.ok) return null
+
+  const json = (await res.json().catch(() => null)) as {
+    items?: Array<{
+      id?: { videoId?: string }
+      snippet?: {
+        publishedAt?: string
+        thumbnails?: { high?: { url?: string } }
+        title?: string
+      }
+    }>
+  } | null
+
+  const items = json?.items ?? []
+  const videos = items
+    .map((item) => {
+      const id = item.id?.videoId ?? ''
+      return {
+        id,
+        publishedAt: item.snippet?.publishedAt ?? '',
+        thumbnail: item.snippet?.thumbnails?.high?.url ?? `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+        title: decodeXmlEntities(item.snippet?.title ?? ''),
+      }
+    })
+    .filter((video) => video.id)
+
+  return videos.length > 0 ? videos : null
+}
+
 export async function fetchLatestVideos(
   count = 4,
   channelId?: string | null,
@@ -183,13 +228,20 @@ export async function fetchLatestVideos(
     const explicitChannelId = parseChannelId(channelId?.trim() ?? '')
     if (explicitChannelId) {
       const videos = await fetchVideosByChannelId(count, explicitChannelId, options)
-      if (videos) return videos
+      if (videos && videos.length > 0) return videos
+
+      // RSS 실패/빈 결과 → Data API 폴백
+      const fallback = await fetchVideosByDataApi(count, explicitChannelId, options)
+      if (fallback) return fallback
     }
 
     const resolvedChannelId = await resolveChannelIdFromURL(channelUrl, options)
     if (!resolvedChannelId || resolvedChannelId === explicitChannelId) return []
 
-    return (await fetchVideosByChannelId(count, resolvedChannelId, options)) ?? []
+    const videos = await fetchVideosByChannelId(count, resolvedChannelId, options)
+    if (videos && videos.length > 0) return videos
+
+    return (await fetchVideosByDataApi(count, resolvedChannelId, options)) ?? []
   } catch (error) {
     console.error('Failed to fetch YouTube videos:', error)
     return []
