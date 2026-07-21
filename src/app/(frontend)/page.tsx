@@ -9,7 +9,7 @@ import { InstagramSection } from '@/components/home/InstagramSection'
 import { NaverMapSectionServer } from '@/components/home/NaverMapSection.server'
 import { YouTubeSection } from '@/components/home/YouTubeSection'
 import type { SiteSetting } from '@/payload-types'
-import { fetchLatestVideos, type YouTubeVideo } from '@/lib/youtube'
+import { fetchLatestVideos, mergeYouTubeVideos, type YouTubeVideo } from '@/lib/youtube'
 
 export const metadata = {
   title: '사랑하는교회 | Beloved Church Wirye',
@@ -61,7 +61,7 @@ export default async function HomePage() {
   const videoCount =
     typeof settings?.youtubeVideoCount === 'number' ? settings.youtubeVideoCount : 4
 
-  const [announcementsResult, sermonsResult] = await Promise.all([
+  const [announcementsResult, sermonsResult, youtubeVideos] = await Promise.all([
     showAnnouncements
       ? payload
           .find({
@@ -91,6 +91,9 @@ export default async function HomePage() {
             return null
           })
       : Promise.resolve(null),
+    showSermons
+      ? fetchLatestVideos(videoCount, settings?.youtubeChannelId, settings?.youtubeChannelUrl)
+      : Promise.resolve([]),
   ])
 
   const announcements: AnnouncementItem[] = announcementsResult
@@ -113,11 +116,7 @@ export default async function HomePage() {
         }))
     : []
 
-  const fallbackVideos =
-    showSermons && cmsVideos.length === 0
-      ? await fetchLatestVideos(videoCount, settings?.youtubeChannelId, settings?.youtubeChannelUrl)
-      : []
-  const videos = cmsVideos.length > 0 ? cmsVideos : fallbackVideos
+  const videos = mergeYouTubeVideos(cmsVideos, youtubeVideos).slice(0, videoCount)
 
   return (
     <main>

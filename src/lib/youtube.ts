@@ -5,6 +5,33 @@ export interface YouTubeVideo {
   publishedAt: string
 }
 
+/**
+ * Combine administrator-managed sermons with channel videos into one timeline.
+ * Earlier groups win when the same YouTube ID appears more than once, so callers
+ * can pass CMS videos first to preserve curated titles, dates, and thumbnails.
+ */
+export function mergeYouTubeVideos(...groups: YouTubeVideo[][]): YouTubeVideo[] {
+  const videosById = new Map<string, YouTubeVideo>()
+
+  for (const videos of groups) {
+    for (const video of videos) {
+      if (!video.id || videosById.has(video.id)) continue
+      videosById.set(video.id, video)
+    }
+  }
+
+  return [...videosById.values()].sort((left, right) => {
+    const leftTimestamp = Date.parse(left.publishedAt)
+    const rightTimestamp = Date.parse(right.publishedAt)
+    const safeLeftTimestamp = Number.isNaN(leftTimestamp) ? Number.NEGATIVE_INFINITY : leftTimestamp
+    const safeRightTimestamp = Number.isNaN(rightTimestamp)
+      ? Number.NEGATIVE_INFINITY
+      : rightTimestamp
+
+    return safeRightTimestamp - safeLeftTimestamp
+  })
+}
+
 export const YOUTUBE_CACHE_TAG = 'youtube-videos'
 
 /**
