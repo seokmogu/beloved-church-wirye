@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ExternalLink, Play, Youtube } from 'lucide-react'
 import { FormattedText } from '@/components/FormattedText'
 import { PageHero } from '@/components/PageHero'
-import { fetchLatestVideos, type YouTubeVideo } from '@/lib/youtube'
+import { fetchLatestVideos, mergeYouTubeVideos, type YouTubeVideo } from '@/lib/youtube'
 import type { SiteSetting } from '@/payload-types'
 
 export const metadata: Metadata = {
@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 const SERMON_PAGE_VIDEO_COUNT = 12
+const YOUTUBE_CHANNEL_VIDEO_COUNT = 50
 
 type HomeSection = NonNullable<SiteSetting['homeSections']>[number]
 
@@ -174,19 +175,12 @@ export default async function SermonPage({
 
   let settings: SiteSetting | null = null
   let cmsVideos: YouTubeVideo[] = []
-  let totalPages = 1
-  let currentPage = 1
 
   try {
     settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
   } catch (error) {
     console.error('Failed to fetch site settings:', error)
   }
-
-  const videoCount = Math.max(
-    typeof settings?.youtubeVideoCount === 'number' ? settings.youtubeVideoCount : 4,
-    SERMON_PAGE_VIDEO_COUNT,
-  )
 
   try {
     const sermonsData = await payload.find({
@@ -196,12 +190,9 @@ export default async function SermonPage({
           equals: 'published',
         },
       },
-      limit: videoCount,
-      page: requestedPage,
+      limit: 1000,
       sort: '-sermonDate',
     })
-    totalPages = sermonsData.totalPages || 1
-    currentPage = sermonsData.page || requestedPage
     cmsVideos = sermonsData.docs
       .filter((sermon) => sermon.youtubeId)
       .map((sermon) => ({
@@ -215,13 +206,17 @@ export default async function SermonPage({
     console.error('Failed to fetch sermons:', error)
   }
 
-  // CMS에 설교가 아예 없을 때만 YouTube RSS로 폴백 (RSS는 페이지네이션 불가)
-  const usingFallback = cmsVideos.length === 0 && currentPage === 1
-  const fallbackVideos = usingFallback
-    ? await fetchLatestVideos(videoCount, settings?.youtubeChannelId, settings?.youtubeChannelUrl)
-    : []
-  const videos = cmsVideos.length > 0 ? cmsVideos : fallbackVideos
-  const showPagination = !usingFallback && totalPages > 1
+  const youtubeVideos = await fetchLatestVideos(
+    YOUTUBE_CHANNEL_VIDEO_COUNT,
+    settings?.youtubeChannelId,
+    settings?.youtubeChannelUrl,
+  )
+  const allVideos = mergeYouTubeVideos(cmsVideos, youtubeVideos)
+  const totalPages = Math.max(1, Math.ceil(allVideos.length / SERMON_PAGE_VIDEO_COUNT))
+  const currentPage = Math.min(requestedPage, totalPages)
+  const pageStart = (currentPage - 1) * SERMON_PAGE_VIDEO_COUNT
+  const videos = allVideos.slice(pageStart, pageStart + SERMON_PAGE_VIDEO_COUNT)
+  const showPagination = totalPages > 1
   const section = getSermonsSection(settings)
 
   return (
