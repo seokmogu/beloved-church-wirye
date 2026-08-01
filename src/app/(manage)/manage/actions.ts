@@ -6,11 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { requireManageActionUser } from '@/lib/manage/auth'
-import {
-  InstagramSyncConfigError,
-  normalizeInstagramPostInput,
-  syncInstagramPosts,
-} from '@/lib/instagram'
+import { normalizeInstagramPostInput } from '@/lib/instagram'
 import { toRelativeInternalURL } from '@/utilities/internalUrl'
 import { dateInputToISO } from '@/lib/manage/date'
 import { optimizeUploadImage } from '@/lib/manage/imageOptimize'
@@ -518,27 +514,6 @@ export async function saveInstagramSettingsAction(formData: FormData) {
   redirect('/manage/instagram')
 }
 
-export async function syncInstagramSettingsAction() {
-  await requireManageActionUser()
-  const payload = await getManagePayload()
-  let syncedCount = 0
-
-  try {
-    const result = await syncInstagramPosts(payload)
-    syncedCount = result.count
-  } catch (error) {
-    if (error instanceof InstagramSyncConfigError) {
-      redirect('/manage/instagram?sync=missing-config')
-    }
-
-    console.error('Failed to sync Instagram posts:', error)
-    redirect('/manage/instagram?sync=failed')
-  }
-
-  revalidateManageAndPublic('/manage/instagram')
-  redirect(`/manage/instagram?sync=success&count=${syncedCount}`)
-}
-
 export async function saveFooterMenuAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
@@ -965,8 +940,7 @@ function parseExistingImageRows(formData: FormData, prefix: string) {
   return imageIds
     .map((imageId, index) => {
       if (!imageId || formData.get(`${prefix}RemoveImage-${index}`) === 'on') return null
-      const caption =
-        (formData.get(`${prefix}Caption-${index}`) as string | null)?.trim() || null
+      const caption = (formData.get(`${prefix}Caption-${index}`) as string | null)?.trim() || null
       return { caption, image: relationValueFromString(imageId) }
     })
     .filter((row): row is { caption: string | null; image: number | string } => Boolean(row))
