@@ -291,23 +291,28 @@ export async function saveBannerAction(formData: FormData) {
   const endFallback = new Date()
   endFallback.setDate(endFallback.getDate() + 30)
 
-  await payload.updateGlobal({
-    data: {
-      backgroundColor: optionalString(formData, 'backgroundColor') || '#1B3A2D',
-      enabled,
-      endDate: dateInputToISO(stringValue(formData, 'endDate'), {
-        endOfDay: true,
-        fallback: endFallback,
-      }),
-      startDate: optionalString(formData, 'startDate')
-        ? dateInputToISO(stringValue(formData, 'startDate'))
-        : null,
-      subtext: optionalString(formData, 'subtext'),
-      text: text || '',
-      textColor: optionalString(formData, 'textColor') || '#ffffff',
-    } as any,
-    slug: 'special-banner',
-  })
+  try {
+    await payload.updateGlobal({
+      data: {
+        backgroundColor: optionalString(formData, 'backgroundColor') || '#1B3A2D',
+        enabled,
+        endDate: dateInputToISO(stringValue(formData, 'endDate'), {
+          endOfDay: true,
+          fallback: endFallback,
+        }),
+        startDate: optionalString(formData, 'startDate')
+          ? dateInputToISO(stringValue(formData, 'startDate'))
+          : null,
+        subtext: optionalString(formData, 'subtext'),
+        text: text || '',
+        textColor: optionalString(formData, 'textColor') || '#ffffff',
+      } as any,
+      slug: 'special-banner',
+    })
+  } catch (error) {
+    console.error('Failed to save special banner:', error)
+    redirect('/manage/banner?error=save')
+  }
 
   revalidateManageAndPublic('/manage/banner')
   redirect('/manage/banner')

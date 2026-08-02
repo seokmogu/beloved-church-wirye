@@ -34,6 +34,10 @@ export default async function ManageBannerPage({ searchParams }: ManageBannerPag
           <div className="manage-alert danger" role="alert">
             배너를 활성화하려면 메인 텍스트를 입력해 주세요.
           </div>
+        ) : error === 'save' ? (
+          <div className="manage-alert danger" role="alert">
+            배너를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.
+          </div>
         ) : null}
         <div className="manage-field">
           <label htmlFor="subtext">서브 텍스트</label>
