@@ -41,7 +41,7 @@ describe('Neon 관리자 프록시', () => {
 
     const { proxy } = await import('@/proxy')
 
-    expect(proxy({} as never)).toBe(nextResponse)
+    expect(proxy({ headers: { get: vi.fn(() => null) } } as never)).toBe(nextResponse)
     expect(createNeonAuth).not.toHaveBeenCalled()
     expect(next).toHaveBeenCalledTimes(1)
   })
@@ -52,7 +52,7 @@ describe('Neon 관리자 프록시', () => {
     process.env.NEON_AUTH_COOKIE_SECRET = 'a-secure-cookie-secret-that-is-longer-than-32-characters'
     const middlewareFactory = vi.fn(() => proxyMiddleware)
     createNeonAuth.mockReturnValue({ middleware: middlewareFactory })
-    const request = {} as never
+    const request = { headers: { get: vi.fn(() => null) } } as never
 
     const { config, proxy } = await import('@/proxy')
 
@@ -66,6 +66,20 @@ describe('Neon 관리자 프록시', () => {
     expect(config).toEqual({ matcher: ['/manage/:path*'] })
   })
 
+  it('서버 액션은 서명 세션 검증을 위해 Neon 리다이렉트 프록시를 우회한다', async () => {
+    process.env.MANAGE_AUTH_PROVIDER = 'neon'
+    process.env.NEON_AUTH_BASE_URL = 'https://example.neonauth.us-east-1.aws.neon.tech'
+    process.env.NEON_AUTH_COOKIE_SECRET = 'a-secure-cookie-secret-that-is-longer-than-32-characters'
+    createNeonAuth.mockReturnValue({ middleware: vi.fn(() => proxyMiddleware) })
+    const request = { headers: { get: vi.fn((name: string) => (name === 'next-action' ? 'action-id' : null)) } } as never
+
+    const { proxy } = await import('@/proxy')
+
+    expect(proxy(request)).toBe(nextResponse)
+    expect(proxyMiddleware).not.toHaveBeenCalled()
+    expect(next).toHaveBeenCalledTimes(1)
+  })
+
   it('불완전한 Neon 설정은 프록시를 통과시키고 설정 화면에서 처리하게 한다', async () => {
     process.env.MANAGE_AUTH_PROVIDER = 'neon'
     process.env.NEON_AUTH_BASE_URL = 'https://example.neonauth.us-east-1.aws.neon.tech'
@@ -73,7 +87,7 @@ describe('Neon 관리자 프록시', () => {
 
     const { proxy } = await import('@/proxy')
 
-    expect(proxy({} as never)).toBe(nextResponse)
+    expect(proxy({ headers: { get: vi.fn(() => null) } } as never)).toBe(nextResponse)
     expect(createNeonAuth).not.toHaveBeenCalled()
   })
 
@@ -84,7 +98,7 @@ describe('Neon 관리자 프록시', () => {
 
     const { proxy } = await import('@/proxy')
 
-    expect(proxy({} as never)).toBe(nextResponse)
+    expect(proxy({ headers: { get: vi.fn(() => null) } } as never)).toBe(nextResponse)
     expect(createNeonAuth).not.toHaveBeenCalled()
   })
 })

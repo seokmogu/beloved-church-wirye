@@ -27,6 +27,12 @@ const neonManageProxy =
     : null
 
 export function proxy(request: NextRequest) {
+  // Neon middleware redirects an unauthenticated POST to an HTML login page.
+  // Next Server Actions expect an RSC response, so that redirect becomes an
+  // opaque client error even when the signed manager session is valid. Actions
+  // verify that signed session in requireManageActionUser instead.
+  if (request.headers.get('next-action')) return NextResponse.next()
+
   return neonManageProxy ? neonManageProxy(request) : NextResponse.next()
 }
 
