@@ -11,6 +11,12 @@
   - Custom admin: same Vercel app at `/manage`; `/admin` redirects to `/manage`.
   - Admin auth: Supabase Auth in project `fpiqbslkwcyqpbrnbkhr`, restricted by `MANAGE_ADMIN_EMAILS`.
   - Database: Supabase Postgres project `fpiqbslkwcyqpbrnbkhr`.
+- Hosted development Preview uses separate Vercel + Neon resources:
+  - Vercel project: `seokmogus-projects/beloved-church-wirye-dev`.
+  - Database and admin auth: the Neon project `beloved-church-wirye-dev`.
+  - The environment selects this auth path with `MANAGE_AUTH_PROVIDER=neon` and uses a separate `MANAGE_ADMIN_EMAILS` allowlist.
+  - `src/proxy.ts` enables Neon session refresh only for `/manage`; when the provider is not Neon it is a no-op, so production keeps its existing Supabase flow.
+  - This project is intentionally isolated from the production Supabase project. Do not import production users or content into it for routine development tests.
 
 Local `.env` must point to local Docker and local frontend URLs. Vercel Production/Preview env vars must point to Supabase and the Vercel production/preview URL. Do not mix local URLs into Vercel env vars.
 
@@ -71,7 +77,7 @@ Required Supabase checks before migration:
 
 ## Required Environment Variable Names
 
-Vercel Production and Preview should be checked for these names as applicable:
+The production Vercel project should be checked for these names as applicable:
 
 - `POSTGRES_URL`
 - `PAYLOAD_SECRET`
@@ -88,6 +94,16 @@ Vercel Production and Preview should be checked for these names as applicable:
 - `NEXT_PUBLIC_CHAT_ENABLED`
 - `OPENCLAW_API_URL`
 - `OPENCLAW_GATEWAY_TOKEN`
+
+The separate development Vercel project's **Preview** environment uses these Neon-specific values instead of Supabase Auth:
+
+- `POSTGRES_URL` (the Neon development connection string)
+- `MANAGE_AUTH_PROVIDER=neon`
+- `NEON_AUTH_BASE_URL`
+- `NEON_AUTH_COOKIE_SECRET`
+- `MANAGE_ADMIN_EMAILS` (development-only allowlist)
+
+Keep the development project's Production environment unchanged unless a separate release decision explicitly approves it.
 
 Do not print secret values in Markdown, issues, screenshots, terminal summaries, or chat. For normal agent work, keep secret-containing env files git ignored; if the repo owner explicitly asks to commit a specific env file, confirm the exact file and scope first.
 

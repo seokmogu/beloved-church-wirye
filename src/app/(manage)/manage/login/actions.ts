@@ -2,8 +2,8 @@
 
 import { redirect } from 'next/navigation'
 
-import { isManageAdminEmail, resolveManageLoginIdentifier } from '@/lib/manage/env'
-import { createManageSupabaseServerClient } from '@/lib/manage/supabase/server'
+import { signInManageUser, signOutManageUser } from '@/lib/manage/auth'
+import { resolveManageLoginIdentifier } from '@/lib/manage/env'
 
 export async function signInAction(formData: FormData) {
   const login = String(formData.get('login') || formData.get('email') || '')
@@ -12,20 +12,17 @@ export async function signInAction(formData: FormData) {
   const email = resolveManageLoginIdentifier(login)
   const password = String(formData.get('password') || '')
   const next = sanitizeNext(String(formData.get('next') || '/manage'))
-  const supabase = await createManageSupabaseServerClient()
+  const result = await signInManageUser(email, password)
 
-  if (!supabase) {
+  if (result === 'configuration') {
     redirect(`/manage/login?error=config&next=${encodeURIComponent(next)}`)
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-
-  if (error || !data.user?.email) {
+  if (result === 'invalid') {
     redirect(`/manage/login?error=invalid&next=${encodeURIComponent(next)}`)
   }
 
-  if (!isManageAdminEmail(data.user.email)) {
-    await supabase.auth.signOut()
+  if (result === 'forbidden') {
     redirect(`/manage/login?error=forbidden&next=${encodeURIComponent(next)}`)
   }
 
@@ -33,8 +30,7 @@ export async function signInAction(formData: FormData) {
 }
 
 export async function signOutAction() {
-  const supabase = await createManageSupabaseServerClient()
-  if (supabase) await supabase.auth.signOut()
+  await signOutManageUser()
   redirect('/manage/login')
 }
 

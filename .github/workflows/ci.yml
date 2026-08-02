@@ -37,6 +37,8 @@ jobs:
         env:
           POSTGRES_URL: ${{ secrets.DEV_POSTGRES_URL }}
           PAYLOAD_SECRET: ${{ secrets.DEV_PAYLOAD_SECRET }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.DEV_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.DEV_SUPABASE_PUBLISHABLE_KEY }}
+          MANAGE_AUTH_PROVIDER: ${{ secrets.DEV_MANAGE_AUTH_PROVIDER }}
+          NEON_AUTH_BASE_URL: ${{ secrets.DEV_NEON_AUTH_BASE_URL }}
+          NEON_AUTH_COOKIE_SECRET: ${{ secrets.DEV_NEON_AUTH_COOKIE_SECRET }}
+          MANAGE_ADMIN_EMAILS: ${{ secrets.DEV_MANAGE_ADMIN_EMAILS }}
         run: pnpm test:int
