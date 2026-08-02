@@ -2460,7 +2460,7 @@ export interface SpecialBanner {
   /**
    * 배너에 표시될 주요 문구 (예: 🌟 부활절 특별예배)
    */
-  text: string;
+  text?: string | null;
   /**
    * 추가 안내 문구 (예: 4월 5일 (토) 오전 10:30)
    */

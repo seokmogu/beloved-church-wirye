@@ -1895,6 +1895,12 @@ textarea {
   min-height: 150px;
   resize: vertical;
 }
+.manage-field-hint {
+  color: var(--manage-muted);
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 0;
+}
 .manage-checkbox {
   align-items: center;
   display: flex;

@@ -31,7 +31,16 @@ export const SpecialBanner: GlobalConfig = {
       name: 'text',
       type: 'text',
       label: '메인 텍스트',
-      required: true,
+      // A disabled banner is deliberately allowed to have no copy. Payload's
+      // unconditional `required` validation would otherwise reject the
+      // manager form even though the banner cannot be displayed.
+      validate: (value: unknown, { siblingData }: { siblingData?: Record<string, unknown> }) => {
+        if (siblingData?.enabled && !(typeof value === 'string' && value.trim())) {
+          return '배너를 활성화하려면 메인 텍스트를 입력해 주세요.'
+        }
+
+        return true
+      },
       admin: {
         description: '배너에 표시될 주요 문구 (예: 🌟 부활절 특별예배)',
       },

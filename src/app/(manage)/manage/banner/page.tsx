@@ -7,10 +7,15 @@ import { requireManageUser } from '@/lib/manage/auth'
 import { toDateInputValue } from '@/lib/manage/date'
 import { getManagePayload } from '@/lib/manage/payload'
 
-export default async function ManageBannerPage() {
+type ManageBannerPageProps = {
+  searchParams: Promise<{ error?: string }>
+}
+
+export default async function ManageBannerPage({ searchParams }: ManageBannerPageProps) {
   const user = await requireManageUser()
   const payload = await getManagePayload()
   const banner = await payload.findGlobal({ slug: 'special-banner' })
+  const { error } = await searchParams
 
   return (
     <ManageShell active="banner" user={user}>
@@ -22,8 +27,18 @@ export default async function ManageBannerPage() {
         </label>
         <div className="manage-field">
           <label htmlFor="text">메인 텍스트</label>
-          <input defaultValue={banner.text || ''} id="text" name="text" required />
+          <input defaultValue={banner.text || ''} id="text" name="text" />
+          <p className="manage-field-hint">배너를 활성화할 때만 입력하면 됩니다.</p>
         </div>
+        {error === 'text' ? (
+          <div className="manage-alert danger" role="alert">
+            배너를 활성화하려면 메인 텍스트를 입력해 주세요.
+          </div>
+        ) : error === 'save' ? (
+          <div className="manage-alert danger" role="alert">
+            배너를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.
+          </div>
+        ) : null}
         <div className="manage-field">
           <label htmlFor="subtext">서브 텍스트</label>
           <input defaultValue={banner.subtext || ''} id="subtext" name="subtext" />

@@ -7,6 +7,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 let payload: Payload
 let originalSiteSettings: Record<string, unknown> | null = null
 let originalHeader: Record<string, unknown> | null = null
+let originalSpecialBanner: Record<string, unknown> | null = null
 const disableRevalidate = { disableRevalidate: true }
 
 function stripSystemFields<T extends Record<string, unknown> | null>(
@@ -15,6 +16,18 @@ function stripSystemFields<T extends Record<string, unknown> | null>(
   if (!data) return {}
   const { id, createdAt, updatedAt, globalType, ...rest } = data
   return rest
+}
+
+function requiredBannerEndDate(data: Record<string, unknown>): string {
+  if (typeof data.endDate === 'string' && data.endDate) return data.endDate
+
+  const fallback = new Date()
+  fallback.setDate(fallback.getDate() + 30)
+  return fallback.toISOString()
+}
+
+function withRequiredBannerEndDate(data: Record<string, unknown>): Record<string, unknown> {
+  return { ...data, endDate: requiredBannerEndDate(data) }
 }
 
 describe('CMS control contract', () => {
@@ -32,6 +45,10 @@ describe('CMS control contract', () => {
       string,
       unknown
     >
+    originalSpecialBanner = (await payload.findGlobal({
+      slug: 'special-banner',
+      depth: 0,
+    })) as unknown as Record<string, unknown>
   })
 
   afterEach(async () => {
@@ -43,6 +60,11 @@ describe('CMS control contract', () => {
     await payload.updateGlobal({
       slug: 'header',
       data: stripSystemFields(originalHeader),
+      context: disableRevalidate,
+    })
+    await payload.updateGlobal({
+      slug: 'special-banner',
+      data: withRequiredBannerEndDate(stripSystemFields(originalSpecialBanner)),
       context: disableRevalidate,
     })
   })
@@ -154,6 +176,33 @@ describe('CMS control contract', () => {
       'announcements',
     ])
     expect(settings.homeSections?.[1]?.enabled).toBe(false)
+  })
+
+  it('allows a disabled banner without copy but rejects an empty enabled banner', async () => {
+    const disabledBanner = await payload.updateGlobal({
+      slug: 'special-banner',
+      data: {
+        enabled: false,
+        text: '',
+        endDate: requiredBannerEndDate(stripSystemFields(originalSpecialBanner)),
+      },
+      context: disableRevalidate,
+    })
+
+    expect(disabledBanner.enabled).toBe(false)
+    expect(disabledBanner.text).toBe('')
+
+    await expect(
+      payload.updateGlobal({
+        slug: 'special-banner',
+        data: {
+          enabled: true,
+          text: '',
+          endDate: requiredBannerEndDate(stripSystemFields(originalSpecialBanner)),
+        },
+        context: disableRevalidate,
+      }),
+    ).rejects.toThrow('메인 텍스트')
   })
 
   it('creates a published page and exposes it through the header menu global', async () => {

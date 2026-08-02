@@ -23,6 +23,7 @@
     "ci": "pnpm build"
   },
   "dependencies": {
+    "@neondatabase/auth": "0.4.2-beta",
     "@payloadcms/admin-bar": "3.84.1",
     "@payloadcms/db-vercel-postgres": "3.84.1",
     "@payloadcms/live-preview-react": "3.84.1",
