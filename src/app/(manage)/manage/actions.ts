@@ -279,13 +279,22 @@ export async function deleteChurchNewsAction(formData: FormData) {
 export async function saveBannerAction(formData: FormData) {
   await requireManageActionUser()
   const payload = await getManagePayload()
+  const enabled = checkboxValue(formData, 'enabled')
+  const text = optionalString(formData, 'text')
+
+  // 비활성 배너는 문구 없이 저장할 수 있어야 한다. 활성화할 때만 공개될
+  // 메인 문구를 요구해, 빈 배너가 노출되는 일은 서버에서도 막는다.
+  if (enabled && !text) {
+    redirect('/manage/banner?error=text')
+  }
+
   const endFallback = new Date()
   endFallback.setDate(endFallback.getDate() + 30)
 
   await payload.updateGlobal({
     data: {
       backgroundColor: optionalString(formData, 'backgroundColor') || '#1B3A2D',
-      enabled: checkboxValue(formData, 'enabled'),
+      enabled,
       endDate: dateInputToISO(stringValue(formData, 'endDate'), {
         endOfDay: true,
         fallback: endFallback,
@@ -294,7 +303,7 @@ export async function saveBannerAction(formData: FormData) {
         ? dateInputToISO(stringValue(formData, 'startDate'))
         : null,
       subtext: optionalString(formData, 'subtext'),
-      text: requiredString(formData, 'text'),
+      text: text || '',
       textColor: optionalString(formData, 'textColor') || '#ffffff',
     } as any,
     slug: 'special-banner',

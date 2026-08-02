@@ -1,12 +1,10 @@
 import 'server-only'
 
-import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import {
   getManageAuthProvider,
   getManageMissingEnv,
-  getManageNeonAuthConfig,
   isManageAdminEmail,
 } from '@/lib/manage/env'
 import { createManageNeonAuth } from '@/lib/manage/neon/server'
@@ -25,17 +23,6 @@ export type ManageAuthState = {
 
 export type ManageSignInResult = 'configuration' | 'forbidden' | 'invalid' | 'ok'
 
-const NEON_SESSION_TOKEN_COOKIE = '__Secure-neon-auth.session_token'
-const NEON_SESSION_DATA_COOKIE = '__Secure-neon-auth.local.session_data'
-const NEON_PROXY_HEADER = 'x-neon-auth-middleware'
-
-function decodeBase64Url(value: string): Uint8Array {
-  const normalized = value.replaceAll('-', '+').replaceAll('_', '/')
-  const padded = `${normalized}${'='.repeat((4 - (normalized.length % 4)) % 4)}`
-  const binary = atob(padded)
-  return Uint8Array.from(binary, (character) => character.charCodeAt(0))
-}
-
 function parseManageUser(payload: unknown): ManageUser | null {
   if (!payload || typeof payload !== 'object') return null
 
@@ -46,48 +33,6 @@ function parseManageUser(payload: unknown): ManageUser | null {
   if (typeof email !== 'string' || typeof id !== 'string') return null
 
   return { email: email.toLowerCase(), id }
-}
-
-async function getManageNeonSessionUser(): Promise<ManageUser | null> {
-  const cookieStore = await cookies()
-  const sessionToken = cookieStore.get(NEON_SESSION_TOKEN_COOKIE)?.value
-  const sessionData = cookieStore.get(NEON_SESSION_DATA_COOKIE)?.value
-  const { cookieSecret } = getManageNeonAuthConfig()
-
-  if (!sessionToken || !sessionData || !cookieSecret) return null
-
-  const parts = sessionData.split('.')
-  if (parts.length !== 3) return null
-
-  try {
-    const [header, payload, signature] = parts
-    const key = await crypto.subtle.importKey(
-      'raw',
-      new TextEncoder().encode(cookieSecret),
-      { hash: 'SHA-256', name: 'HMAC' },
-      false,
-      ['verify'],
-    )
-    const isValid = await crypto.subtle.verify(
-      { name: 'HMAC' },
-      key,
-      decodeBase64Url(signature),
-      new TextEncoder().encode(`${header}.${payload}`),
-    )
-
-    if (!isValid) return null
-
-    const decodedPayload = JSON.parse(new TextDecoder().decode(decodeBase64Url(payload))) as {
-      exp?: unknown
-    }
-    if (typeof decodedPayload.exp !== 'number' || decodedPayload.exp * 1000 <= Date.now()) {
-      return null
-    }
-
-    return parseManageUser(decodedPayload)
-  } catch {
-    return null
-  }
 }
 
 export async function getManageAuthState({ includeUser = true }: { includeUser?: boolean } = {}): Promise<ManageAuthState> {
@@ -112,7 +57,7 @@ export async function getManageAuthState({ includeUser = true }: { includeUser?:
   }
 
   if (provider === 'neon') {
-    if (!includeUser || (await headers()).get(NEON_PROXY_HEADER) !== 'true') {
+    if (!includeUser) {
       return {
         configured: true,
         missingEnv: [],
@@ -120,10 +65,28 @@ export async function getManageAuthState({ includeUser = true }: { includeUser?:
       }
     }
 
-    // The proxy validates or refreshes the Neon session before this Server
-    // Component renders. Reading its signed cache here avoids writing cookies
-    // from a render, which Next.js intentionally disallows.
-    const user = await getManageNeonSessionUser()
+    const neonAuth = createManageNeonAuth()
+    if (!neonAuth) {
+      return {
+        configured: false,
+        missingEnv: getManageMissingEnv(),
+        user: null,
+      }
+    }
+
+    // Server Actions may not receive the request header that Neon middleware
+    // injects for page renders. Neon Auth's server API validates the signed
+    // session cache directly, so it works consistently for both page loads and
+    // form submissions.
+    let user: ManageUser | null = null
+    try {
+      const { data, error } = await neonAuth.getSession()
+      user = error ? null : parseManageUser(data)
+    } catch {
+      // 인증 서비스의 일시적 네트워크 실패는 공개 서버 오류가 아니라
+      // 재로그인이 필요한 상태로 처리한다.
+      user = null
+    }
 
     if (!user) {
       return {
