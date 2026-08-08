@@ -11,6 +11,7 @@ declare global {
       INSTAGRAM_PUSH_SECRET?: string
       NEXT_PUBLIC_NAVER_MAP_CLIENT_ID?: string
       NEXT_PUBLIC_CHAT_ENABLED?: string
+      NEXT_PUBLIC_GA_MEASUREMENT_ID?: string
       OPENCLAW_API_URL?: string
       OPENCLAW_GATEWAY_TOKEN?: string
     }
