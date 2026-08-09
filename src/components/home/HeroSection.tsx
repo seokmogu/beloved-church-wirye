@@ -95,6 +95,7 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
           <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row">
             {primaryLabel && primaryUrl && (
               <Link
+                data-analytics-id="home_hero_primary"
                 href={primaryUrl}
                 className="inline-flex min-h-12 w-full max-w-full items-center justify-center rounded-md bg-secondary px-6 py-3 text-center text-sm font-semibold text-primary transition-colors hover:bg-secondary-dark sm:w-auto"
               >
@@ -103,6 +104,7 @@ export function HeroSection({ settings }: { settings?: SiteSetting | null }) {
             )}
             {secondaryLabel && secondaryUrl && (
               <Link
+                data-analytics-id="home_hero_secondary"
                 href={secondaryUrl}
                 className="inline-flex min-h-12 w-full max-w-full items-center justify-center rounded-md border border-white/28 bg-white/10 px-6 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/18 sm:w-auto"
               >

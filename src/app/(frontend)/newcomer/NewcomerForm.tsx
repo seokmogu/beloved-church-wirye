@@ -4,6 +4,8 @@ import type React from 'react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+import { trackAnalyticsEvent } from '@/components/GoogleAnalytics/events'
+
 type FormData = {
   address: string
   age: string
@@ -102,11 +104,17 @@ export function NewcomerForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [hasTrackedFormStart, setHasTrackedFormStart] = useState(false)
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value, type } = event.target
+
+    if (!hasTrackedFormStart && name !== 'website') {
+      trackAnalyticsEvent('form_start', { form_name: 'newcomer_registration' })
+      setHasTrackedFormStart(true)
+    }
 
     if (type === 'checkbox') {
       const checked = (event.target as HTMLInputElement).checked
@@ -163,6 +171,10 @@ export function NewcomerForm() {
         throw new Error(data?.error || '등록에 실패했습니다. 잠시 후 다시 시도해 주세요.')
       }
 
+      trackAnalyticsEvent('generate_lead', {
+        form_name: 'newcomer_registration',
+        lead_source: formData.sourceChannels[0] || 'unknown',
+      })
       router.push('/newcomer/thank-you')
     } catch (err) {
       console.error('Form submission error:', err)
