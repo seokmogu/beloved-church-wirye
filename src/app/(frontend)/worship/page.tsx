@@ -116,6 +116,7 @@ export default async function WorshipPage() {
                       ))}
                     </ul>
                     <Link
+                      data-analytics-id="worship_newcomer_registration"
                       href="/newcomer"
                       className="mt-6 inline-flex rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
                     >

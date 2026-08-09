@@ -547,6 +547,48 @@ textarea {
   line-height: 1.25;
   margin: 4px 0 0;
 }
+.manage-analytics-panel {
+  margin-bottom: 18px;
+}
+.manage-analytics-period {
+  color: var(--manage-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+.manage-analytics-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.manage-analytics-metric {
+  background: #f7f4ee;
+  border: 1px solid #eadfce;
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 16px;
+}
+.manage-analytics-metric > span {
+  color: var(--manage-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+.manage-analytics-metric strong {
+  font-size: clamp(24px, 3vw, 32px);
+  line-height: 1;
+}
+.manage-analytics-metric small,
+.manage-analytics-note,
+.manage-analytics-status {
+  color: var(--manage-muted);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0;
+}
+.manage-analytics-note {
+  margin-top: 14px;
+}
 .manage-detail-hero {
   align-items: center;
   background: var(--manage-panel-strong);
@@ -2004,6 +2046,7 @@ textarea {
     justify-content: flex-start;
   }
   .manage-hero-metrics,
+  .manage-analytics-grid,
   .manage-content-columns {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2071,6 +2114,7 @@ textarea {
     padding: 11px 12px;
   }
   .manage-hero-metrics,
+  .manage-analytics-grid,
   .manage-content-columns,
   .manage-detail-list,
   .manage-inbox-row,

@@ -1,5 +1,7 @@
 import Script from 'next/script'
 
+import { GoogleAnalyticsTracker } from './GoogleAnalyticsTracker'
+
 const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 export function GoogleAnalytics() {
@@ -17,6 +19,7 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', '${measurementId}');`}
       </Script>
+      <GoogleAnalyticsTracker />
     </>
   )
 }

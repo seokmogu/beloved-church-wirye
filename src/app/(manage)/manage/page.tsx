@@ -14,6 +14,7 @@ import { ManageShell, PageHeader } from '@/app/(manage)/manage/_components/Manag
 import { requireManageUser } from '@/lib/manage/auth'
 import { formatKoreanDate } from '@/lib/manage/date'
 import { getManagePayload } from '@/lib/manage/payload'
+import { getGoogleAnalyticsSummary, type GoogleAnalyticsSummary } from '@/lib/googleAnalytics'
 import type { Newcomer } from '@/payload-types'
 
 const statusLabels: Record<NonNullable<Newcomer['status']>, string> = {
@@ -34,8 +35,16 @@ export default async function ManageDashboardPage() {
   const user = await requireManageUser()
   const payload = await getManagePayload()
 
-  const [announcements, churchNews, churchVideos, sermons, bulletins, newcomers, pendingNewcomers] =
-    await Promise.all([
+  const [
+    announcements,
+    churchNews,
+    churchVideos,
+    sermons,
+    bulletins,
+    newcomers,
+    pendingNewcomers,
+    analytics,
+  ] = await Promise.all([
       payload.find({ collection: 'announcements', limit: 4, sort: '-publishedAt' }),
       payload.find({ collection: 'church-news', limit: 4, sort: '-date' }),
       payload.find({ collection: 'church-videos', limit: 3, sort: '-videoDate' }),
@@ -47,6 +56,7 @@ export default async function ManageDashboardPage() {
         limit: 1,
         where: { status: { equals: 'pending' } },
       }),
+      getGoogleAnalyticsSummary(),
     ])
 
   const latestBulletin = bulletins.docs[0]
@@ -68,6 +78,8 @@ export default async function ManageDashboardPage() {
           <Metric label="최근 목록" value={newcomers.docs.length} />
         </div>
       </section>
+
+      <AnalyticsPanel analytics={analytics} />
 
       <section className="manage-dashboard-layout">
         <div className="manage-panel manage-inbox-panel">
@@ -182,6 +194,76 @@ export default async function ManageDashboardPage() {
       </section>
     </ManageShell>
   )
+}
+
+function AnalyticsPanel({ analytics }: { analytics: GoogleAnalyticsSummary }) {
+  if (analytics.status !== 'ready') {
+    return (
+      <section className="manage-panel manage-analytics-panel" aria-label="웹사이트 주요 지표">
+        <div className="manage-panel-head">
+          <div>
+            <span className="manage-kicker">Google Analytics</span>
+            <h2>웹사이트 주요 지표</h2>
+          </div>
+          <span className="manage-analytics-period">최근 28일</span>
+        </div>
+        <p className="manage-analytics-status">
+          {analytics.status === 'not-configured'
+            ? '분석 연결을 준비 중입니다. 연결되면 이곳에 실제 방문·클릭·새가족 전환 지표가 표시됩니다.'
+            : 'Google Analytics 데이터를 지금 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.'}
+        </p>
+      </section>
+    )
+  }
+
+  const clickRate = analytics.pageViews ? analytics.clicks / analytics.pageViews : null
+  const newcomerConversionRate = analytics.newcomerPageViews
+    ? analytics.leadConversions / analytics.newcomerPageViews
+    : null
+
+  return (
+    <section className="manage-panel manage-analytics-panel" aria-label="웹사이트 주요 지표">
+      <div className="manage-panel-head">
+        <div>
+          <span className="manage-kicker">Google Analytics</span>
+          <h2>웹사이트 주요 지표</h2>
+        </div>
+        <span className="manage-analytics-period">최근 28일</span>
+      </div>
+      <div className="manage-analytics-grid">
+        <AnalyticsMetric label="PV" value={formatNumber(analytics.pageViews)} />
+        <AnalyticsMetric label="AU" value={formatNumber(analytics.activeUsers)} />
+        <AnalyticsMetric detail={`${formatNumber(analytics.clicks)}회 클릭`} label="클릭률" value={formatPercent(clickRate)} />
+        <AnalyticsMetric
+          detail={`${formatNumber(analytics.leadConversions)}건 새가족 등록`}
+          label="새가족 전환율"
+          value={formatPercent(newcomerConversionRate)}
+        />
+      </div>
+      <p className="manage-analytics-note">
+        클릭률은 전체 페이지 조회 대비 `ui_click`, 전환율은 새가족 페이지 조회 대비 `generate_lead` 기준입니다.
+      </p>
+    </section>
+  )
+}
+
+function AnalyticsMetric({ detail, label, value }: { detail?: string; label: string; value: string }) {
+  return (
+    <div className="manage-analytics-metric">
+      <span>{label}</span>
+      <strong>{value}</strong>
+      {detail ? <small>{detail}</small> : null}
+    </div>
+  )
+}
+
+function formatNumber(value: number) {
+  return new Intl.NumberFormat('ko-KR').format(value)
+}
+
+function formatPercent(value: number | null) {
+  if (value === null) return '—'
+  return new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1, style: 'percent' }).format(value)
 }
 
 function Metric({ label, tone, value }: { label: string; tone?: 'warning'; value: number }) {

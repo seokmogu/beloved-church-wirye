@@ -138,6 +138,7 @@ export default async function AboutPage() {
           <div className="grid gap-4 md:grid-cols-2">
             {subPages.map((page) => (
               <Link
+                data-analytics-id={page.href === '/newcomer' ? 'about_newcomer_registration' : undefined}
                 className="rounded-lg border border-border bg-card p-6 transition-shadow hover:shadow-md"
                 href={page.href}
                 key={page.href}
