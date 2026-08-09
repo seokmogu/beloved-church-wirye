@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import Script from 'next/script'
 
 import { GoogleAnalyticsTracker } from './GoogleAnalyticsTracker'
@@ -19,7 +20,9 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', '${measurementId}');`}
       </Script>
-      <GoogleAnalyticsTracker />
+      <Suspense fallback={null}>
+        <GoogleAnalyticsTracker />
+      </Suspense>
     </>
   )
 }
