@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
+import { AccessibleContent } from '@/components/AccessibleContent'
 import { FormattedText } from '@/components/FormattedText'
 import { PageHero } from '@/components/PageHero'
 import type { ChurchNew, Media } from '@/payload-types'
@@ -30,8 +31,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: `${item.title || '교회소식'} | 사랑하는교회`,
-    description: item.description || '사랑하는교회 주간 교회소식',
+    title: `${item.accessibleContent?.seoTitle || item.title || '교회소식'} | 사랑하는교회`,
+    description:
+      item.accessibleContent?.seoDescription ||
+      item.accessibleContent?.summary ||
+      item.description ||
+      '사랑하는교회 주간 교회소식',
   }
 }
 
@@ -62,6 +67,12 @@ export default async function ChurchNewsDetailPage({ params }: PageProps) {
           {item.description}
         </FormattedText>
         <ChurchNewsGallery images={galleryImages} title={item.title || '교회소식'} />
+        <div className="mt-8">
+          <AccessibleContent
+            content={item.accessibleContent?.content}
+            summary={item.accessibleContent?.summary}
+          />
+        </div>
       </div>
     </main>
   )

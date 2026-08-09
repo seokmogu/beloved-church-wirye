@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import { cache } from 'react'
 
+import { AccessibleContent } from '@/components/AccessibleContent'
 import type { Media } from '@/payload-types'
 
 type Args = {
@@ -47,7 +48,7 @@ export default async function BulletinDetailPage({ params: paramsPromise }: Args
           <p className="text-sm font-semibold uppercase tracking-[0.12em] text-primary">
             Weekly Bulletin
           </p>
-          <h1 className="mt-2 text-3xl font-semibold text-foreground">주보</h1>
+          <h1 className="mt-2 text-3xl font-semibold text-foreground">{title}</h1>
         </div>
       </section>
 
@@ -70,9 +71,7 @@ export default async function BulletinDetailPage({ params: paramsPromise }: Args
                 <span className="rounded-sm border border-border px-2 py-1">{bulletinDate}</span>
                 {isPdf && <span className="rounded-sm border border-border px-2 py-1">PDF</span>}
               </div>
-              <h2 className="text-2xl font-semibold leading-tight text-foreground md:text-3xl">
-                {title}
-              </h2>
+              <p className="text-2xl font-semibold leading-tight text-foreground md:text-3xl">{title}</p>
               {bulletin.description && (
                 <p className="mt-3 text-sm text-muted-foreground">{bulletin.description}</p>
               )}
@@ -110,6 +109,11 @@ export default async function BulletinDetailPage({ params: paramsPromise }: Args
               </p>
             )}
           </div>
+
+          <AccessibleContent
+            content={bulletin.accessibleContent?.content}
+            summary={bulletin.accessibleContent?.summary}
+          />
 
           {fileUrl && (
             <div className="border-t border-border bg-muted/25 px-5 py-5 md:px-8">
@@ -149,8 +153,14 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const bulletin = await queryBulletinByID(id)
 
   return {
-    title: bulletin?.title ? `${bulletin.title} | 사랑하는교회` : '주보 | 사랑하는교회',
-    description: '사랑하는교회 주보',
+    title: bulletin?.accessibleContent?.seoTitle || bulletin?.title
+      ? `${bulletin?.accessibleContent?.seoTitle || bulletin?.title} | 사랑하는교회`
+      : '주보 | 사랑하는교회',
+    description:
+      bulletin?.accessibleContent?.seoDescription ||
+      bulletin?.accessibleContent?.summary ||
+      bulletin?.description ||
+      '사랑하는교회 주보',
   }
 }
 

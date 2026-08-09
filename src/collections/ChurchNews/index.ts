@@ -107,6 +107,28 @@ export const ChurchNews: CollectionConfig = {
         },
       ],
     },
+    {
+      name: 'accessibleContent',
+      type: 'group',
+      label: '자동 전사 · 검색용 텍스트',
+      admin: {
+        description:
+          '이미지 전사 작업이 완료되면 자동으로 채워집니다. 공개 페이지의 이미지 아래에 실제 텍스트로 표시됩니다.',
+      },
+      fields: [
+        { name: 'summary', type: 'textarea', label: '요약', admin: { rows: 3 } },
+        { name: 'content', type: 'textarea', label: '본문', admin: { rows: 12 } },
+        { name: 'seoTitle', type: 'text', label: '검색 제목' },
+        { name: 'seoDescription', type: 'textarea', label: '검색 설명', admin: { rows: 3 } },
+        { name: 'sourceHash', type: 'text', label: '원본 해시', admin: { readOnly: true } },
+        {
+          name: 'processedAt',
+          type: 'date',
+          label: '전사 완료 시각',
+          admin: { date: { pickerAppearance: 'dayAndTime' }, readOnly: true },
+        },
+      ],
+    },
   ],
   hooks: {
     beforeValidate: [
