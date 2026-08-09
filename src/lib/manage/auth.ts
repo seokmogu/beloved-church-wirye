@@ -25,6 +25,17 @@ export type ManageAuthState = {
 
 export type ManageSignInResult = 'configuration' | 'forbidden' | 'invalid' | 'ok'
 
+type NeonSignInData = {
+  user?: {
+    email?: string
+  }
+} | null
+
+type NeonSignInResponse = {
+  data: NeonSignInData
+  error: unknown | null
+}
+
 const NEON_SESSION_TOKEN_COOKIE = '__Secure-neon-auth.session_token'
 const NEON_SESSION_DATA_COOKIE = '__Secure-neon-auth.local.session_data'
 
@@ -45,6 +56,65 @@ function parseManageUser(payload: unknown): ManageUser | null {
   if (typeof email !== 'string' || typeof id !== 'string') return null
 
   return { email: email.toLowerCase(), id }
+}
+
+function parseSetCookie(raw: string) {
+  const [nameValue, ...attributes] = raw.split(';')
+  const separator = nameValue.indexOf('=')
+  if (separator <= 0) return null
+
+  const options: Record<string, boolean | Date | number | string> = {}
+
+  for (const attribute of attributes) {
+    const [rawName, ...rawValue] = attribute.trim().split('=')
+    const name = rawName.toLowerCase()
+    const value = rawValue.join('=')
+
+    if (name === 'httponly' || name === 'secure') options[name === 'httponly' ? 'httpOnly' : name] = true
+    if (name === 'path' && value) options.path = value
+    if (name === 'samesite' && value) options.sameSite = value.toLowerCase()
+    if (name === 'max-age' && Number.isFinite(Number(value))) options.maxAge = Number(value)
+    if (name === 'expires' && value) {
+      const expires = new Date(value)
+      if (!Number.isNaN(expires.getTime())) options.expires = expires
+    }
+  }
+
+  return { name: nameValue.slice(0, separator), options, value: nameValue.slice(separator + 1) }
+}
+
+async function signInWithNeonAuth(
+  email: string,
+  password: string,
+): Promise<NeonSignInResponse> {
+  const neonAuth = createManageNeonAuth()
+  if (!neonAuth) return { data: null, error: new Error('Neon Auth is not configured') }
+
+  const originOverride = process.env.NEON_AUTH_ORIGIN_OVERRIDE?.trim()
+  if (!originOverride) {
+    const { data, error } = await neonAuth.signIn.email({ email, password })
+    return { data, error }
+  }
+
+  // Isolated development auth may permit a fixed local origin only. The route
+  // handler still mints the standard signed session cookie for this app.
+  const response = await neonAuth.handler().POST(
+    new Request('https://manage.internal/api/auth/sign-in/email', {
+      body: JSON.stringify({ email, password }),
+      headers: { 'content-type': 'application/json', origin: originOverride },
+      method: 'POST',
+    }),
+    { params: Promise.resolve({ path: ['sign-in', 'email'] }) },
+  )
+
+  const cookieStore = await cookies()
+  for (const rawCookie of response.headers.getSetCookie()) {
+    const parsed = parseSetCookie(rawCookie)
+    if (parsed) cookieStore.set(parsed.name, parsed.value, parsed.options as any)
+  }
+
+  const data = (await response.json().catch(() => null)) as NeonSignInData
+  return { data, error: response.ok ? null : new Error('Neon Auth sign-in failed') }
 }
 
 async function getManageNeonSessionUser(): Promise<ManageUser | null> {
@@ -197,15 +267,14 @@ export async function signInManageUser(
   if (missingEnv.length > 0 || !provider) return 'configuration'
 
   if (provider === 'neon') {
-    const neonAuth = createManageNeonAuth()
-    if (!neonAuth) return 'configuration'
-
-    const { data, error } = await neonAuth.signIn.email({ email, password })
+    const { data, error } = await signInWithNeonAuth(email, password)
     const signedInEmail = data?.user?.email?.toLowerCase()
 
     if (error || !signedInEmail) return 'invalid'
 
     if (!isManageAdminEmail(signedInEmail)) {
+      const neonAuth = createManageNeonAuth()
+      if (!neonAuth) return 'configuration'
       await neonAuth.signOut()
       return 'forbidden'
     }
