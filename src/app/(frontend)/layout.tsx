@@ -48,6 +48,9 @@ export default async function RootLayout({ children }: { children: import('react
 
 export const metadata: Metadata = {
   metadataBase: new URL(getServerSideURL()),
+  verification: {
+    google: 'ZEw-UCFeIYvS_wmf10RHEnxx-8u6g3HeYx1EosTNQfw',
+  },
   openGraph: mergeOpenGraph(),
   twitter: {
     card: 'summary_large_image',
