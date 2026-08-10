@@ -35,7 +35,13 @@ async function main() {
   }
 
   for (const job of jobs) {
-    await transcribe(job)
+    try {
+      await transcribe(job)
+    } catch (error) {
+      console.error(
+        `Skipped ${job.kind} ${job.documentId}: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
   }
 }
 

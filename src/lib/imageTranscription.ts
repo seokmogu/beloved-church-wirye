@@ -39,6 +39,7 @@ export type ImageTranscriptionSource = {
 export function createImageTranscriptionSource(
   kind: ImageTranscriptionKind,
   doc: TranscribableDocument,
+  options: { baseURL?: string } = {},
 ): ImageTranscriptionSource | null {
   const images = (doc.images || [])
     .map((row) => (typeof row.image === 'object' && row.image ? row.image : null))
@@ -49,7 +50,7 @@ export function createImageTranscriptionSource(
         filename: media.filename || null,
         id: media.id || null,
         updatedAt: media.updatedAt || null,
-        url: toAbsoluteURL(media.url),
+        url: toAbsoluteURL(media.url, options.baseURL),
       }
     })
     .filter((image): image is NonNullable<typeof image> => Boolean(image))
@@ -124,7 +125,7 @@ function normalizeText(value: unknown, maxLength: number): string | null {
   return text && text.length <= maxLength ? text : null
 }
 
-function toAbsoluteURL(value: string): string {
+function toAbsoluteURL(value: string, baseURL?: string): string {
   if (value.startsWith('http://') || value.startsWith('https://')) return value
-  return new URL(value, getServerSideURL()).toString()
+  return new URL(value, baseURL || getServerSideURL()).toString()
 }

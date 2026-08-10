@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
   const payload = await getPayload({ config: configPromise })
   const collection = kind === 'bulletin' ? 'bulletins' : 'church-news'
   const doc = await payload.findByID({ collection, depth: 1, id: documentId })
-  const source = createImageTranscriptionSource(kind, doc)
+  const source = createImageTranscriptionSource(kind, doc, { baseURL: new URL(request.url).origin })
 
   if (!source || source.sourceHash !== sourceHash) {
     return NextResponse.json({ error: 'stale source', ok: false }, { status: 409 })
