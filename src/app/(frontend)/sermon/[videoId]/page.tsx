@@ -40,6 +40,8 @@ export default async function SermonDetailPage({ params: paramsPromise }: Args) 
   const sermonDate = formatDate(sermon?.publishedAt)
   const transcript = sermon?.publicTranscript?.trim()
   const hasTranscript = Boolean(transcript && sermon?.transcriptStatus !== 'unavailable')
+  const transcriptPreview = transcript ? createTranscriptPreview(transcript) : ''
+  const transcriptLength = transcript ? formatTranscriptLength(transcript) : null
 
   return (
     <main className="min-h-screen bg-background">
@@ -98,10 +100,21 @@ export default async function SermonDetailPage({ params: paramsPromise }: Args) 
             className="mt-6 border border-border bg-card"
             aria-labelledby="sermon-transcript-title"
           >
-            <details>
-              <summary className="cursor-pointer px-5 py-5 text-base font-semibold text-foreground marker:text-primary md:px-8">
-                <span id="sermon-transcript-title">
-                  {sermon?.transcriptStatus === 'reviewed' ? '설교 전문' : '자동 전사본'}
+            <details className="group">
+              <summary className="cursor-pointer list-none px-5 py-5 text-foreground md:px-8">
+                <span className="flex items-center justify-between gap-4">
+                  <span id="sermon-transcript-title" className="text-base font-semibold">
+                    영상 내용을 글로 읽기
+                  </span>
+                  <span className="shrink-0 text-sm font-medium text-primary">전체 전사 보기</span>
+                </span>
+                <span className="mt-2 block text-sm text-muted-foreground">
+                  {sermon?.transcriptStatus === 'reviewed'
+                    ? '검수 완료 전사본'
+                    : `자동 전사본${transcriptLength ? ` · 약 ${transcriptLength}` : ''}`}
+                </span>
+                <span className="mt-3 block max-w-3xl text-sm font-normal leading-6 text-muted-foreground">
+                  {transcriptPreview}
                 </span>
               </summary>
               <div className="border-t border-border px-5 py-6 md:px-8">
@@ -144,7 +157,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
     description:
       sermon?.publicTranscript && sermon.transcriptStatus !== 'unavailable'
         ? `${sermon.title} 설교 자동 전사본. ${createTranscriptExcerpt(sermon.publicTranscript)}`
-      : '사랑하는교회 설교 말씀',
+        : '사랑하는교회 설교 말씀',
   }
 }
 
@@ -152,6 +165,27 @@ function createTranscriptExcerpt(transcript: string) {
   const normalized = transcript.replace(/\s+/g, ' ').trim()
   if (normalized.length <= 140) return normalized
   return `${normalized.slice(0, 137).trimEnd()}...`
+}
+
+function createTranscriptPreview(transcript: string) {
+  const normalized = transcript
+    .replace(/\[\d{2}:\d{2}(?::\d{2})?\]\s*/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (normalized.length <= 220) return normalized
+  return `${normalized.slice(0, 217).trimEnd()}...`
+}
+
+function formatTranscriptLength(transcript: string) {
+  const timestamps = [...transcript.matchAll(/\[(\d{2}):(\d{2})(?::(\d{2}))?\]/g)]
+  const lastTimestamp = timestamps.at(-1)
+  if (!lastTimestamp) return null
+
+  const hours = Number(lastTimestamp[1])
+  const minutes = Number(lastTimestamp[2])
+  const seconds = Number(lastTimestamp[3] ?? 0)
+  const totalMinutes = Math.max(1, Math.ceil((hours * 3600 + minutes * 60 + seconds) / 60))
+  return `${totalMinutes}분`
 }
 
 /**
