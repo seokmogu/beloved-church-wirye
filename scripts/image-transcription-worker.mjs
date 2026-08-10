@@ -18,6 +18,7 @@ const documentIDs = new Set(
     .filter(Boolean),
 )
 const imageBatchSize = positiveIntegerEnv('IMAGE_TRANSCRIPTION_IMAGE_BATCH_SIZE', 4)
+const reasoningEffort = process.env.IMAGE_TRANSCRIPTION_REASONING_EFFORT || 'low'
 
 const schema = {
   additionalProperties: false,
@@ -88,6 +89,8 @@ async function transcribe(job) {
           '--skip-git-repo-check',
           '--sandbox',
           'read-only',
+          '--config',
+          `model_reasoning_effort="${reasoningEffort}"`,
           '--model',
           model,
           '--output-schema',
