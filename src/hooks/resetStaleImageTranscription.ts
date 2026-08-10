@@ -1,13 +1,18 @@
 import type { CollectionAfterChangeHook } from 'payload'
 
-import { imageSourcesChanged } from '@/lib/imageTranscription'
+import { dispatchImageTranscription } from '@/lib/imageTranscriptionDispatch'
+import { createImageTranscriptionSource, imageSourcesChanged } from '@/lib/imageTranscription'
 
 export function resetStaleImageTranscription(
   collection: 'bulletins' | 'church-news',
 ): CollectionAfterChangeHook {
   return async ({ context, doc, operation, previousDoc, req }) => {
-    if (context.skipImageTranscription || operation !== 'update') return doc
-    if (!imageSourcesChanged(doc, previousDoc)) return doc
+    if (context.skipImageTranscription) return doc
+    if (operation === 'update' && !imageSourcesChanged(doc, previousDoc)) return doc
+
+    const kind = collection === 'bulletins' ? 'bulletin' : 'church-news'
+    const source = createImageTranscriptionSource(kind, doc)
+    if (!source) return doc
 
     const accessibleContent =
       typeof doc.accessibleContent === 'object' && doc.accessibleContent ? doc.accessibleContent : {}
@@ -28,6 +33,12 @@ export function resetStaleImageTranscription(
       },
       id: doc.id,
       req,
+    })
+
+    await dispatchImageTranscription({
+      documentId: source.documentId,
+      kind: source.kind,
+      sourceHash: source.sourceHash,
     })
 
     return doc

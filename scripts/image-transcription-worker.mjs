@@ -14,6 +14,12 @@ const documentIDs = new Set(
     .map((value) => value.trim())
     .filter(Boolean),
 )
+const kinds = new Set(
+  (process.env.IMAGE_TRANSCRIPTION_KINDS || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
+)
 const imageBatchSize = positiveIntegerEnv('IMAGE_TRANSCRIPTION_IMAGE_BATCH_SIZE', 4)
 const reasoningEffort = process.env.IMAGE_TRANSCRIPTION_REASONING_EFFORT || 'low'
 
@@ -31,15 +37,21 @@ async function main() {
     return
   }
 
+  let failures = 0
   for (const job of selectedJobs) {
+    if (kinds.size > 0 && !kinds.has(job.kind)) continue
+
     try {
       await transcribe(job)
     } catch (error) {
+      failures += 1
       console.error(
         `Skipped ${job.kind} ${job.documentId}: ${error instanceof Error ? error.message : String(error)}`,
       )
     }
   }
+
+  if (failures > 0) throw new Error(`${failures} image transcription job(s) failed`)
 }
 
 async function transcribe(job) {
