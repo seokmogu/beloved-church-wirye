@@ -17,6 +17,7 @@ const documentIDs = new Set(
     .map((value) => value.trim())
     .filter(Boolean),
 )
+const imageBatchSize = positiveIntegerEnv('IMAGE_TRANSCRIPTION_IMAGE_BATCH_SIZE', 4)
 
 const schema = {
   additionalProperties: false,
@@ -72,30 +73,37 @@ async function transcribe(job) {
       }),
     )
     const schemaPath = join(directory, 'response-schema.json')
-    const outputPath = join(directory, 'response.json')
     await writeFile(schemaPath, JSON.stringify(schema))
 
-    await run(
-      codexBin,
-      [
-        'exec',
-        '--ephemeral',
-        '--skip-git-repo-check',
-        '--sandbox',
-        'read-only',
-        '--model',
-        model,
-        '--output-schema',
-        schemaPath,
-        '--output-last-message',
-        outputPath,
-        ...imagePaths.flatMap((path) => ['--image', path]),
-        promptFor(job),
-      ],
-      { maxBuffer: 1024 * 1024 * 4, timeout: 10 * 60_000 },
-    )
+    const results = []
+    for (let index = 0; index < imagePaths.length; index += imageBatchSize) {
+      const paths = imagePaths.slice(index, index + imageBatchSize)
+      const outputPath = join(directory, `response-${index}.json`)
 
-    const result = JSON.parse(await readFile(outputPath, 'utf8'))
+      await run(
+        codexBin,
+        [
+          'exec',
+          '--ephemeral',
+          '--skip-git-repo-check',
+          '--sandbox',
+          'read-only',
+          '--model',
+          model,
+          '--output-schema',
+          schemaPath,
+          '--output-last-message',
+          outputPath,
+          ...paths.flatMap((path) => ['--image', path]),
+          promptFor(job, paths.length),
+        ],
+        { maxBuffer: 1024 * 1024 * 4, timeout: 10 * 60_000 },
+      )
+
+      results.push(JSON.parse(await readFile(outputPath, 'utf8')))
+    }
+
+    const result = mergeResults(results)
     const saved = await request('/api/image-transcriptions/result', {
       body: JSON.stringify({
         documentId: job.documentId,
@@ -114,23 +122,35 @@ async function transcribe(job) {
   }
 }
 
-function promptFor(job) {
+function promptFor(job, imageCount) {
   const bulletinRule =
     job.kind === 'bulletin'
       ? '반복되는 예배 시간·장소 안내 섹션은 제외합니다.'
       : '광고마다 형식이 달라도 임의의 공통 제목이나 항목을 만들지 않습니다.'
 
-  return `첨부된 ${job.images.length}개 이미지를 원본 순서대로 전사하세요.
+  return `첨부된 ${imageCount}개 이미지를 원본 순서대로 전사하세요.
 
 규칙:
 - 이미지에 실제로 적힌 제목, 구획, 불릿, 줄바꿈 순서를 보존합니다.
 - 이미지에 없는 일정, 장소, 신청 방법, 연락처, 해석을 절대 추가하지 않습니다.
 - 각 이미지의 원문 제목이 있으면 그대로 Markdown 제목으로 기록합니다. 원문 제목이 없으면 제목을 만들지 않습니다.
 - 여러 이미지는 이미지에 적힌 제목을 기준으로 이어 쓰며, "이미지 1" 같은 인위적 표기를 추가하지 않습니다.
+- 이 묶음은 전체 이미지의 일부일 수 있으므로, 보이지 않는 앞뒤 내용은 추측하거나 보완하지 않습니다.
 - ${bulletinRule}
 - summary, seoTitle, seoDescription도 원문에 근거한 짧은 한국어 텍스트만 작성합니다.
 
 반드시 지정된 JSON 형식만 반환하세요.`
+}
+
+function mergeResults(results) {
+  const strings = (field) => results.map((result) => result?.[field]).filter((value) => typeof value === 'string')
+
+  return {
+    content: strings('content').join('\n\n').slice(0, 80_000),
+    seoDescription: strings('seoDescription').join(' ').slice(0, 500),
+    seoTitle: strings('seoTitle')[0]?.slice(0, 160) || '',
+    summary: strings('summary').join('\n').slice(0, 1_000),
+  }
 }
 
 function request(path, options = {}) {
@@ -148,6 +168,11 @@ function requiredEnv(name) {
   const value = process.env[name]?.trim()
   if (!value) throw new Error(`${name} is required`)
   return value
+}
+
+function positiveIntegerEnv(name, defaultValue) {
+  const value = Number(process.env[name])
+  return Number.isInteger(value) && value > 0 ? value : defaultValue
 }
 
 main().catch((error) => {
