@@ -4,9 +4,6 @@ import { execFile } from 'node:child_process'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { promisify } from 'node:util'
-
-const run = promisify(execFile)
 const siteURL = requiredEnv('IMAGE_TRANSCRIPTION_SITE_URL')
 const secret = requiredEnv('IMAGE_TRANSCRIPTION_WORKER_SECRET')
 const model = requiredEnv('IMAGE_TRANSCRIPTION_CODEX_MODEL')
@@ -66,9 +63,7 @@ async function transcribe(job) {
       const paths = imagePaths.slice(index, index + imageBatchSize)
       const outputPath = join(directory, `response-${index}.json`)
 
-      await run(
-        codexBin,
-        [
+      await runCodex([
           'exec',
           '--ephemeral',
           '--skip-git-repo-check',
@@ -82,13 +77,7 @@ async function transcribe(job) {
           outputPath,
           ...paths.flatMap((path) => ['--image', path]),
           promptFor(job, paths.length),
-        ],
-        {
-          maxBuffer: 1024 * 1024 * 4,
-          stdio: ['ignore', 'pipe', 'pipe'],
-          timeout: 10 * 60_000,
-        },
-      )
+        ])
 
       results.push(parseModelResult(await readFile(outputPath, 'utf8')))
     }
@@ -110,6 +99,28 @@ async function transcribe(job) {
   } finally {
     await rm(directory, { force: true, recursive: true })
   }
+}
+
+function runCodex(args) {
+  return new Promise((resolve, reject) => {
+    const child = execFile(
+      codexBin,
+      args,
+      { maxBuffer: 1024 * 1024 * 4, timeout: 10 * 60_000 },
+      (error, stdout, stderr) => {
+        if (error) {
+          error.message = `${error.message}${stderr ? `\n${stderr.trim()}` : ''}`
+          reject(error)
+          return
+        }
+        resolve(stdout)
+      },
+    )
+
+    // Codex accepts follow-up text from stdin. This worker provides the prompt
+    // as an argument, so leaving the pipe open would make it wait indefinitely.
+    child.stdin?.end()
+  })
 }
 
 function promptFor(job, imageCount) {
