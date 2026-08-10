@@ -142,7 +142,7 @@ function promptFor(job, imageCount) {
 - ${bulletinRule}
 - summary, seoTitle, seoDescription도 원문에 근거한 짧은 한국어 텍스트만 작성합니다.
 
-반드시 지정된 JSON 형식만 반환하세요.`
+반드시 {"content":"...","summary":"...","seoTitle":"...","seoDescription":"..."} 형식의 JSON 객체만 반환하세요.`
 }
 
 function mergeResults(results) {
