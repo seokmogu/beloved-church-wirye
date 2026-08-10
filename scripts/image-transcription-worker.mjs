@@ -11,6 +11,12 @@ const siteURL = requiredEnv('IMAGE_TRANSCRIPTION_SITE_URL')
 const secret = requiredEnv('IMAGE_TRANSCRIPTION_WORKER_SECRET')
 const model = requiredEnv('IMAGE_TRANSCRIPTION_CODEX_MODEL')
 const codexBin = process.env.IMAGE_TRANSCRIPTION_CODEX_BIN || 'cdx'
+const documentIDs = new Set(
+  (process.env.IMAGE_TRANSCRIPTION_DOCUMENT_IDS || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
+)
 
 const schema = {
   additionalProperties: false,
@@ -29,12 +35,16 @@ async function main() {
   if (!response.ok) throw new Error(`Could not load transcription queue: HTTP ${response.status}`)
 
   const { jobs } = await response.json()
-  if (!Array.isArray(jobs) || jobs.length === 0) {
+  const selectedJobs = Array.isArray(jobs)
+    ? jobs.filter((job) => documentIDs.size === 0 || documentIDs.has(String(job.documentId)))
+    : []
+
+  if (selectedJobs.length === 0) {
     console.log('No image transcription jobs are pending.')
     return
   }
 
-  for (const job of jobs) {
+  for (const job of selectedJobs) {
     try {
       await transcribe(job)
     } catch (error) {
