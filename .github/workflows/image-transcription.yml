@@ -36,6 +36,7 @@ jobs:
 
       - name: Transcribe current image set
         env:
+          IMAGE_TRANSCRIPTION_CODEX_BIN: /Users/aktn/.local/bin/cdx
           IMAGE_TRANSCRIPTION_CODEX_MODEL: gpt-5.6-luna
           IMAGE_TRANSCRIPTION_DOCUMENT_IDS: ${{ inputs.document_id }}
           IMAGE_TRANSCRIPTION_IMAGE_BATCH_SIZE: '1'
