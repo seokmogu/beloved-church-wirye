@@ -9,6 +9,7 @@ declare global {
       PREVIEW_SECRET?: string
       BLOB_READ_WRITE_TOKEN?: string
       INSTAGRAM_PUSH_SECRET?: string
+      IMAGE_TRANSCRIPTION_WORKER_SECRET?: string
       NEXT_PUBLIC_NAVER_MAP_CLIENT_ID?: string
       NEXT_PUBLIC_CHAT_ENABLED?: string
       NEXT_PUBLIC_GA_MEASUREMENT_ID?: string

@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { resetStaleImageTranscription } from '@/hooks/resetStaleImageTranscription'
+
 function defaultBulletinTitle(dateValue: unknown): string {
   const date = dateValue ? new Date(String(dateValue)) : new Date()
 
@@ -124,6 +126,7 @@ export const Bulletins: CollectionConfig = {
     },
   ],
   hooks: {
+    afterChange: [resetStaleImageTranscription('bulletins')],
     beforeValidate: [
       ({ data }) => {
         if (!data) return data

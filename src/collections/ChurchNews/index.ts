@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { resetStaleImageTranscription } from '@/hooks/resetStaleImageTranscription'
+
 function defaultChurchNewsTitle(dateValue: unknown): string {
   const date = dateValue ? new Date(String(dateValue)) : new Date()
 
@@ -131,6 +133,7 @@ export const ChurchNews: CollectionConfig = {
     },
   ],
   hooks: {
+    afterChange: [resetStaleImageTranscription('church-news')],
     beforeValidate: [
       ({ data }) => {
         if (!data) return data
