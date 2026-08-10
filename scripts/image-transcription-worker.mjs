@@ -63,7 +63,8 @@ async function transcribe(job) {
       const paths = imagePaths.slice(index, index + imageBatchSize)
       const outputPath = join(directory, `response-${index}.json`)
 
-      await runCodex([
+      await runCodex(
+        [
           'exec',
           '--ephemeral',
           '--skip-git-repo-check',
@@ -76,8 +77,9 @@ async function transcribe(job) {
           '--output-last-message',
           outputPath,
           ...paths.flatMap((path) => ['--image', path]),
-          promptFor(job, paths.length),
-        ])
+        ],
+        promptFor(job, paths.length),
+      )
 
       results.push(parseModelResult(await readFile(outputPath, 'utf8')))
     }
@@ -101,7 +103,7 @@ async function transcribe(job) {
   }
 }
 
-function runCodex(args) {
+function runCodex(args, prompt) {
   return new Promise((resolve, reject) => {
     const child = execFile(
       codexBin,
@@ -117,9 +119,9 @@ function runCodex(args) {
       },
     )
 
-    // Codex accepts follow-up text from stdin. This worker provides the prompt
-    // as an argument, so leaving the pipe open would make it wait indefinitely.
-    child.stdin?.end()
+    // Codex reads prompts from stdin in non-interactive execution. Ending the
+    // stream immediately after the prompt prevents it from waiting for follow-ups.
+    child.stdin?.end(prompt)
   })
 }
 
