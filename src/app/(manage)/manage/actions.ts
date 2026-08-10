@@ -79,13 +79,31 @@ export async function saveSermonAction(formData: FormData) {
   const id = optionalNumber(formData, 'id')
   const youtubeUrl = requiredString(formData, 'youtubeUrl')
   const youtubeId = extractYouTubeId(youtubeUrl)
+  const publicTranscript = optionalString(formData, 'publicTranscript')
+  const submittedTranscriptStatus = stringValue(formData, 'transcriptStatus')
+  const transcriptStatus =
+    submittedTranscriptStatus === 'automatic' || submittedTranscriptStatus === 'reviewed'
+      ? submittedTranscriptStatus
+      : 'unavailable'
+  const submittedTranscriptSource = stringValue(formData, 'transcriptSource')
+  const transcriptSource =
+    submittedTranscriptSource === 'whisper' ||
+    submittedTranscriptSource === 'youtube_automatic' ||
+    submittedTranscriptSource === 'combined' ||
+    submittedTranscriptSource === 'manual'
+      ? submittedTranscriptSource
+      : undefined
   // preacher/scriptureRef/sermonSeries/description은 공개 화면에 표시되지 않아 폼에서 제거됨.
   // 키를 아예 보내지 않아 기존 저장값은 보존한다.
   const data = {
+    publicTranscript: publicTranscript || null,
     sermonDate: dateInputToISO(stringValue(formData, 'sermonDate')),
     status: stringValue(formData, 'status') === 'draft' ? 'draft' : 'published',
     thumbnail: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : undefined,
     title: requiredString(formData, 'title'),
+    transcriptSource: publicTranscript ? transcriptSource : null,
+    transcriptStatus: publicTranscript ? transcriptStatus : 'unavailable',
+    transcriptUpdatedAt: publicTranscript ? new Date().toISOString() : null,
     youtubeId,
     youtubeUrl,
   }

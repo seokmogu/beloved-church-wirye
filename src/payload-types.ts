@@ -851,6 +851,17 @@ export interface Sermon {
    */
   sermonSeries?: string | null;
   /**
+   * An automatic or reviewed transcript shown publicly with a disclosure.
+   */
+  publicTranscript?: string | null;
+  transcriptStatus?: ('unavailable' | 'automatic' | 'reviewed') | null;
+  transcriptSource?: ('whisper' | 'youtube_automatic' | 'combined' | 'manual') | null;
+  transcriptUpdatedAt?: string | null;
+  /**
+   * Preserved processing source; never shown on the public site.
+   */
+  rawTranscript?: string | null;
+  /**
    * Select the publication status
    */
   status: 'draft' | 'published';
@@ -1652,6 +1663,11 @@ export interface SermonsSelect<T extends boolean = true> {
   thumbnail?: T;
   description?: T;
   sermonSeries?: T;
+  publicTranscript?: T;
+  transcriptStatus?: T;
+  transcriptSource?: T;
+  transcriptUpdatedAt?: T;
+  rawTranscript?: T;
   status?: T;
   updatedAt?: T;
   createdAt?: T;

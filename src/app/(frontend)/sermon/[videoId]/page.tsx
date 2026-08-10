@@ -38,6 +38,8 @@ export default async function SermonDetailPage({ params: paramsPromise }: Args) 
   const sermon = await querySermonByVideoId(videoId)
   const title = sermon?.title ?? '설교영상'
   const sermonDate = formatDate(sermon?.publishedAt)
+  const transcript = sermon?.publicTranscript?.trim()
+  const hasTranscript = Boolean(transcript && sermon?.transcriptStatus !== 'unavailable')
 
   return (
     <main className="min-h-screen bg-background">
@@ -91,6 +93,32 @@ export default async function SermonDetailPage({ params: paramsPromise }: Args) 
           </div>
         </article>
 
+        {hasTranscript && transcript ? (
+          <section
+            className="mt-6 border border-border bg-card"
+            aria-labelledby="sermon-transcript-title"
+          >
+            <details>
+              <summary className="cursor-pointer px-5 py-5 text-base font-semibold text-foreground marker:text-primary md:px-8">
+                <span id="sermon-transcript-title">
+                  {sermon?.transcriptStatus === 'reviewed' ? '설교 전문' : '자동 전사본'}
+                </span>
+              </summary>
+              <div className="border-t border-border px-5 py-6 md:px-8">
+                {sermon?.transcriptStatus !== 'reviewed' ? (
+                  <p className="mb-5 rounded-md bg-muted px-4 py-3 text-sm leading-6 text-muted-foreground">
+                    이 내용은 음성을 자동으로 전사한 참고용 텍스트입니다. 일부 표현·고유명사·성경
+                    장절에 오류가 있을 수 있으니, 정확한 내용은 영상으로 확인해 주세요.
+                  </p>
+                ) : null}
+                <div className="whitespace-pre-wrap break-words text-[15px] leading-8 text-foreground">
+                  {transcript}
+                </div>
+              </div>
+            </details>
+          </section>
+        ) : null}
+
         <div className="mt-6 flex justify-center">
           <Link
             href="/sermon"
@@ -113,8 +141,17 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const sermon = await querySermonByVideoId(videoId)
   return {
     title: sermon?.title ? `${sermon.title} | 사랑하는교회` : '설교영상 | 사랑하는교회',
-    description: '사랑하는교회 설교 말씀',
+    description:
+      sermon?.publicTranscript && sermon.transcriptStatus !== 'unavailable'
+        ? `${sermon.title} 설교 자동 전사본. ${createTranscriptExcerpt(sermon.publicTranscript)}`
+      : '사랑하는교회 설교 말씀',
   }
+}
+
+function createTranscriptExcerpt(transcript: string) {
+  const normalized = transcript.replace(/\s+/g, ' ').trim()
+  if (normalized.length <= 140) return normalized
+  return `${normalized.slice(0, 137).trimEnd()}...`
 }
 
 /**
@@ -122,12 +159,25 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
  * 어느 쪽에도 없으면 null — 페이지는 임베드 플레이어만으로도 동작한다.
  */
 const querySermonByVideoId = cache(
-  async (videoId: string): Promise<{ publishedAt?: string | null; title: string } | null> => {
+  async (
+    videoId: string,
+  ): Promise<{
+    publishedAt?: string | null
+    publicTranscript?: string | null
+    title: string
+    transcriptStatus?: 'unavailable' | 'automatic' | 'reviewed' | null
+  } | null> => {
     try {
       const payload = await getPayload({ config: configPromise })
       const result = await payload.find({
         collection: 'sermons',
         limit: 1,
+        select: {
+          publicTranscript: true,
+          sermonDate: true,
+          title: true,
+          transcriptStatus: true,
+        },
         where: {
           status: { equals: 'published' },
           youtubeId: { equals: videoId },
@@ -135,7 +185,12 @@ const querySermonByVideoId = cache(
       })
       const doc = result.docs[0]
       if (doc?.title) {
-        return { publishedAt: doc.sermonDate, title: doc.title }
+        return {
+          publishedAt: doc.sermonDate,
+          publicTranscript: doc.publicTranscript,
+          title: doc.title,
+          transcriptStatus: doc.transcriptStatus,
+        }
       }
     } catch {
       // sermons 조회 실패 시 RSS로 폴백
