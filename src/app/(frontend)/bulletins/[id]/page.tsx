@@ -112,6 +112,7 @@ export default async function BulletinDetailPage({ params: paramsPromise }: Args
 
           <AccessibleContent
             content={bulletin.accessibleContent?.content}
+            excludeSections={['예배 안내']}
             summary={bulletin.accessibleContent?.summary}
           />
 

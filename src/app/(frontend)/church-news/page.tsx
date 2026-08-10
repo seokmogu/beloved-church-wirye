@@ -105,9 +105,14 @@ export default async function ChurchNewsPage() {
                     )}
                   </div>
                   <div className="p-4">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
-                      {formatDate(item.date)}
-                    </p>
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                        {formatDate(item.date)}
+                      </p>
+                      <span className="shrink-0 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary">
+                        이미지 {item.images?.length || 0}장
+                      </span>
+                    </div>
                     <h2 className="line-clamp-2 text-lg font-semibold text-foreground">
                       {item.title || '교회소식'}
                     </h2>
@@ -116,9 +121,7 @@ export default async function ChurchNewsPage() {
                         {item.description}
                       </p>
                     ) : null}
-                    <p className="mt-3 text-xs text-muted-foreground">
-                      이미지 {item.images?.length || 0}장
-                    </p>
+                    <p className="mt-3 text-xs text-muted-foreground">이미지를 눌러 광고 내용을 이어서 확인하세요.</p>
                   </div>
                 </Link>
               )

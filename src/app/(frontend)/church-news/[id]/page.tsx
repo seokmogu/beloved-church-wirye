@@ -66,7 +66,18 @@ export default async function ChurchNewsDetailPage({ params }: PageProps) {
         >
           {item.description}
         </FormattedText>
-        <ChurchNewsGallery images={galleryImages} title={item.title || '교회소식'} />
+        <section aria-labelledby="church-news-images-heading">
+          <div className="mx-auto mb-4 flex max-w-3xl flex-col gap-2 border-l-2 border-primary pl-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">IMAGE NOTICE</p>
+              <h2 id="church-news-images-heading" className="mt-1 text-xl font-semibold text-foreground">
+                이번 주 광고 이미지
+              </h2>
+            </div>
+            <p className="text-sm text-muted-foreground">좌우 버튼 또는 아래 썸네일로 넘겨 보세요.</p>
+          </div>
+          <ChurchNewsGallery images={galleryImages} title={item.title || '교회소식'} />
+        </section>
         <div className="mt-8">
           <AccessibleContent
             content={item.accessibleContent?.content}

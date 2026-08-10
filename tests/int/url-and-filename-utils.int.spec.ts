@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { getChurchNewsImageSource } from '@/app/(frontend)/church-news/mediaImage'
 import { normalizeInstagramPostInput } from '@/lib/instagram'
+import { excludeMarkdownSections } from '@/utilities/accessibleContent'
 import { toRelativeInternalURL } from '@/utilities/internalUrl'
 import { sanitizeMediaFilename, toRelativeMediaURL } from '@/utilities/mediaFiles'
 
@@ -110,5 +111,52 @@ describe('getChurchNewsImageSource', () => {
   it('URL이 없으면 정적 경로만 쓴다', () => {
     const media = { filename: 'legacy.webp', url: null } as never
     expect(getChurchNewsImageSource(media, [])).toEqual({ src: '/media/legacy.webp' })
+  })
+
+  it('초기 교회소식 WebP가 개발 Blob에 없으면 레거시 PNG 원본으로 폴백한다', () => {
+    const media = {
+      filename: 'KakaoTalk_Photo_2026-05-30-16-49-50-016-900x1125.webp',
+      url: '/api/media/file/KakaoTalk_Photo_2026-05-30-16-49-50-016-900x1125.webp',
+    } as never
+
+    expect(getChurchNewsImageSource(media, [])).toEqual({
+      fallbackSrc: '/media/KakaoTalk_Photo_2026-05-30-16-49-50%20016.png',
+      src: '/api/media/file/KakaoTalk_Photo_2026-05-30-16-49-50-016-900x1125.webp',
+    })
+  })
+})
+
+describe('excludeMarkdownSections', () => {
+  it('반복 예배 안내 섹션을 본문과 복사 텍스트에서 제외한다', () => {
+    const content = [
+      '## 설교',
+      '선한 목자, 예수',
+      '',
+      '**예배 안내**',
+      '주일예배: 낮 12:00',
+      '',
+      '## 나눔 질문',
+      '이번 주 말씀을 나눠 보세요.',
+    ].join('\n')
+
+    expect(excludeMarkdownSections(content, ['예배 안내'])).toBe(
+      '## 설교\n선한 목자, 예수\n\n## 나눔 질문\n이번 주 말씀을 나눠 보세요.',
+    )
+  })
+
+  it('주보의 I, B, C, S 제목과 원문 불릿 순서는 유지한다', () => {
+    const content = [
+      '## I intro 예수님의 자기소개',
+      '## B body 나는 선한 목자라',
+      '- ① 예수님의 완전한 성품',
+      '- ② 예수님의 완전한 지식',
+      '- ③ 예수님의 완전한 희생',
+      '## C conclusion 선한 목자, 예수',
+      '## S share in crew',
+      '- ① 첫 번째 나눔',
+      '- ② 두 번째 나눔',
+    ].join('\n')
+
+    expect(excludeMarkdownSections(content, ['예배 안내'])).toBe(content)
   })
 })

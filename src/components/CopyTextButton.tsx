@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 type CopyTextButtonProps = {
+  label?: string
   text: string
 }
 
@@ -22,7 +23,7 @@ function copyViaTextarea(text: string): boolean {
   }
 }
 
-export function CopyTextButton({ text }: CopyTextButtonProps) {
+export function CopyTextButton({ label = '텍스트 복사', text }: CopyTextButtonProps) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -50,7 +51,7 @@ export function CopyTextButton({ text }: CopyTextButtonProps) {
       className="rounded-md border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:cursor-default disabled:text-primary"
       disabled={copied}
     >
-      {copied ? '복사되었습니다' : '텍스트 복사'}
+      {copied ? '복사되었습니다' : label}
     </button>
   )
 }

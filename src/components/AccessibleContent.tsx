@@ -1,14 +1,18 @@
 import { FormattedText } from '@/components/FormattedText'
+import { excludeMarkdownSections } from '@/utilities/accessibleContent'
 
 import { CopyTextButton } from './CopyTextButton'
 
 type AccessibleContentProps = {
   content?: string | null
+  excludeSections?: string[]
   summary?: string | null
 }
 
-export function AccessibleContent({ content, summary }: AccessibleContentProps) {
-  const normalizedContent = content?.trim()
+export function AccessibleContent({ content, excludeSections = [], summary }: AccessibleContentProps) {
+  const normalizedContent = content
+    ? excludeMarkdownSections(content, excludeSections)
+    : undefined
   const normalizedSummary = summary?.trim()
   const copyText = [normalizedSummary, normalizedContent].filter(Boolean).join('\n\n')
 
@@ -16,35 +20,19 @@ export function AccessibleContent({ content, summary }: AccessibleContentProps) 
 
   return (
     <section
-      aria-labelledby="image-content-text-heading"
+      aria-label="이미지 전사 텍스트"
       className="border-t border-border bg-muted/15 px-5 py-8 md:px-8 md:py-10"
     >
       <div className="mx-auto max-w-3xl">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-primary">ACCESSIBLE TEXT</p>
-            <h2 id="image-content-text-heading" className="mt-1 text-xl font-semibold text-foreground">
-              이미지 내용 텍스트
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              원본 이미지의 내용을 읽고 검색·복사할 수 있도록 정리한 텍스트입니다.
-            </p>
-          </div>
-          <CopyTextButton text={copyText} />
-        </div>
-
         {normalizedSummary && (
-          <div className="mt-6 rounded-md border border-primary/20 bg-card p-4">
-            <h3 className="text-sm font-semibold text-foreground">이번 주 한눈에</h3>
-            <p className="mt-2 whitespace-pre-line text-sm leading-6 text-muted-foreground">
-              {normalizedSummary}
-            </p>
-          </div>
+          <p className="border-l-2 border-primary/70 pl-4 text-sm leading-6 text-muted-foreground">
+            {normalizedSummary}
+          </p>
         )}
 
         {normalizedContent && (
           <FormattedText
-            className="mt-7 space-y-4 text-[15px] leading-7 text-foreground"
+            className={`${normalizedSummary ? 'mt-7' : ''} space-y-4 text-[15px] leading-7 text-foreground`}
             headingClassName="pt-2 text-lg font-semibold leading-snug text-foreground"
             itemClassName="pl-1"
             listClassName="space-y-2"
@@ -53,6 +41,10 @@ export function AccessibleContent({ content, summary }: AccessibleContentProps) 
             {normalizedContent}
           </FormattedText>
         )}
+
+        <div className="mt-8 flex justify-end border-t border-border/80 pt-4">
+          <CopyTextButton label="내용 복사" text={copyText} />
+        </div>
       </div>
     </section>
   )
