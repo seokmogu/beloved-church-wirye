@@ -20,18 +20,6 @@ const documentIDs = new Set(
 const imageBatchSize = positiveIntegerEnv('IMAGE_TRANSCRIPTION_IMAGE_BATCH_SIZE', 4)
 const reasoningEffort = process.env.IMAGE_TRANSCRIPTION_REASONING_EFFORT || 'low'
 
-const schema = {
-  additionalProperties: false,
-  properties: {
-    content: { type: 'string' },
-    seoDescription: { type: 'string' },
-    seoTitle: { type: 'string' },
-    summary: { type: 'string' },
-  },
-  required: ['content', 'seoDescription', 'seoTitle', 'summary'],
-  type: 'object',
-}
-
 async function main() {
   const response = await request('/api/image-transcriptions/pending')
   if (!response.ok) throw new Error(`Could not load transcription queue: HTTP ${response.status}`)
@@ -73,9 +61,6 @@ async function transcribe(job) {
         return path
       }),
     )
-    const schemaPath = join(directory, 'response-schema.json')
-    await writeFile(schemaPath, JSON.stringify(schema))
-
     const results = []
     for (let index = 0; index < imagePaths.length; index += imageBatchSize) {
       const paths = imagePaths.slice(index, index + imageBatchSize)
@@ -93,8 +78,6 @@ async function transcribe(job) {
           `model_reasoning_effort="${reasoningEffort}"`,
           '--model',
           model,
-          '--output-schema',
-          schemaPath,
           '--output-last-message',
           outputPath,
           ...paths.flatMap((path) => ['--image', path]),
@@ -103,7 +86,7 @@ async function transcribe(job) {
         { maxBuffer: 1024 * 1024 * 4, timeout: 10 * 60_000 },
       )
 
-      results.push(JSON.parse(await readFile(outputPath, 'utf8')))
+      results.push(parseModelResult(await readFile(outputPath, 'utf8')))
     }
 
     const result = mergeResults(results)
@@ -154,6 +137,19 @@ function mergeResults(results) {
     seoTitle: strings('seoTitle')[0]?.slice(0, 160) || '',
     summary: strings('summary').join('\n').slice(0, 1_000),
   }
+}
+
+function parseModelResult(raw) {
+  const text = raw.trim()
+  const start = text.indexOf('{')
+  const end = text.lastIndexOf('}')
+  if (start < 0 || end < start) throw new Error('Model response did not contain JSON')
+
+  const value = JSON.parse(text.slice(start, end + 1))
+  if (!value || typeof value.content !== 'string' || !value.content.trim()) {
+    throw new Error('Model response did not contain transcription content')
+  }
+  return value
 }
 
 function request(path, options = {}) {
