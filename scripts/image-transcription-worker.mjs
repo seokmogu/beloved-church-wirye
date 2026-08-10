@@ -83,7 +83,11 @@ async function transcribe(job) {
           ...paths.flatMap((path) => ['--image', path]),
           promptFor(job, paths.length),
         ],
-        { maxBuffer: 1024 * 1024 * 4, timeout: 10 * 60_000 },
+        {
+          maxBuffer: 1024 * 1024 * 4,
+          stdio: ['ignore', 'pipe', 'pipe'],
+          timeout: 10 * 60_000,
+        },
       )
 
       results.push(parseModelResult(await readFile(outputPath, 'utf8')))
