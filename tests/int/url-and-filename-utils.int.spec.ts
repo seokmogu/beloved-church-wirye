@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { getChurchNewsImageSource } from '@/app/(frontend)/church-news/mediaImage'
+import { composeAdvertisementTranscript } from '@/lib/accessibleContent/advertisement'
 import { normalizeInstagramPostInput } from '@/lib/instagram'
 import { excludeMarkdownSections } from '@/utilities/accessibleContent'
 import { toRelativeInternalURL } from '@/utilities/internalUrl'
@@ -158,5 +159,24 @@ describe('excludeMarkdownSections', () => {
     ].join('\n')
 
     expect(excludeMarkdownSections(content, ['예배 안내'])).toBe(content)
+  })
+})
+
+describe('composeAdvertisementTranscript', () => {
+  it('광고 원문의 임의 제목·구획·불릿 순서를 변경하거나 정보를 만들지 않는다', () => {
+    expect(
+      composeAdvertisementTranscript([
+        '## 청년부 여름 수련회',
+        '### 준비물\n- 성경책\n- 물병',
+        '신청: 카카오톡 채널',
+        '',
+      ]),
+    ).toBe(`## 청년부 여름 수련회
+
+### 준비물
+- 성경책
+- 물병
+
+신청: 카카오톡 채널`)
   })
 })

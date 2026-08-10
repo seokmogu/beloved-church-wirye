@@ -80,6 +80,7 @@ export default async function ChurchNewsDetailPage({ params }: PageProps) {
         </section>
         <div className="mt-8">
           <AccessibleContent
+            ariaLabel="광고 내용 텍스트"
             content={item.accessibleContent?.content}
             summary={item.accessibleContent?.summary}
           />

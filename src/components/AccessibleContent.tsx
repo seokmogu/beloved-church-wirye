@@ -4,12 +4,18 @@ import { excludeMarkdownSections } from '@/utilities/accessibleContent'
 import { CopyTextButton } from './CopyTextButton'
 
 type AccessibleContentProps = {
+  ariaLabel?: string
   content?: string | null
   excludeSections?: string[]
   summary?: string | null
 }
 
-export function AccessibleContent({ content, excludeSections = [], summary }: AccessibleContentProps) {
+export function AccessibleContent({
+  ariaLabel = '이미지 전사 텍스트',
+  content,
+  excludeSections = [],
+  summary,
+}: AccessibleContentProps) {
   const normalizedContent = content
     ? excludeMarkdownSections(content, excludeSections)
     : undefined
@@ -20,7 +26,7 @@ export function AccessibleContent({ content, excludeSections = [], summary }: Ac
 
   return (
     <section
-      aria-label="이미지 전사 텍스트"
+      aria-label={ariaLabel}
       className="border-t border-border bg-muted/15 px-5 py-8 md:px-8 md:py-10"
     >
       <div className="mx-auto max-w-3xl">

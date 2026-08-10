@@ -113,7 +113,7 @@ export const ChurchNews: CollectionConfig = {
       label: '자동 전사 · 검색용 텍스트',
       admin: {
         description:
-          '이미지 전사 작업이 완료되면 자동으로 채워집니다. 공개 페이지의 이미지 아래에 실제 텍스트로 표시됩니다.',
+          '광고 이미지의 제목·구획·불릿 순서를 원문 그대로 기록합니다. 이미지에 없는 정보를 만들지 않으며, 공개 페이지와 검색 결과에 사용됩니다.',
       },
       fields: [
         { name: 'summary', type: 'textarea', label: '요약', admin: { rows: 3 } },

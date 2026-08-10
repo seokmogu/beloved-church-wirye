@@ -111,6 +111,7 @@ export default async function BulletinDetailPage({ params: paramsPromise }: Args
           </div>
 
           <AccessibleContent
+            ariaLabel="주보 내용 텍스트"
             content={bulletin.accessibleContent?.content}
             excludeSections={['예배 안내']}
             summary={bulletin.accessibleContent?.summary}

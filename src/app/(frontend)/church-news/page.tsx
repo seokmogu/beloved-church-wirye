@@ -81,6 +81,7 @@ export default async function ChurchNewsPage() {
             {items.map((item) => {
               const media = firstMedia(item.images)
               const imageSource = getChurchNewsImageSource(media, ['medium', 'small'])
+              const summary = item.accessibleContent?.summary || item.description
               return (
                 <Link
                   className="group overflow-hidden rounded-md border border-border bg-card transition-shadow hover:shadow-md"
@@ -116,9 +117,9 @@ export default async function ChurchNewsPage() {
                     <h2 className="line-clamp-2 text-lg font-semibold text-foreground">
                       {item.title || '교회소식'}
                     </h2>
-                    {item.description ? (
+                    {summary ? (
                       <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                        {item.description}
+                        {summary}
                       </p>
                     ) : null}
                     <p className="mt-3 text-xs text-muted-foreground">이미지를 눌러 광고 내용을 이어서 확인하세요.</p>
