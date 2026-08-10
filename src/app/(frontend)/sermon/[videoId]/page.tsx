@@ -100,21 +100,32 @@ export default async function SermonDetailPage({ params: paramsPromise }: Args) 
             className="mt-6 border border-border bg-card"
             aria-labelledby="sermon-transcript-title"
           >
-            <details className="group">
-              <summary className="cursor-pointer list-none px-5 py-5 text-foreground md:px-8">
-                <span className="flex items-center justify-between gap-4">
-                  <span id="sermon-transcript-title" className="text-base font-semibold">
-                    영상 내용을 글로 읽기
-                  </span>
-                  <span className="shrink-0 text-sm font-medium text-primary">전체 전사 보기</span>
-                </span>
-                <span className="mt-2 block text-sm text-muted-foreground">
+            <div className="px-5 pt-5 md:px-8 md:pt-6">
+              <div className="flex items-center justify-between gap-4">
+                <h2
+                  id="sermon-transcript-title"
+                  className="text-base font-semibold text-foreground"
+                >
+                  영상 내용을 글로 읽기
+                </h2>
+                <span className="shrink-0 text-sm text-muted-foreground">
                   {sermon?.transcriptStatus === 'reviewed'
                     ? '검수 완료 전사본'
                     : `자동 전사본${transcriptLength ? ` · 약 ${transcriptLength}` : ''}`}
                 </span>
-                <span className="mt-3 block max-w-3xl text-sm font-normal leading-6 text-muted-foreground">
-                  {transcriptPreview}
+              </div>
+              <p className="mt-3 line-clamp-3 max-w-3xl text-sm leading-6 text-muted-foreground">
+                {transcriptPreview}
+              </p>
+            </div>
+            <details className="group">
+              <summary className="mt-5 cursor-pointer list-none border-t border-border px-5 py-4 text-foreground md:px-8">
+                <span className="flex items-center justify-between gap-4">
+                  <span className="shrink-0 text-sm font-medium text-primary">전체 전사 보기</span>
+                  <span className="text-sm text-muted-foreground group-open:hidden">계속 읽기</span>
+                  <span className="hidden text-sm text-muted-foreground group-open:inline">
+                    접기
+                  </span>
                 </span>
               </summary>
               <div className="border-t border-border px-5 py-6 md:px-8">
@@ -172,8 +183,8 @@ function createTranscriptPreview(transcript: string) {
     .replace(/\[\d{2}:\d{2}(?::\d{2})?\]\s*/g, '')
     .replace(/\s+/g, ' ')
     .trim()
-  if (normalized.length <= 220) return normalized
-  return `${normalized.slice(0, 217).trimEnd()}...`
+  if (normalized.length <= 360) return normalized
+  return `${normalized.slice(0, 357).trimEnd()}...`
 }
 
 function formatTranscriptLength(transcript: string) {
