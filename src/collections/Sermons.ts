@@ -241,6 +241,93 @@ export const Sermons: CollectionConfig = {
       ],
     },
     {
+      type: 'collapsible',
+      label: '설교 전사본',
+      admin: {
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          name: 'publicTranscript',
+          type: 'textarea',
+          label: {
+            ko: '공개 전사본',
+            en: 'Public transcript',
+          },
+          admin: {
+            description: {
+              ko: '자동 전사본 또는 검수한 전사본입니다. 공개 화면에는 자동 전사 안내와 함께 표시됩니다.',
+              en: 'An automatic or reviewed transcript shown publicly with a disclosure.',
+            },
+          },
+        },
+        {
+          name: 'transcriptStatus',
+          type: 'select',
+          label: {
+            ko: '전사 상태',
+            en: 'Transcript status',
+          },
+          defaultValue: 'unavailable',
+          options: [
+            { label: { ko: '전사본 없음', en: 'Unavailable' }, value: 'unavailable' },
+            { label: { ko: '자동 전사본', en: 'Automatic' }, value: 'automatic' },
+            { label: { ko: '검수 완료', en: 'Reviewed' }, value: 'reviewed' },
+          ],
+        },
+        {
+          name: 'transcriptSource',
+          type: 'select',
+          label: {
+            ko: '전사 출처',
+            en: 'Transcript source',
+          },
+          options: [
+            { label: { ko: 'Whisper', en: 'Whisper' }, value: 'whisper' },
+            {
+              label: { ko: 'YouTube 자동 자막', en: 'YouTube automatic captions' },
+              value: 'youtube_automatic',
+            },
+            {
+              label: { ko: 'Whisper·YouTube 대조', en: 'Whisper and YouTube compared' },
+              value: 'combined',
+            },
+            { label: { ko: '관리자 직접 입력', en: 'Manually entered' }, value: 'manual' },
+          ],
+        },
+        {
+          name: 'transcriptUpdatedAt',
+          type: 'date',
+          label: {
+            ko: '전사본 갱신일',
+            en: 'Transcript updated at',
+          },
+          admin: {
+            readOnly: true,
+          },
+        },
+        {
+          name: 'rawTranscript',
+          type: 'textarea',
+          label: {
+            ko: '원문 전사본 (관리자 전용)',
+            en: 'Raw transcript (admin only)',
+          },
+          access: {
+            create: ({ req: { user } }) => Boolean(user),
+            read: ({ req: { user } }) => Boolean(user),
+            update: ({ req: { user } }) => Boolean(user),
+          },
+          admin: {
+            description: {
+              ko: '자동 처리 원문 보관용입니다. 공개 화면에는 표시되지 않습니다.',
+              en: 'Preserved processing source; never shown on the public site.',
+            },
+          },
+        },
+      ],
+    },
+    {
       name: 'status',
       type: 'select',
       label: {

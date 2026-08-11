@@ -48,6 +48,43 @@ export function SermonForm({ doc, error }: { doc?: Sermon; error?: string }) {
             </select>
           </div>
         </div>
+        <fieldset className="manage-field" style={{ marginTop: 24 }}>
+          <legend>설교 전사본 (선택)</legend>
+          <p className="manage-field-description">
+            자동 전사본은 오류가 있을 수 있다는 안내와 함께 공개됩니다. 전사 내용이 없으면 페이지에
+            표시되지 않습니다.
+          </p>
+          <label htmlFor="transcriptStatus">전사 상태</label>
+          <select
+            defaultValue={doc?.transcriptStatus || 'unavailable'}
+            id="transcriptStatus"
+            name="transcriptStatus"
+          >
+            <option value="unavailable">전사본 없음</option>
+            <option value="automatic">자동 전사본</option>
+            <option value="reviewed">검수 완료</option>
+          </select>
+          <label htmlFor="transcriptSource">전사 출처</label>
+          <select
+            defaultValue={doc?.transcriptSource || ''}
+            id="transcriptSource"
+            name="transcriptSource"
+          >
+            <option value="">선택 안 함</option>
+            <option value="whisper">Whisper</option>
+            <option value="youtube_automatic">YouTube 자동 자막</option>
+            <option value="combined">Whisper·YouTube 대조</option>
+            <option value="manual">관리자 직접 입력</option>
+          </select>
+          <label htmlFor="publicTranscript">공개 전사본</label>
+          <textarea
+            defaultValue={doc?.publicTranscript || ''}
+            id="publicTranscript"
+            name="publicTranscript"
+            placeholder="자동 전사한 설교 내용을 붙여넣으세요."
+            rows={16}
+          />
+        </fieldset>
         {/* 설교자/성경본문/시리즈/설명은 공개 화면에 표시되지 않아 입력을 받지 않는다 */}
         <div className="manage-form-actions">
           <Link className="manage-button secondary" href="/manage/sermons">
