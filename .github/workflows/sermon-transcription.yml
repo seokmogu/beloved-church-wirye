@@ -10,6 +10,10 @@ on:
         description: Optional YouTube video ID for an immediate transcription
         required: false
         type: string
+      site_url:
+        description: Development preview URL for an isolated branch test (required outside main)
+        required: false
+        type: string
 
 concurrency:
   group: sermon-transcription
@@ -18,6 +22,7 @@ concurrency:
 jobs:
   transcribe:
     name: Transcribe newly published sermons
+    if: github.ref == 'refs/heads/main' || inputs.site_url != ''
     runs-on: [self-hosted, macstudio, image-transcription]
     timeout-minutes: 90
     steps:
@@ -32,7 +37,7 @@ jobs:
       - name: Transcribe and publish automatically
         env:
           SERMON_TRANSCRIPTION_RUNNER: /Users/aktn/project/beloved-church-sermon-worker/bin/run-sermon
-          SERMON_TRANSCRIPTION_SITE_URL: https://www.belovedchurch.co.kr
+          SERMON_TRANSCRIPTION_SITE_URL: ${{ github.ref == 'refs/heads/main' && 'https://www.belovedchurch.co.kr' || inputs.site_url }}
           SERMON_TRANSCRIPTION_VIDEO_IDS: ${{ inputs.video_id }}
-          SERMON_TRANSCRIPTION_WORKER_SECRET: ${{ secrets.PRODUCTION_SERMON_TRANSCRIPTION_WORKER_SECRET }}
+          SERMON_TRANSCRIPTION_WORKER_SECRET: ${{ github.ref == 'refs/heads/main' && secrets.PRODUCTION_SERMON_TRANSCRIPTION_WORKER_SECRET || secrets.DEV_SERMON_TRANSCRIPTION_WORKER_SECRET }}
         run: node scripts/sermon-transcription-worker.mjs
