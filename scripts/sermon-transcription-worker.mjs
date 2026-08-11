@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
-import { dirname, resolve } from 'node:path'
+import { dirname, resolve as resolvePath } from 'node:path'
 
 const siteURL = process.env.SERMON_TRANSCRIPTION_SITE_URL?.replace(/\/$/, '')
 const workerSecret = process.env.SERMON_TRANSCRIPTION_WORKER_SECRET
@@ -93,7 +93,7 @@ async function request(path, options = {}) {
 function run(command, args) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
-      cwd: resolve(dirname(command), '..'),
+      cwd: resolvePath(dirname(command), '..'),
       stdio: ['ignore', 'pipe', 'pipe'],
     })
     let stdout = ''
