@@ -61,3 +61,10 @@ jobs:
           SERMON_TRANSCRIPTION_VIDEO_IDS: ${{ inputs.video_id }}
           SERMON_TRANSCRIPTION_WORKER_SECRET: ${{ github.ref == 'refs/heads/main' && secrets.PRODUCTION_SERMON_TRANSCRIPTION_WORKER_SECRET || secrets.DEV_SERMON_TRANSCRIPTION_WORKER_SECRET }}
         run: node scripts/sermon-transcription-worker.mjs
+
+      - name: Inspect failed worker run
+        if: failure() && github.ref != 'refs/heads/main'
+        run: |
+          latest_run="$(ls -td /Users/aktn/.beloved-church/sermon-transcription/runs/* 2>/dev/null | head -1)"
+          test -n "$latest_run"
+          cat "$latest_run/manifest.json"
