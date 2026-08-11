@@ -6,6 +6,7 @@ on:
       - codex/sermon-auto-publication
     paths:
       - .github/workflows/sermon-transcription.yml
+      - scripts/sermon-transcription-worker.mjs
   schedule:
     # GitHub Actions cron is UTC: Sunday 17:17 UTC = Monday 02:17 KST.
     - cron: '17 17 * * 0'
