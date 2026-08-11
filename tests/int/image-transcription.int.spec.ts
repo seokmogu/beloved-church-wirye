@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { CollectionAfterChangeHook, PayloadRequest } from 'payload'
 
 import { resetStaleImageTranscription } from '@/hooks/resetStaleImageTranscription'
 import {
@@ -71,9 +72,11 @@ describe('image transcription source', () => {
 
   it('clears stale text when the final image is removed without scheduling a worker', async () => {
     const update = vi.fn().mockResolvedValue({})
-
-    await resetStaleImageTranscription('church-news')({
+    const req = { payload: { update } } as unknown as PayloadRequest
+    const hookArgs: Parameters<CollectionAfterChangeHook>[0] = {
+      collection: {} as Parameters<CollectionAfterChangeHook>[0]['collection'],
       context: {},
+      data: {},
       doc: {
         accessibleContent: {
           content: '오래된 전사',
@@ -87,8 +90,10 @@ describe('image transcription source', () => {
       },
       operation: 'update',
       previousDoc: document,
-      req: { payload: { update } },
-    } as any)
+      req,
+    }
+
+    await resetStaleImageTranscription('church-news')(hookArgs)
 
     expect(update).toHaveBeenCalledWith(
       expect.objectContaining({

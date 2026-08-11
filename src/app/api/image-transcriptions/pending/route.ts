@@ -1,6 +1,6 @@
 import configPromise from '@payload-config'
 import { NextResponse, type NextRequest } from 'next/server'
-import { getPayload } from 'payload'
+import { getPayload, type Where } from 'payload'
 
 import {
   createImageTranscriptionSource,
@@ -45,22 +45,35 @@ async function findPendingJobs(
   documentId: number | null,
 ) {
   const collection = kind === 'bulletin' ? 'bulletins' : 'church-news'
-  const result = await payload.find({
-    collection,
-    depth: 1,
-    limit: documentId === null ? 20 : 1,
-    sort: '-updatedAt',
-    where:
-      documentId === null
-        ? ({ 'images.image': { exists: true } } as any)
-        : ({ and: [{ id: { equals: documentId } }, { 'images.image': { exists: true } }] } as any),
-  })
+  const where: Where =
+    documentId === null
+      ? { 'images.image': { exists: true } }
+      : { and: [{ id: { equals: documentId } }, { 'images.image': { exists: true } }] }
+  const pendingJobs = []
+  let page = 1
 
-  return result.docs.flatMap((doc) => {
-    const source = createImageTranscriptionSource(kind, doc, { baseURL })
-    if (!source || doc.accessibleContent?.sourceHash === source.sourceHash) return []
-    return [source]
-  })
+  do {
+    const result = await payload.find({
+      collection,
+      depth: 1,
+      limit: documentId === null ? 20 : 1,
+      page,
+      sort: '-updatedAt',
+      where,
+    })
+
+    for (const doc of result.docs) {
+      const source = createImageTranscriptionSource(kind, doc, { baseURL })
+      if (!source || doc.accessibleContent?.sourceHash === source.sourceHash) continue
+      pendingJobs.push(source)
+      if (documentId !== null || pendingJobs.length === 3) return pendingJobs
+    }
+
+    if (!result.hasNextPage) break
+    page = result.nextPage ?? page + 1
+  } while (documentId === null)
+
+  return pendingJobs
 }
 
 function parseDocumentId(value: string | null): number | null {
