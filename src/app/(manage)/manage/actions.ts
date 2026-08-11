@@ -212,6 +212,12 @@ export async function saveBulletinAction(formData: FormData) {
       `${optionalString(formData, 'title') || '주보'} 파일`,
     )
     const data = {
+      accessibleContent: {
+        content: optionalString(formData, 'accessibleContentContent'),
+        seoDescription: optionalString(formData, 'accessibleContentSeoDescription'),
+        seoTitle: optionalString(formData, 'accessibleContentSeoTitle'),
+        summary: optionalString(formData, 'accessibleContentSummary'),
+      },
       date: dateInputToISO(stringValue(formData, 'date')),
       description: optionalString(formData, 'description'),
       images: [...parseExistingImageRows(formData, 'bulletin'), ...uploaded],
@@ -263,6 +269,12 @@ export async function saveChurchNewsAction(formData: FormData) {
       title || '교회소식 이미지',
     )
     const data = {
+      accessibleContent: {
+        content: optionalString(formData, 'accessibleContentContent'),
+        seoDescription: optionalString(formData, 'accessibleContentSeoDescription'),
+        seoTitle: optionalString(formData, 'accessibleContentSeoTitle'),
+        summary: optionalString(formData, 'accessibleContentSummary'),
+      },
       date: dateInputToISO(stringValue(formData, 'date')),
       description: optionalString(formData, 'description'),
       images: parseChurchNewsImages(formData, uploadedImages),

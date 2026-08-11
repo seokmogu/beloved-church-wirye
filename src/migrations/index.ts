@@ -16,6 +16,7 @@ import * as migration_20260608_025211_church_admin_image_leaders from './2026060
 import * as migration_20260612_000000_newcomers_extended_fields from './20260612_000000_newcomers_extended_fields';
 import * as migration_20260707_000000_instagram_display_count from './20260707_000000_instagram_display_count';
 import * as migration_20260810_000000_sermon_transcripts from './20260810_000000_sermon_transcripts';
+import * as migration_20260810_000000_accessible_content from './20260810_000000_accessible_content';
 
 export const migrations = [
   {
@@ -107,5 +108,10 @@ export const migrations = [
     up: migration_20260810_000000_sermon_transcripts.up,
     down: migration_20260810_000000_sermon_transcripts.down,
     name: '20260810_000000_sermon_transcripts',
+  },
+  {
+    up: migration_20260810_000000_accessible_content.up,
+    down: migration_20260810_000000_accessible_content.down,
+    name: '20260810_000000_accessible_content',
   },
 ];

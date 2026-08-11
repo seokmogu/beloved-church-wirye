@@ -727,6 +727,17 @@ export interface ChurchNew {
         id?: string | null;
       }[]
     | null;
+  /**
+   * 이미지 전사 작업이 완료되면 자동으로 채워집니다. 공개 페이지의 이미지 아래에 실제 텍스트로 표시됩니다.
+   */
+  accessibleContent?: {
+    summary?: string | null;
+    content?: string | null;
+    seoTitle?: string | null;
+    seoDescription?: string | null;
+    sourceHash?: string | null;
+    processedAt?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -799,6 +810,17 @@ export interface Bulletin {
    * 이번 주 설교 제목이나 특별 사항을 입력하세요.
    */
   description?: string | null;
+  /**
+   * 이미지 전사 작업이 완료되면 자동으로 채워집니다. 공개 페이지의 이미지 아래에 실제 텍스트로 표시됩니다.
+   */
+  accessibleContent?: {
+    summary?: string | null;
+    content?: string | null;
+    seoTitle?: string | null;
+    seoDescription?: string | null;
+    sourceHash?: string | null;
+    processedAt?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1609,6 +1631,16 @@ export interface ChurchNewsSelect<T extends boolean = true> {
         caption?: T;
         id?: T;
       };
+  accessibleContent?:
+    | T
+    | {
+        summary?: T;
+        content?: T;
+        seoTitle?: T;
+        seoDescription?: T;
+        sourceHash?: T;
+        processedAt?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1645,6 +1677,16 @@ export interface BulletinsSelect<T extends boolean = true> {
         id?: T;
       };
   description?: T;
+  accessibleContent?:
+    | T
+    | {
+        summary?: T;
+        content?: T;
+        seoTitle?: T;
+        seoDescription?: T;
+        sourceHash?: T;
+        processedAt?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

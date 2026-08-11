@@ -1,0 +1,51 @@
+name: Image transcription
+
+on:
+  workflow_dispatch:
+    inputs:
+      document_id:
+        description: CMS document ID
+        required: true
+        type: string
+      kind:
+        description: bulletin or church-news
+        required: true
+        type: choice
+        options: [bulletin, church-news]
+      source_hash:
+        description: Image-set hash supplied by the CMS
+        required: true
+        type: string
+
+concurrency:
+  # If the editor adds several images in sequence, only the latest image set runs.
+  group: image-transcription-${{ inputs.kind }}-${{ inputs.document_id }}
+  cancel-in-progress: true
+
+jobs:
+  transcribe:
+    name: Transcribe ${{ inputs.kind }} #${{ inputs.document_id }}
+    runs-on: [self-hosted, macstudio, image-transcription]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Transcribe current image set
+        env:
+          IMAGE_TRANSCRIPTION_CODEX_BIN: /Users/aktn/.local/bin/cdx
+          IMAGE_TRANSCRIPTION_CODEX_MODEL: gpt-5.6-luna
+          IMAGE_TRANSCRIPTION_DOCUMENT_IDS: ${{ inputs.document_id }}
+          IMAGE_TRANSCRIPTION_IMAGE_BATCH_SIZE: '1'
+          IMAGE_TRANSCRIPTION_KINDS: ${{ inputs.kind }}
+          IMAGE_TRANSCRIPTION_REASONING_EFFORT: low
+          # This workflow is enabled on the production branch. Development uses
+          # its isolated worker repository and never calls the live site.
+          IMAGE_TRANSCRIPTION_SITE_URL: https://www.belovedchurch.co.kr
+          IMAGE_TRANSCRIPTION_WORKER_SECRET: ${{ secrets.PRODUCTION_IMAGE_TRANSCRIPTION_WORKER_SECRET }}
+        run: node scripts/image-transcription-worker.mjs

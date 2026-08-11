@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { DeleteButton, SaveButton } from '@/app/(manage)/manage/_components/FormButtons'
 import { deleteChurchNewsAction, saveChurchNewsAction } from '@/app/(manage)/manage/actions'
+import { advertisementTranscriptPlaceholder } from '@/lib/accessibleContent/advertisement'
 import { toDateInputValue } from '@/lib/manage/date'
 import type { ChurchNew, Media } from '@/payload-types'
 
@@ -20,6 +21,7 @@ const errorMessages: Record<string, string> = {
 
 export function ChurchNewsForm({ doc, error }: { doc?: ChurchNew; error?: string }) {
   const images = doc?.images || []
+  const accessibleContent = doc?.accessibleContent
 
   return (
     <>
@@ -56,6 +58,53 @@ export function ChurchNewsForm({ doc, error }: { doc?: ChurchNew; error?: string
           />
         </div>
         <ChurchNewsImagePicker />
+
+        <details className="manage-card" open={Boolean(accessibleContent?.content)}>
+          <summary className="cursor-pointer text-sm font-bold text-foreground">
+            광고 전사 · 검색 정보
+          </summary>
+          <p className="manage-field-hint" style={{ marginTop: 10 }}>
+            자동 전사 결과를 보정하는 영역입니다. 이미지의 제목·구획·불릿 순서를 그대로 유지하고, 이미지에 없는 정보는 추가하지 마세요.
+          </p>
+          <div className="manage-field" style={{ marginTop: 14 }}>
+            <label htmlFor="accessibleContentSummary">한 줄 요약</label>
+            <textarea
+              defaultValue={accessibleContent?.summary || ''}
+              id="accessibleContentSummary"
+              name="accessibleContentSummary"
+              rows={3}
+            />
+          </div>
+          <div className="manage-field" style={{ marginTop: 14 }}>
+            <label htmlFor="accessibleContentContent">광고 내용 텍스트</label>
+            <textarea
+              defaultValue={accessibleContent?.content || ''}
+              id="accessibleContentContent"
+              name="accessibleContentContent"
+              placeholder={advertisementTranscriptPlaceholder}
+              rows={14}
+            />
+          </div>
+          <div className="manage-field-grid" style={{ marginTop: 14 }}>
+            <div className="manage-field">
+              <label htmlFor="accessibleContentSeoTitle">검색 제목</label>
+              <input
+                defaultValue={accessibleContent?.seoTitle || ''}
+                id="accessibleContentSeoTitle"
+                name="accessibleContentSeoTitle"
+              />
+            </div>
+            <div className="manage-field">
+              <label htmlFor="accessibleContentSeoDescription">검색 설명</label>
+              <textarea
+                defaultValue={accessibleContent?.seoDescription || ''}
+                id="accessibleContentSeoDescription"
+                name="accessibleContentSeoDescription"
+                rows={3}
+              />
+            </div>
+          </div>
+        </details>
 
         {error ? (
           <div className="manage-alert danger" role="alert">

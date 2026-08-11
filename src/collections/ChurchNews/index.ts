@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { resetStaleImageTranscription } from '@/hooks/resetStaleImageTranscription'
+
 function defaultChurchNewsTitle(dateValue: unknown): string {
   const date = dateValue ? new Date(String(dateValue)) : new Date()
 
@@ -107,8 +109,31 @@ export const ChurchNews: CollectionConfig = {
         },
       ],
     },
+    {
+      name: 'accessibleContent',
+      type: 'group',
+      label: '자동 전사 · 검색용 텍스트',
+      admin: {
+        description:
+          '광고 이미지의 제목·구획·불릿 순서를 원문 그대로 기록합니다. 이미지에 없는 정보를 만들지 않으며, 공개 페이지와 검색 결과에 사용됩니다.',
+      },
+      fields: [
+        { name: 'summary', type: 'textarea', label: '요약', admin: { rows: 3 } },
+        { name: 'content', type: 'textarea', label: '본문', admin: { rows: 12 } },
+        { name: 'seoTitle', type: 'text', label: '검색 제목' },
+        { name: 'seoDescription', type: 'textarea', label: '검색 설명', admin: { rows: 3 } },
+        { name: 'sourceHash', type: 'text', label: '원본 해시', admin: { readOnly: true } },
+        {
+          name: 'processedAt',
+          type: 'date',
+          label: '전사 완료 시각',
+          admin: { date: { pickerAppearance: 'dayAndTime' }, readOnly: true },
+        },
+      ],
+    },
   ],
   hooks: {
+    afterChange: [resetStaleImageTranscription('church-news')],
     beforeValidate: [
       ({ data }) => {
         if (!data) return data
