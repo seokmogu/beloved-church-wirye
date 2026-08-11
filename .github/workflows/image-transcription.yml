@@ -42,6 +42,8 @@ jobs:
           IMAGE_TRANSCRIPTION_IMAGE_BATCH_SIZE: '1'
           IMAGE_TRANSCRIPTION_KINDS: ${{ inputs.kind }}
           IMAGE_TRANSCRIPTION_REASONING_EFFORT: low
-          IMAGE_TRANSCRIPTION_SITE_URL: https://beloved-church-wirye-dev-git-codex-ac-2be203-seokmogus-projects.vercel.app
-          IMAGE_TRANSCRIPTION_WORKER_SECRET: ${{ secrets.DEV_IMAGE_TRANSCRIPTION_WORKER_SECRET }}
+          # This workflow is enabled on the production branch. Development uses
+          # its isolated worker repository and never calls the live site.
+          IMAGE_TRANSCRIPTION_SITE_URL: https://www.belovedchurch.co.kr
+          IMAGE_TRANSCRIPTION_WORKER_SECRET: ${{ secrets.PRODUCTION_IMAGE_TRANSCRIPTION_WORKER_SECRET }}
         run: node scripts/image-transcription-worker.mjs
