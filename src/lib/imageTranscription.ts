@@ -111,7 +111,12 @@ function imageIdentity(images: ImageRowLike[] | null | undefined): string {
   return JSON.stringify(
     (images || []).map((row) => {
       if (typeof row.image === 'object' && row.image) {
-        return row.image.id || row.image.url || null
+        return {
+          filename: row.image.filename || null,
+          id: row.image.id || null,
+          updatedAt: row.image.updatedAt || null,
+          url: row.image.url || null,
+        }
       }
 
       return row.image || null

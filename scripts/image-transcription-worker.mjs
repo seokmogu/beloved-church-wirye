@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 
 import { execFile } from 'node:child_process'
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { createWriteStream } from 'node:fs'
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { Readable, Transform } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
 const siteURL = requiredEnv('IMAGE_TRANSCRIPTION_SITE_URL')
 const secret = requiredEnv('IMAGE_TRANSCRIPTION_WORKER_SECRET')
 const model = requiredEnv('IMAGE_TRANSCRIPTION_CODEX_MODEL')
@@ -21,10 +24,11 @@ const kinds = new Set(
     .filter(Boolean),
 )
 const imageBatchSize = positiveIntegerEnv('IMAGE_TRANSCRIPTION_IMAGE_BATCH_SIZE', 4)
+const maxImageBytes = positiveIntegerEnv('IMAGE_TRANSCRIPTION_MAX_IMAGE_BYTES', 15 * 1024 * 1024)
 const reasoningEffort = process.env.IMAGE_TRANSCRIPTION_REASONING_EFFORT || 'low'
 
 async function main() {
-  const response = await request('/api/image-transcriptions/pending')
+  const response = await request(pendingJobsPath())
   if (!response.ok) throw new Error(`Could not load transcription queue: HTTP ${response.status}`)
 
   const { jobs } = await response.json()
@@ -58,18 +62,10 @@ async function transcribe(job) {
   const directory = await mkdtemp(join(tmpdir(), 'beloved-image-transcription-'))
 
   try {
-    const imagePaths = await Promise.all(
-      job.images.map(async (image, index) => {
-        const imageResponse = await fetch(image.url, { signal: AbortSignal.timeout(30_000) })
-        if (!imageResponse.ok) throw new Error(`Could not download image ${index + 1}: HTTP ${imageResponse.status}`)
-
-        const bytes = new Uint8Array(await imageResponse.arrayBuffer())
-        const extension = image.filename?.split('.').pop() || 'webp'
-        const path = join(directory, `${String(index + 1).padStart(2, '0')}.${extension}`)
-        await writeFile(path, bytes)
-        return path
-      }),
-    )
+    const imagePaths = []
+    for (const [index, image] of job.images.entries()) {
+      imagePaths.push(await downloadImage(image, index, directory))
+    }
     const results = []
     for (let index = 0; index < imagePaths.length; index += imageBatchSize) {
       const paths = imagePaths.slice(index, index + imageBatchSize)
@@ -115,6 +111,35 @@ async function transcribe(job) {
   }
 }
 
+async function downloadImage(image, index, directory) {
+  const imageResponse = await fetch(image.url, { signal: AbortSignal.timeout(30_000) })
+  if (!imageResponse.ok)
+    throw new Error(`Could not download image ${index + 1}: HTTP ${imageResponse.status}`)
+
+  const declaredSize = Number(imageResponse.headers.get('content-length'))
+  if (Number.isFinite(declaredSize) && declaredSize > maxImageBytes) {
+    throw new Error(`Image ${index + 1} exceeds the ${maxImageBytes}-byte download limit`)
+  }
+  if (!imageResponse.body) throw new Error(`Could not read image ${index + 1} response body`)
+
+  const extension = image.filename?.split('.').pop() || 'webp'
+  const path = join(directory, `${String(index + 1).padStart(2, '0')}.${extension}`)
+  let downloadedBytes = 0
+  const sizeLimit = new Transform({
+    transform(chunk, _encoding, callback) {
+      downloadedBytes += chunk.length
+      if (downloadedBytes > maxImageBytes) {
+        callback(new Error(`Image ${index + 1} exceeds the ${maxImageBytes}-byte download limit`))
+        return
+      }
+      callback(null, chunk)
+    },
+  })
+
+  await pipeline(Readable.fromWeb(imageResponse.body), sizeLimit, createWriteStream(path))
+  return path
+}
+
 function runCodex(args, prompt) {
   return new Promise((resolve, reject) => {
     const child = execFile(
@@ -158,7 +183,8 @@ function promptFor(job, imageCount) {
 }
 
 function mergeResults(results) {
-  const strings = (field) => results.map((result) => result?.[field]).filter((value) => typeof value === 'string')
+  const strings = (field) =>
+    results.map((result) => result?.[field]).filter((value) => typeof value === 'string')
 
   return {
     content: strings('content').join('\n\n').slice(0, 80_000),
@@ -190,6 +216,16 @@ function request(path, options = {}) {
     },
     signal: AbortSignal.timeout(45_000),
   })
+}
+
+function pendingJobsPath() {
+  if (documentIDs.size !== 1 || kinds.size !== 1) return '/api/image-transcriptions/pending'
+
+  const query = new URLSearchParams({
+    documentId: [...documentIDs][0],
+    kind: [...kinds][0],
+  })
+  return `/api/image-transcriptions/pending?${query}`
 }
 
 function requiredEnv(name) {

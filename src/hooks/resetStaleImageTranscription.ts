@@ -12,10 +12,12 @@ export function resetStaleImageTranscription(
 
     const kind = collection === 'bulletins' ? 'bulletin' : 'church-news'
     const source = createImageTranscriptionSource(kind, doc)
-    if (!source) return doc
+    if (!source && operation !== 'update') return doc
 
     const accessibleContent =
-      typeof doc.accessibleContent === 'object' && doc.accessibleContent ? doc.accessibleContent : {}
+      typeof doc.accessibleContent === 'object' && doc.accessibleContent
+        ? doc.accessibleContent
+        : {}
 
     await req.payload.update({
       collection,
@@ -34,6 +36,8 @@ export function resetStaleImageTranscription(
       id: doc.id,
       req,
     })
+
+    if (!source) return doc
 
     await dispatchImageTranscription({
       documentId: source.documentId,
