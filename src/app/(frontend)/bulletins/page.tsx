@@ -264,12 +264,6 @@ function BulletinFeature({ bulletin }: { bulletin: Bulletin }) {
           >
             {bulletin.title || '주보'}
           </h2>
-          <time
-            className="mt-4 block text-sm text-muted-foreground"
-            dateTime={bulletin.date || undefined}
-          >
-            {formatDate(bulletin.date)}
-          </time>
           {bulletin.description && (
             <p className="mt-4 line-clamp-3 text-sm leading-6 text-muted-foreground">
               {bulletin.description}
@@ -297,13 +291,7 @@ function BulletinCard({ bulletin }: { bulletin: Bulletin }) {
         />
       </div>
       <div className="px-0.5 pt-3">
-        <time
-          className="text-xs font-semibold tracking-[0.02em] text-primary"
-          dateTime={bulletin.date || undefined}
-        >
-          {formatDate(bulletin.date)}
-        </time>
-        <h3 className="mt-1 line-clamp-2 text-sm font-semibold leading-5 text-foreground sm:text-base">
+        <h3 className="line-clamp-2 text-sm font-semibold leading-5 text-foreground sm:text-base">
           {bulletin.title || '주보'}
         </h3>
       </div>
@@ -345,19 +333,6 @@ function getBulletinCover(bulletin: Bulletin): string | null {
 
 function resolveMedia(value: unknown): Media | null {
   return value && typeof value === 'object' ? (value as Media) : null
-}
-
-function formatDate(value: string | null | undefined): string {
-  if (!value) return '날짜 미정'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '날짜 미정'
-
-  return new Intl.DateTimeFormat('ko-KR', {
-    day: 'numeric',
-    month: 'long',
-    timeZone: 'Asia/Seoul',
-    year: 'numeric',
-  }).format(date)
 }
 
 function getKoreanYear(value: string | null | undefined): number | null {
