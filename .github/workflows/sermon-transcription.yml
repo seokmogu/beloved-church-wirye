@@ -1,0 +1,63 @@
+name: Sermon transcription
+
+on:
+  push:
+    branches:
+      - codex/sermon-auto-publication
+    paths:
+      - .github/workflows/sermon-transcription.yml
+      - scripts/sermon-transcription-worker.mjs
+  schedule:
+    # GitHub Actions cron is UTC: Sunday 17:17 UTC = Monday 02:17 KST.
+    - cron: '17 17 * * 0'
+  workflow_dispatch:
+    inputs:
+      video_id:
+        description: Optional YouTube video ID for an immediate transcription
+        required: false
+        type: string
+      site_url:
+        description: Development preview URL for an isolated branch test (required outside main)
+        required: false
+        type: string
+
+concurrency:
+  group: sermon-transcription
+  cancel-in-progress: false
+
+jobs:
+  transcribe:
+    name: Transcribe newly published sermons
+    if: github.ref == 'refs/heads/main' || inputs.site_url != '' || vars.DEV_SERMON_TRANSCRIPTION_SITE_URL != ''
+    runs-on: [self-hosted, macstudio, image-transcription]
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Wait for the development preview
+        if: github.ref != 'refs/heads/main'
+        env:
+          SERMON_TRANSCRIPTION_SITE_URL: ${{ inputs.site_url || vars.DEV_SERMON_TRANSCRIPTION_SITE_URL }}
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error --location --head "$SERMON_TRANSCRIPTION_SITE_URL" >/dev/null; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Development preview did not become available in time." >&2
+          exit 1
+
+      - name: Transcribe and publish automatically
+        env:
+          SERMON_TRANSCRIPTION_RUNNER: /Users/aktn/project/beloved-church-sermon-worker/bin/run-sermon
+          SERMON_TRANSCRIPTION_SITE_URL: ${{ github.ref == 'refs/heads/main' && 'https://www.belovedchurch.co.kr' || inputs.site_url || vars.DEV_SERMON_TRANSCRIPTION_SITE_URL }}
+          SERMON_TRANSCRIPTION_VIDEO_IDS: ${{ inputs.video_id }}
+          SERMON_TRANSCRIPTION_WORKER_SECRET: ${{ github.ref == 'refs/heads/main' && secrets.PRODUCTION_SERMON_TRANSCRIPTION_WORKER_SECRET || secrets.DEV_SERMON_TRANSCRIPTION_WORKER_SECRET }}
+        run: node scripts/sermon-transcription-worker.mjs
