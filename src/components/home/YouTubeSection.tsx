@@ -43,6 +43,7 @@ export function YouTubeSection({ channelUrl, description, eyebrow, title, videos
           </div>
           {channelUrl && (
             <a
+              data-analytics-id="youtube_channel"
               href={channelUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -143,6 +144,7 @@ export function YouTubeSection({ channelUrl, description, eyebrow, title, videos
             <p className="text-base font-semibold text-foreground">등록된 설교영상이 없습니다.</p>
             {channelUrl && (
               <a
+                data-analytics-id="youtube_channel"
                 href={channelUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -157,6 +159,7 @@ export function YouTubeSection({ channelUrl, description, eyebrow, title, videos
         <div className="mt-8 text-center md:hidden">
           {featured && channelUrl && (
             <a
+              data-analytics-id="youtube_channel"
               href={channelUrl}
               target="_blank"
               rel="noopener noreferrer"

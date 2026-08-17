@@ -8,8 +8,10 @@ import { FormattedText } from '@/components/FormattedText'
 import { PageHero } from '@/components/PageHero'
 import { fetchLatestVideos, mergeYouTubeVideos, type YouTubeVideo } from '@/lib/youtube'
 import type { SiteSetting } from '@/payload-types'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 export const metadata: Metadata = {
+  alternates: canonicalAlternates('/sermon'),
   title: '설교영상 | 사랑하는교회',
   description: '사랑하는교회의 설교 말씀을 들어보세요.',
 }
@@ -93,6 +95,7 @@ function SermonArchiveSection({
             </span>
             {channelUrl && (
               <a
+                data-analytics-id="youtube_channel"
                 href={channelUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -147,6 +150,7 @@ function SermonArchiveSection({
             <p className="text-base font-semibold text-foreground">등록된 설교영상이 없습니다.</p>
             {channelUrl && (
               <a
+                data-analytics-id="youtube_channel"
                 href={channelUrl}
                 target="_blank"
                 rel="noopener noreferrer"

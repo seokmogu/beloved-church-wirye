@@ -7,8 +7,10 @@ import { redirect } from 'next/navigation'
 import { EmptyState } from '@/components/EmptyState'
 import { PageHero } from '@/components/PageHero'
 import type { Bulletin, Media } from '@/payload-types'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 export const metadata: Metadata = {
+  alternates: canonicalAlternates('/bulletins'),
   title: '주보 | 사랑하는교회',
   description: '사랑하는교회 주보 아카이브',
 }

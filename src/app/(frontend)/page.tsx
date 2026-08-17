@@ -8,10 +8,13 @@ import { HeroSection } from '@/components/home/HeroSection'
 import { InstagramSection } from '@/components/home/InstagramSection'
 import { NaverMapSectionServer } from '@/components/home/NaverMapSection.server'
 import { YouTubeSection } from '@/components/home/YouTubeSection'
+import { ChurchOrganizationStructuredData } from '@/components/StructuredData/ChurchOrganizationStructuredData'
 import type { SiteSetting } from '@/payload-types'
 import { fetchLatestVideos, mergeYouTubeVideos, type YouTubeVideo } from '@/lib/youtube'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 export const metadata = {
+  alternates: canonicalAlternates('/'),
   title: '사랑하는교회 | Beloved Church Wirye',
   description: '위례 신도시 사랑하는교회 | Like Christ',
 }
@@ -119,66 +122,69 @@ export default async function HomePage() {
   const videos = mergeYouTubeVideos(cmsVideos, youtubeVideos).slice(0, videoCount)
 
   return (
-    <main>
-      <HeroSection settings={settings} />
-      {sections.map((section) => {
-        switch (section.sectionType) {
-          case 'intro':
-            return (
-              <ChurchIntroSection
-                key={section.id ?? section.sectionType}
-                section={section}
-                settings={settings}
-              />
-            )
-          case 'announcements':
-            return (
-              <AnnouncementsSection
-                key={section.id ?? section.sectionType}
-                announcements={announcements}
-                description={section.description}
-                eyebrow={section.eyebrow}
-                title={section.title}
-              />
-            )
-          case 'sermons':
-            return (
-              <YouTubeSection
-                key={section.id ?? section.sectionType}
-                channelUrl={settings?.youtubeChannelUrl}
-                description={section.description}
-                eyebrow={section.eyebrow}
-                title={section.title}
-                videos={videos}
-              />
-            )
-          case 'instagram':
-            return (
-              <InstagramSection
-                key={section.id ?? section.sectionType}
-                description={section.description}
-                displayCount={settings?.instagramDisplayCount}
-                eyebrow={section.eyebrow}
-                handle={settings?.instagramHandle}
-                posts={settings?.instagramPosts}
-                title={section.title}
-                url={settings?.instagramUrl}
-              />
-            )
-          case 'map':
-            return (
-              <NaverMapSectionServer
-                key={section.id ?? section.sectionType}
-                description={section.description}
-                eyebrow={section.eyebrow}
-                settings={settings}
-                title={section.title}
-              />
-            )
-          default:
-            return null
-        }
-      })}
-    </main>
+    <>
+      <ChurchOrganizationStructuredData settings={settings} />
+      <main>
+        <HeroSection settings={settings} />
+        {sections.map((section) => {
+          switch (section.sectionType) {
+            case 'intro':
+              return (
+                <ChurchIntroSection
+                  key={section.id ?? section.sectionType}
+                  section={section}
+                  settings={settings}
+                />
+              )
+            case 'announcements':
+              return (
+                <AnnouncementsSection
+                  key={section.id ?? section.sectionType}
+                  announcements={announcements}
+                  description={section.description}
+                  eyebrow={section.eyebrow}
+                  title={section.title}
+                />
+              )
+            case 'sermons':
+              return (
+                <YouTubeSection
+                  key={section.id ?? section.sectionType}
+                  channelUrl={settings?.youtubeChannelUrl}
+                  description={section.description}
+                  eyebrow={section.eyebrow}
+                  title={section.title}
+                  videos={videos}
+                />
+              )
+            case 'instagram':
+              return (
+                <InstagramSection
+                  key={section.id ?? section.sectionType}
+                  description={section.description}
+                  displayCount={settings?.instagramDisplayCount}
+                  eyebrow={section.eyebrow}
+                  handle={settings?.instagramHandle}
+                  posts={settings?.instagramPosts}
+                  title={section.title}
+                  url={settings?.instagramUrl}
+                />
+              )
+            case 'map':
+              return (
+                <NaverMapSectionServer
+                  key={section.id ?? section.sectionType}
+                  description={section.description}
+                  eyebrow={section.eyebrow}
+                  settings={settings}
+                  title={section.title}
+                />
+              )
+            default:
+              return null
+          }
+        })}
+      </main>
+    </>
   )
 }

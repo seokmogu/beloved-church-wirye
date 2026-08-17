@@ -4,8 +4,11 @@ import { getPayload } from 'payload'
 
 import config from '@payload-config'
 import type { SiteSetting } from '@/payload-types'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 export const metadata: Metadata = {
+  alternates: canonicalAlternates('/newcomer/thank-you'),
+  robots: { follow: true, index: false },
   title: '등록 완료 | 사랑하는교회',
   description: '새가족등록이 완료되었습니다.',
 }

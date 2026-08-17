@@ -6,9 +6,12 @@ import config from '@payload-config'
 import { FormattedText } from '@/components/FormattedText'
 import { NaverMapSectionServer } from '@/components/home/NaverMapSection.server'
 import { PageHero } from '@/components/PageHero'
+import { FAQStructuredData } from '@/components/StructuredData/FAQStructuredData'
 import type { SiteSetting } from '@/payload-types'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 export const metadata: Metadata = {
+  alternates: canonicalAlternates('/worship'),
   title: '예배안내 | 사랑하는교회',
   description: '사랑하는교회 위례 예배안내',
 }
@@ -31,9 +34,41 @@ export default async function WorshipPage() {
   const visitorNotes = settings?.visitorNotes ?? []
   const hasParkingInfo = Boolean(settings?.parkingInfo?.trim())
   const hasVisitNotes = hasParkingInfo || visitorNotes.length > 0
+  const churchName = settings?.churchName?.trim() || '사랑하는교회'
+  const address = [settings?.address?.trim(), settings?.addressDetail?.trim()]
+    .filter(Boolean)
+    .join(' ')
+  const worshipSummary = services
+    .filter((service) => service?.name && service?.time)
+    .map((service) => `${service.name} ${service.time}`)
+    .join(', ')
+  const faqItems = [
+    ...(worshipSummary
+      ? [
+          {
+            question: `${churchName}의 예배 시간은 언제인가요?`,
+            answer: `${churchName}의 예배와 모임 시간은 ${worshipSummary}입니다.`,
+          },
+        ]
+      : []),
+    ...(address
+      ? [
+          {
+            question: `${churchName}는 어디에 있나요?`,
+            answer: `${churchName}는 ${address}에 있습니다.${settings?.transitInfo?.trim() ? ` ${settings.transitInfo.trim()}` : ''}`,
+          },
+        ]
+      : []),
+    {
+      question: '처음 방문하려면 어떻게 하나요?',
+      answer:
+        '예배에 자유롭게 참석하시거나 새가족등록 페이지에 방문 정보를 남겨주시면 교회가 안내해 드립니다.',
+    },
+  ]
 
   return (
     <main className="min-h-screen bg-background">
+      <FAQStructuredData items={faqItems} />
       <PageHero
         label="WORSHIP"
         title="예배안내"
@@ -129,6 +164,25 @@ export default async function WorshipPage() {
           </div>
         </section>
       )}
+
+      <section className="border-t border-border py-16" aria-labelledby="worship-faq-heading">
+        <div className="container max-w-5xl">
+          <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-primary">FAQ</p>
+          <h2 id="worship-faq-heading" className="text-3xl font-bold text-foreground">
+            자주 묻는 질문
+          </h2>
+          <dl className="mt-8 grid gap-4 md:grid-cols-3">
+            {faqItems.map((item) => (
+              <div key={item.question} className="rounded-lg border border-border bg-card p-6">
+                <dt className="text-lg font-semibold text-foreground">{item.question}</dt>
+                <dd className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {item.answer}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
     </main>
   )
 }

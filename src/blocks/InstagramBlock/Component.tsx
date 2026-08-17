@@ -28,6 +28,8 @@ export const InstagramBlockComponent: React.FC<InstagramBlockProps> = ({ embedCo
       <iframe
         allowTransparency
         className="w-full max-w-[540px]"
+        data-analytics-content-type="instagram_post"
+        data-analytics-embed="instagram"
         loading="lazy"
         scrolling="no"
         src={src}

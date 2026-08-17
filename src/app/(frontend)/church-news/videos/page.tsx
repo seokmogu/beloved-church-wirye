@@ -7,8 +7,10 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { extractYouTubeId } from '@/lib/youtube'
 import { PageHero } from '@/components/PageHero'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 export const metadata: Metadata = {
+  alternates: canonicalAlternates('/church-news/videos'),
   title: '동영상 | 사랑하는교회',
   description: '사랑하는교회의 소식 영상을 모아봅니다.',
 }

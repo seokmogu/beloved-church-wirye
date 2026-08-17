@@ -54,6 +54,7 @@ export function InstagramSection({
           </div>
           {accountUrl && (
             <a
+              data-analytics-id="instagram_profile"
               href={accountUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -76,6 +77,9 @@ export function InstagramSection({
                 className="relative aspect-[4/5] w-[78%] shrink-0 snap-center overflow-hidden rounded-lg border border-white/10 bg-black/20 sm:w-[46%] lg:w-full lg:shrink"
               >
                 <iframe
+                  data-analytics-content-id={`instagram_${post.postId}`}
+                  data-analytics-content-type="instagram_post"
+                  data-analytics-embed="instagram"
                   src={`https://www.instagram.com/${kind}/${post.postId}/embed/`}
                   className="absolute inset-0 h-full w-full border-0"
                   loading="lazy"
@@ -92,4 +96,3 @@ export function InstagramSection({
     </section>
   )
 }
-

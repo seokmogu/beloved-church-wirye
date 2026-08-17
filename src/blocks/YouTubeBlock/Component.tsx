@@ -13,7 +13,11 @@ export const YouTubeBlockComponent: React.FC<YouTubeBlockProps> = ({ videoId, ti
       {title && <h3 className="mb-4 text-xl font-semibold">{title}</h3>}
       <div className="relative aspect-video w-full overflow-hidden rounded-lg">
         <iframe
-          src={`https://www.youtube.com/embed/${videoId}`}
+          data-analytics-content-id={`youtube_${videoId}`}
+          data-analytics-content-type="youtube_block"
+          data-analytics-embed="youtube"
+          data-youtube-video-id={videoId}
+          src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1`}
           title={title || 'YouTube video'}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen

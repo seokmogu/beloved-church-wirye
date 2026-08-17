@@ -5,8 +5,10 @@ import config from '@payload-config'
 import { PageHero } from '@/components/PageHero'
 import { CopyAccountButton } from '@/components/CopyAccountButton'
 import { FormattedText } from '@/components/FormattedText'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 export const metadata: Metadata = {
+  alternates: canonicalAlternates('/offering'),
   title: '헌금안내 | 사랑하는교회',
   description: '사랑하는교회 위례 헌금안내 - 헌금 종류와 계좌이체 방법',
 }
@@ -86,7 +88,11 @@ export default async function OfferingPage() {
                 <Link href="/worship" className="text-sm font-medium text-primary hover:underline">
                   예배안내·오시는 길 &rarr;
                 </Link>
-                <Link href="/newcomer" className="text-sm font-medium text-primary hover:underline">
+                <Link
+                  data-analytics-id="offering_newcomer_registration"
+                  href="/newcomer"
+                  className="text-sm font-medium text-primary hover:underline"
+                >
                   새가족 등록 &rarr;
                 </Link>
               </div>

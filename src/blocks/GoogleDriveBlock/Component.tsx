@@ -33,6 +33,8 @@ export const GoogleDriveBlockComponent: React.FC<GoogleDriveBlockProps> = ({
           style={{ paddingTop: '141.4%' }}
         >
           <iframe
+            data-analytics-content-type="document"
+            data-analytics-embed="google_drive"
             src={embedUrl}
             className="absolute inset-0 h-full w-full"
             allow="autoplay"
