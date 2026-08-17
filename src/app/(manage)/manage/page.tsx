@@ -220,6 +220,33 @@ function AnalyticsPanel({ analytics }: { analytics: GoogleAnalyticsSummary }) {
   const newcomerConversionRate = analytics.newcomerPageViews
     ? analytics.leadConversions / analytics.newcomerPageViews
     : null
+  const funnelSteps = [
+    {
+      detail: '첫 방문 랜딩',
+      label: '유입',
+      value: analytics.funnel.landingPageViews,
+    },
+    {
+      detail: '등록 안내 클릭',
+      label: '새가족 관심',
+      value: analytics.funnel.newcomerCtaClicks,
+    },
+    {
+      detail: '등록 페이지 조회',
+      label: '등록 진입',
+      value: analytics.funnel.newcomerPageViews,
+    },
+    {
+      detail: '양식 첫 입력',
+      label: '양식 시작',
+      value: analytics.funnel.formStarts,
+    },
+    {
+      detail: '성공적으로 제출',
+      label: '등록 완료',
+      value: analytics.funnel.leadConversions,
+    },
+  ]
 
   return (
     <section className="manage-panel manage-analytics-panel" aria-label="웹사이트 주요 지표">
@@ -240,8 +267,55 @@ function AnalyticsPanel({ analytics }: { analytics: GoogleAnalyticsSummary }) {
           value={formatPercent(newcomerConversionRate)}
         />
       </div>
+      <div className="manage-analytics-detail-grid">
+        <section className="manage-analytics-funnel" aria-label="새가족 전환 퍼널">
+          <div className="manage-analytics-detail-head">
+            <div>
+              <span className="manage-kicker">새가족 퍼널</span>
+              <h3>유입부터 등록 완료까지</h3>
+            </div>
+            <span>최근 28일</span>
+          </div>
+          <ol>
+            {funnelSteps.map((step) => (
+              <li key={step.label}>
+                <span>{step.label}</span>
+                <strong>{formatNumber(step.value)}</strong>
+                <small>{step.detail}</small>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="manage-analytics-channels" aria-label="유입 채널별 성과">
+          <div className="manage-analytics-detail-head">
+            <div>
+              <span className="manage-kicker">유입 채널</span>
+              <h3>외부 채널 성과</h3>
+            </div>
+            <span>세션 기준</span>
+          </div>
+          {analytics.acquisitionChannels.length ? (
+            <ul>
+              {analytics.acquisitionChannels.map((channel) => (
+                <li key={channel.name}>
+                  <span>{channel.name}</span>
+                  <small>
+                    {formatNumber(channel.sessions)} 세션 · {formatNumber(channel.leadConversions)}
+                    건 등록
+                  </small>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="manage-analytics-status">표시할 유입 채널 데이터가 아직 없습니다.</p>
+          )}
+        </section>
+      </div>
       <p className="manage-analytics-note">
-        클릭률은 전체 페이지 조회 대비 `ui_click`, 전환율은 새가족 페이지 조회 대비 `generate_lead` 기준입니다.
+        클릭률은 전체 페이지 조회 대비 `ui_click`, 전환율은 새가족 페이지 조회 대비 `generate_lead`
+        기준입니다. 유입 채널은 GA4의 세션 채널 그룹을 사용하며, 인스타그램·유튜브·카카오 등 외부
+        게시물에는 UTM 링크를 사용해야 정확히 비교할 수 있습니다.
       </p>
     </section>
   )

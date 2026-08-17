@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import type { Metadata } from 'next'
 import { EmptyState } from '@/components/EmptyState'
 import { PageHero } from '@/components/PageHero'
+import { canonicalAlternates } from '@/utilities/canonical'
 import Link from 'next/link'
 
 type AnnouncementItem = {
@@ -14,6 +15,7 @@ type AnnouncementItem = {
 }
 
 export const metadata: Metadata = {
+  alternates: canonicalAlternates('/announcements'),
   title: '교회로그 | 사랑하는교회',
   description: '사랑하는교회 교회로그',
 }

@@ -7,6 +7,7 @@ import { getPayload } from 'payload'
 import { cache } from 'react'
 
 import { extractYouTubeId } from '@/lib/youtube'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 type Args = {
   params: Promise<{
@@ -60,7 +61,11 @@ export default async function ChurchVideoDetailPage({ params: paramsPromise }: A
         <article className="overflow-hidden border-y-2 border-y-primary bg-card">
           <div className="relative aspect-video bg-black">
             <iframe
-              src={`https://www.youtube-nocookie.com/embed/${video.embedId}`}
+              data-analytics-content-id={`youtube_${video.embedId}`}
+              data-analytics-content-type="church_video"
+              data-analytics-embed="youtube"
+              data-youtube-video-id={video.embedId}
+              src={`https://www.youtube-nocookie.com/embed/${video.embedId}?enablejsapi=1&playsinline=1`}
               className="absolute inset-0 h-full w-full border-0"
               title={video.title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -81,6 +86,7 @@ export default async function ChurchVideoDetailPage({ params: paramsPromise }: A
           <div className="border-t border-border bg-muted/25 px-5 py-5 md:px-8">
             <a
               className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary/30 hover:bg-primary/5"
+              data-analytics-id="church_video_youtube_watch"
               href={video.youtubeUrl}
               rel="noopener noreferrer"
               target="_blank"
@@ -110,6 +116,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const video = await queryChurchVideoByID(videoId)
 
   return {
+    alternates: canonicalAlternates(`/church-news/videos/${videoId}`),
     title: video?.title ? `${video.title} | 사랑하는교회` : '동영상 | 사랑하는교회',
     description: '사랑하는교회 소식 영상',
   }

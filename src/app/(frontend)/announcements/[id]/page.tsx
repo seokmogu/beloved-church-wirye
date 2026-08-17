@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import { cache } from 'react'
 
 import RichText from '@/components/RichText'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 type Args = {
   params: Promise<{
@@ -91,9 +92,7 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
               </div>
               <div className="border-r border-border px-5 py-3 md:px-6">
                 <dt className="text-xs font-semibold text-muted-foreground">구분</dt>
-                <dd className="mt-1 text-foreground">
-                  {announcement.isPinned ? '고정' : '일반'}
-                </dd>
+                <dd className="mt-1 text-foreground">{announcement.isPinned ? '고정' : '일반'}</dd>
               </div>
               <div className="px-5 py-3 md:px-6">
                 <dt className="text-xs font-semibold text-muted-foreground">첨부</dt>
@@ -176,6 +175,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const announcement = await queryAnnouncementByID(id)
 
   return {
+    alternates: canonicalAlternates(`/announcements/${id}`),
     title: announcement?.title ? `${announcement.title} | 사랑하는교회` : '교회로그 | 사랑하는교회',
     description: '사랑하는교회 교회로그',
   }

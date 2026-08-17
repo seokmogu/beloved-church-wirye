@@ -7,6 +7,7 @@ import { cache } from 'react'
 
 import { AccessibleContent } from '@/components/AccessibleContent'
 import type { Media } from '@/payload-types'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 type Args = {
   params: Promise<{
@@ -71,7 +72,9 @@ export default async function BulletinDetailPage({ params: paramsPromise }: Args
                 <span className="rounded-sm border border-border px-2 py-1">{bulletinDate}</span>
                 {isPdf && <span className="rounded-sm border border-border px-2 py-1">PDF</span>}
               </div>
-              <p className="text-2xl font-semibold leading-tight text-foreground md:text-3xl">{title}</p>
+              <p className="text-2xl font-semibold leading-tight text-foreground md:text-3xl">
+                {title}
+              </p>
               {bulletin.description && (
                 <p className="mt-3 text-sm text-muted-foreground">{bulletin.description}</p>
               )}
@@ -155,9 +158,11 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const bulletin = await queryBulletinByID(id)
 
   return {
-    title: bulletin?.accessibleContent?.seoTitle || bulletin?.title
-      ? `${bulletin?.accessibleContent?.seoTitle || bulletin?.title} | 사랑하는교회`
-      : '주보 | 사랑하는교회',
+    alternates: canonicalAlternates(`/bulletins/${id}`),
+    title:
+      bulletin?.accessibleContent?.seoTitle || bulletin?.title
+        ? `${bulletin?.accessibleContent?.seoTitle || bulletin?.title} | 사랑하는교회`
+        : '주보 | 사랑하는교회',
     description:
       bulletin?.accessibleContent?.seoDescription ||
       bulletin?.accessibleContent?.summary ||

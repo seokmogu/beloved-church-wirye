@@ -86,10 +86,7 @@ const getPagesSitemap = unstable_cache(
       '/worship',
       '/newcomer',
       '/offering',
-    ].map((path) => ({
-      loc: `${SITE_URL}${path}`,
-      lastmod: dateFallback,
-    }))
+    ].map((path) => ({ loc: `${SITE_URL}${path}` }))
 
     const pageSitemap = pages.docs
       .filter((page) => Boolean(page?.slug))

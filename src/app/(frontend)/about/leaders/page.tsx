@@ -5,8 +5,10 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { PageHero } from '@/components/PageHero'
 import type { Media, SiteSetting } from '@/payload-types'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 export const metadata: Metadata = {
+  alternates: canonicalAlternates('/about/leaders'),
   title: '섬기는 사람들 | 사랑하는교회',
   description: '사랑하는교회를 섬기는 사람들을 소개합니다.',
 }
@@ -19,7 +21,10 @@ function mediaUrl(media: Media | number | null | undefined): string | null {
 
 // CMS 입력의 여분 개행(3줄+)을 단락 구분 1줄로 정규화해 카드 안 빈 공백을 없앤다
 function normalizeBio(bio: string): string {
-  return bio.replace(/\r/g, '').replace(/\n{2,}/g, '\n\n').trim()
+  return bio
+    .replace(/\r/g, '')
+    .replace(/\n{2,}/g, '\n\n')
+    .trim()
 }
 
 async function getSettings(): Promise<SiteSetting | null> {
@@ -106,7 +111,9 @@ export default async function LeadersPage() {
                         {person.role}
                       </p>
                     )}
-                    <h3 className="text-lg font-bold leading-snug text-foreground">{person.name}</h3>
+                    <h3 className="text-lg font-bold leading-snug text-foreground">
+                      {person.name}
+                    </h3>
                     {person.title && (
                       <p className="mt-0.5 text-sm font-medium text-primary">{person.title}</p>
                     )}

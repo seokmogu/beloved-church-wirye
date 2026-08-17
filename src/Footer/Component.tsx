@@ -116,6 +116,7 @@ export async function Footer() {
               {socialLinks.map((item) => (
                 <a
                   key={item.label}
+                  data-analytics-id={`footer_${item.label.toLowerCase()}`}
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 import type { Media, Page, Post, Config } from '../payload-types'
 
+import { canonicalAlternates } from './canonical'
 import { mergeOpenGraph } from './mergeOpenGraph'
 import { getServerSideURL } from './getURL'
 
@@ -19,6 +20,15 @@ const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
   return url
 }
 
+function canonicalPathForSlug(slug: string | string[] | null | undefined) {
+  const normalizedSlug = (Array.isArray(slug) ? slug.join('/') : slug || '').replace(
+    /^\/+|\/+$/g,
+    '',
+  )
+
+  return normalizedSlug === 'home' || !normalizedSlug ? '/' : `/${normalizedSlug}`
+}
+
 export const generateMeta = async (args: {
   doc: Partial<Page> | Partial<Post> | null
 }): Promise<Metadata> => {
@@ -31,6 +41,7 @@ export const generateMeta = async (args: {
     : '사랑하는교회 | Beloved Church Wirye'
 
   return {
+    alternates: canonicalAlternates(canonicalPathForSlug(doc?.slug)),
     description: doc?.meta?.description,
     openGraph: mergeOpenGraph({
       description: doc?.meta?.description || '',

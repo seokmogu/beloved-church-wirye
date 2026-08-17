@@ -7,6 +7,7 @@ import { getPayload } from 'payload'
 import { cache } from 'react'
 
 import { fetchLatestVideos } from '@/lib/youtube'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 type Args = {
   params: Promise<{
@@ -66,7 +67,11 @@ export default async function SermonDetailPage({ params: paramsPromise }: Args) 
         <article className="overflow-hidden border-y-2 border-y-primary bg-card">
           <div className="relative aspect-video bg-black">
             <iframe
-              src={`https://www.youtube-nocookie.com/embed/${videoId}`}
+              data-analytics-content-id={`youtube_${videoId}`}
+              data-analytics-content-type="sermon"
+              data-analytics-embed="youtube"
+              data-youtube-video-id={videoId}
+              src={`https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1&playsinline=1`}
               className="absolute inset-0 h-full w-full border-0"
               title={title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -84,6 +89,7 @@ export default async function SermonDetailPage({ params: paramsPromise }: Args) 
           <div className="border-t border-border bg-muted/25 px-5 py-5 md:px-8">
             <a
               className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary/30 hover:bg-primary/5"
+              data-analytics-id="sermon_youtube_watch"
               href={`https://www.youtube.com/watch?v=${videoId}`}
               rel="noopener noreferrer"
               target="_blank"
@@ -118,7 +124,7 @@ export default async function SermonDetailPage({ params: paramsPromise }: Args) 
                 {transcriptPreview}
               </p>
             </div>
-            <details className="group">
+            <details className="group" data-analytics-id="sermon_transcript">
               <summary className="mt-5 cursor-pointer list-none border-t border-border px-5 py-4 text-foreground md:px-8">
                 <span className="flex items-center justify-between gap-4">
                   <span className="shrink-0 text-sm font-medium text-primary">전체 전사 보기</span>
@@ -164,6 +170,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 
   const sermon = await querySermonByVideoId(videoId)
   return {
+    alternates: canonicalAlternates(`/sermon/${videoId}`),
     title: sermon?.title ? `${sermon.title} | 사랑하는교회` : '설교영상 | 사랑하는교회',
     description:
       sermon?.publicTranscript && sermon.transcriptStatus !== 'unavailable'

@@ -6,8 +6,10 @@ import config from '@payload-config'
 import { FormattedText } from '@/components/FormattedText'
 import { PageHero } from '@/components/PageHero'
 import type { SiteSetting } from '@/payload-types'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 export const metadata: Metadata = {
+  alternates: canonicalAlternates('/about'),
   title: '교회소개 | 사랑하는교회',
   description: '사랑하는교회 위례 소개',
 }
@@ -138,7 +140,9 @@ export default async function AboutPage() {
           <div className="grid gap-4 md:grid-cols-2">
             {subPages.map((page) => (
               <Link
-                data-analytics-id={page.href === '/newcomer' ? 'about_newcomer_registration' : undefined}
+                data-analytics-id={
+                  page.href === '/newcomer' ? 'about_newcomer_registration' : undefined
+                }
                 className="rounded-lg border border-border bg-card p-6 transition-shadow hover:shadow-md"
                 href={page.href}
                 key={page.href}

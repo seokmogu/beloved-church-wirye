@@ -1,18 +1,38 @@
 import 'server-only'
 
 type MetricValue = { value?: string | null }
+type DimensionValue = { value?: string | null }
+type ReportRow = {
+  dimensionValues?: DimensionValue[]
+  metricValues?: MetricValue[]
+}
 
 type RunReportResponse = {
-  rows?: Array<{
-    metricValues?: MetricValue[]
-  }>
+  rows?: ReportRow[]
+}
+
+export type GoogleAnalyticsFunnel = {
+  formStarts: number
+  landingPageViews: number
+  leadConversions: number
+  newcomerCtaClicks: number
+  newcomerPageViews: number
+}
+
+export type GoogleAnalyticsAcquisitionChannel = {
+  activeUsers: number
+  leadConversions: number
+  name: string
+  sessions: number
 }
 
 export type GoogleAnalyticsSummary =
   | {
       status: 'ready'
       activeUsers: number
+      acquisitionChannels: GoogleAnalyticsAcquisitionChannel[]
       clicks: number
+      funnel: GoogleAnalyticsFunnel
       leadConversions: number
       newcomerPageViews: number
       pageViews: number
@@ -23,12 +43,37 @@ export type GoogleAnalyticsSummary =
 
 const analyticsScope = 'https://www.googleapis.com/auth/analytics.readonly'
 const dateRanges = [{ endDate: 'today', startDate: '28daysAgo' }]
+const funnelEventNames = [
+  'landing_page_view',
+  'newcomer_cta_click',
+  'form_start',
+  'generate_lead',
+] as const
 
 function getMetricValue(data: RunReportResponse, index = 0) {
   const value = data.rows?.[0]?.metricValues?.[index]?.value
   const numberValue = Number(value)
 
   return Number.isFinite(numberValue) ? numberValue : 0
+}
+
+function getDimensionValue(row: ReportRow, index = 0) {
+  return row.dimensionValues?.[index]?.value || ''
+}
+
+function eventCountByName(data: RunReportResponse) {
+  return new Map(
+    (data.rows ?? []).map((row) => [getDimensionValue(row), getMetricValue({ rows: [row] })]),
+  )
+}
+
+function eventNameFilter(value: string) {
+  return {
+    filter: {
+      fieldName: 'eventName',
+      stringFilter: { matchType: 'EXACT', value },
+    },
+  }
 }
 
 async function getAccessToken() {
@@ -94,48 +139,82 @@ export async function getGoogleAnalyticsSummary(): Promise<GoogleAnalyticsSummar
     const accessToken = await getAccessToken()
     if (!accessToken) return { status: 'not-configured' }
 
-    const [overview, clicks, leadConversions, newcomerPageViews] = await Promise.all([
-      runReport(accessToken, {
-        dateRanges,
-        metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }],
-      }),
-      runReport(accessToken, {
-        dateRanges,
-        dimensionFilter: {
-          filter: {
-            fieldName: 'eventName',
-            stringFilter: { matchType: 'EXACT', value: 'ui_click' },
+    const [overview, clicks, newcomerPageViews, funnelEvents, acquisitionChannels, channelLeads] =
+      await Promise.all([
+        runReport(accessToken, {
+          dateRanges,
+          metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }],
+        }),
+        runReport(accessToken, {
+          dateRanges,
+          dimensionFilter: eventNameFilter('ui_click'),
+          metrics: [{ name: 'eventCount' }],
+        }),
+        runReport(accessToken, {
+          dateRanges,
+          dimensionFilter: {
+            filter: {
+              fieldName: 'pagePath',
+              stringFilter: { matchType: 'EXACT', value: '/newcomer' },
+            },
           },
-        },
-        metrics: [{ name: 'eventCount' }],
-      }),
-      runReport(accessToken, {
-        dateRanges,
-        dimensionFilter: {
-          filter: {
-            fieldName: 'eventName',
-            stringFilter: { matchType: 'EXACT', value: 'generate_lead' },
+          metrics: [{ name: 'screenPageViews' }],
+        }),
+        runReport(accessToken, {
+          dateRanges,
+          dimensionFilter: {
+            filter: {
+              fieldName: 'eventName',
+              inListFilter: { caseSensitive: true, values: [...funnelEventNames] },
+            },
           },
-        },
-        metrics: [{ name: 'eventCount' }],
-      }),
-      runReport(accessToken, {
-        dateRanges,
-        dimensionFilter: {
-          filter: {
-            fieldName: 'pagePath',
-            stringFilter: { matchType: 'EXACT', value: '/newcomer' },
-          },
-        },
-        metrics: [{ name: 'screenPageViews' }],
-      }),
-    ])
+          dimensions: [{ name: 'eventName' }],
+          metrics: [{ name: 'eventCount' }],
+        }),
+        runReport(accessToken, {
+          dateRanges,
+          dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+          limit: 6,
+          metrics: [{ name: 'sessions' }, { name: 'activeUsers' }],
+          orderBys: [{ desc: true, metric: { metricName: 'sessions' } }],
+        }),
+        runReport(accessToken, {
+          dateRanges,
+          dimensionFilter: eventNameFilter('generate_lead'),
+          dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+          metrics: [{ name: 'eventCount' }],
+        }),
+      ])
+
+    const funnelCounts = eventCountByName(funnelEvents)
+    const leadsByChannel = eventCountByName(channelLeads)
+    const channels = (acquisitionChannels.rows ?? []).map((row) => {
+      const name = getDimensionValue(row) || 'Unassigned'
+
+      return {
+        activeUsers: getMetricValue({ rows: [row] }, 1),
+        leadConversions: leadsByChannel.get(name) ?? 0,
+        name,
+        sessions: getMetricValue({ rows: [row] }),
+      }
+    })
+
+    const leadConversions = funnelCounts.get('generate_lead') ?? 0
+    const newcomerViews = getMetricValue(newcomerPageViews)
 
     return {
       activeUsers: getMetricValue(overview, 1),
+      acquisitionChannels: channels,
       clicks: getMetricValue(clicks),
-      leadConversions: getMetricValue(leadConversions),
-      newcomerPageViews: getMetricValue(newcomerPageViews),
+      funnel: {
+        formStarts: funnelCounts.get('form_start') ?? 0,
+        landingPageViews: funnelCounts.get('landing_page_view') ?? 0,
+        leadConversions,
+        newcomerCtaClicks: funnelCounts.get('newcomer_cta_click') ?? 0,
+        newcomerPageViews: newcomerViews,
+      },
+      leadConversions,
+      newcomerPageViews: newcomerViews,
       pageViews: getMetricValue(overview),
       status: 'ready',
     }

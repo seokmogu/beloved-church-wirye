@@ -112,7 +112,7 @@ export function NewcomerForm() {
     const { name, value, type } = event.target
 
     if (!hasTrackedFormStart && name !== 'website') {
-      trackAnalyticsEvent('form_start', { form_name: 'newcomer_registration' })
+      trackAnalyticsEvent('form_start', { form_id: 'newcomer_registration' })
       setHasTrackedFormStart(true)
     }
 
@@ -138,17 +138,33 @@ export function NewcomerForm() {
     event.preventDefault()
     setError(null)
 
+    trackAnalyticsEvent('form_submit_attempt', {
+      form_id: 'newcomer_registration',
+    })
+
     if (formData.sourceChannels.length === 0) {
+      trackAnalyticsEvent('form_error', {
+        error_type: 'validation',
+        form_id: 'newcomer_registration',
+      })
       setError('방문경로를 하나 이상 선택해 주세요.')
       return
     }
 
     if (!formData.privacyConsent) {
+      trackAnalyticsEvent('form_error', {
+        error_type: 'validation',
+        form_id: 'newcomer_registration',
+      })
       setError('개인정보 사용에 동의해 주세요.')
       return
     }
 
     if (!formData.groupChatConsent || !formData.conductConsent || !formData.faithCommunityConsent) {
+      trackAnalyticsEvent('form_error', {
+        error_type: 'validation',
+        form_id: 'newcomer_registration',
+      })
       setError('동의/서약 항목을 모두 확인해 주세요.')
       return
     }
@@ -172,12 +188,15 @@ export function NewcomerForm() {
       }
 
       trackAnalyticsEvent('generate_lead', {
-        form_name: 'newcomer_registration',
-        lead_source: formData.sourceChannels[0] || 'unknown',
+        form_id: 'newcomer_registration',
       })
       router.push('/newcomer/thank-you')
     } catch (err) {
       console.error('Form submission error:', err)
+      trackAnalyticsEvent('form_error', {
+        error_type: 'submit_failed',
+        form_id: 'newcomer_registration',
+      })
       setError(err instanceof Error ? err.message : '등록 중 오류가 발생했습니다.')
     } finally {
       setIsSubmitting(false)

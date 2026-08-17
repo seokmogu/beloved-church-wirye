@@ -6,11 +6,13 @@ import { getPayload } from 'payload'
 import { EmptyState } from '@/components/EmptyState'
 import { PageHero } from '@/components/PageHero'
 import type { ChurchNew, Media } from '@/payload-types'
+import { canonicalAlternates } from '@/utilities/canonical'
 
 import { ChurchNewsImage } from './ChurchNewsImage'
 import { getChurchNewsImageSource } from './mediaImage'
 
 export const metadata: Metadata = {
+  alternates: canonicalAlternates('/church-news'),
   title: '교회소식 | 사랑하는교회',
   description: '사랑하는교회 주간 교회소식',
 }
@@ -118,11 +120,11 @@ export default async function ChurchNewsPage() {
                       {item.title || '교회소식'}
                     </h2>
                     {summary ? (
-                      <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                        {summary}
-                      </p>
+                      <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{summary}</p>
                     ) : null}
-                    <p className="mt-3 text-xs text-muted-foreground">이미지를 눌러 광고 내용을 이어서 확인하세요.</p>
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      이미지를 눌러 광고 내용을 이어서 확인하세요.
+                    </p>
                   </div>
                 </Link>
               )

@@ -124,6 +124,7 @@ export function NaverMapSection({
                     )}
                   </p>
                   <a
+                    data-analytics-id="naver_directions"
                     href={mapSearchUrl}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -195,6 +196,8 @@ export function NaverMapSection({
                 ref={mapRef}
                 className="h-[400px] w-full overflow-hidden rounded-lg border border-border shadow-[0_18px_60px_rgba(20,42,33,0.08)]"
                 aria-label="Church location map"
+                data-analytics-content-type="church_location"
+                data-analytics-embed="naver_map"
               />
             </div>
 
@@ -232,6 +235,7 @@ export function NaverMapSection({
                   )}
                 </p>
                 <a
+                  data-analytics-id="naver_directions"
                   href={mapSearchUrl}
                   target="_blank"
                   rel="noopener noreferrer"
