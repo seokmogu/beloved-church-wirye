@@ -10,6 +10,8 @@ import { Announcements } from './collections/Announcements'
 import { Bulletins } from './collections/Bulletins'
 import { ChurchNews } from './collections/ChurchNews'
 import { ChurchVideos } from './collections/ChurchVideos'
+import { GalleryAlbums } from './collections/GalleryAlbums'
+import { GalleryMedia } from './collections/GalleryMedia'
 import { Media } from './collections/Media'
 import { Newcomers } from './collections/Newcomers'
 import { Pages } from './collections/Pages'
@@ -25,11 +27,27 @@ import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getPayloadAllowedOrigins, getPayloadServerURL } from './utilities/getURL'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { s3Storage } from '@payloadcms/storage-s3'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const allowedOrigins = getPayloadAllowedOrigins()
 const serverURL = getPayloadServerURL()
+const r2EnvironmentReady = Boolean(
+  process.env.R2_ACCESS_KEY_ID &&
+    process.env.R2_BUCKET &&
+    process.env.R2_ENDPOINT &&
+    process.env.R2_PUBLIC_URL &&
+    process.env.R2_SECRET_ACCESS_KEY,
+)
+
+function r2PublicFileURL(collectionPrefix: string) {
+  return ({ filename, prefix }: { filename: string; prefix?: string | null }): string => {
+    const base = (process.env.R2_PUBLIC_URL || '').replace(/\/$/, '')
+    const key = [collectionPrefix, prefix, filename].filter(Boolean).join('/')
+    return `${base}/${key}`
+  }
+}
 
 export default buildConfig({
   i18n: {
@@ -88,6 +106,8 @@ export default buildConfig({
     Announcements,
     ChurchNews,
     ChurchVideos,
+    GalleryAlbums,
+    GalleryMedia,
     Bulletins,
     Sermons,
     Posts,
@@ -109,6 +129,30 @@ export default buildConfig({
               media: true,
             },
             token: process.env.BLOB_READ_WRITE_TOKEN,
+          }),
+        ]
+      : []),
+    ...(r2EnvironmentReady
+      ? [
+          s3Storage({
+            bucket: process.env.R2_BUCKET || '',
+            collections: {
+              'gallery-media': {
+                disablePayloadAccessControl: true,
+                generateFileURL: r2PublicFileURL('gallery'),
+                prefix: 'gallery',
+              },
+            },
+            config: {
+              credentials: {
+                accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+                secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+              },
+              endpoint: process.env.R2_ENDPOINT || '',
+              forcePathStyle: true,
+              region: 'auto',
+            },
+            useCompositePrefixes: true,
           }),
         ]
       : []),

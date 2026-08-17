@@ -11,6 +11,19 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   : process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3000'
 
+function remotePattern(urlValue: string) {
+  const url = new URL(urlValue)
+
+  return {
+    hostname: url.hostname,
+    protocol: url.protocol.replace(':', '') as 'http' | 'https',
+  }
+}
+
+const configuredImageOrigins = [NEXT_PUBLIC_SERVER_URL, process.env.R2_PUBLIC_URL].filter(
+  (value): value is string => Boolean(value),
+)
+
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['127.0.0.1', '100.94.135.5', '100.65.249.52', '192.168.219.119'],
   experimental: {
@@ -27,14 +40,7 @@ const nextConfig: NextConfig = {
     // 75(기본)로 대부분의 썸네일을 서빙해 전송량을 줄이고, 원본급이 필요한 곳만 100 사용
     qualities: [75, 100],
     remotePatterns: [
-      ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map((item) => {
-        const url = new URL(item)
-
-        return {
-          hostname: url.hostname,
-          protocol: url.protocol.replace(':', '') as 'http' | 'https',
-        }
-      }),
+      ...configuredImageOrigins.map(remotePattern),
       { hostname: 'belovedchurch.co.kr', protocol: 'https' },
       { hostname: 'www.belovedchurch.co.kr', protocol: 'https' },
       { hostname: 'images.unsplash.com', protocol: 'https' },

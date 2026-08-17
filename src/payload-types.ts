@@ -71,6 +71,8 @@ export interface Config {
     announcements: Announcement;
     'church-news': ChurchNew;
     'church-videos': ChurchVideo;
+    'gallery-albums': GalleryAlbum;
+    'gallery-media': GalleryMedia;
     bulletins: Bulletin;
     sermons: Sermon;
     posts: Post;
@@ -98,6 +100,8 @@ export interface Config {
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     'church-news': ChurchNewsSelect<false> | ChurchNewsSelect<true>;
     'church-videos': ChurchVideosSelect<false> | ChurchVideosSelect<true>;
+    'gallery-albums': GalleryAlbumsSelect<false> | GalleryAlbumsSelect<true>;
+    'gallery-media': GalleryMediaSelect<false> | GalleryMediaSelect<true>;
     bulletins: BulletinsSelect<false> | BulletinsSelect<true>;
     sermons: SermonsSelect<false> | SermonsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -210,6 +214,7 @@ export interface Page {
                   | '/sermon'
                   | '/announcements'
                   | '/church-news'
+                  | '/gallery'
                   | '/church-news/videos'
                   | '/bulletins'
                   | '/newcomer'
@@ -592,6 +597,7 @@ export interface ContentBlock {
                 | '/sermon'
                 | '/announcements'
                 | '/church-news'
+                | '/gallery'
                 | '/church-news/videos'
                 | '/bulletins'
                 | '/newcomer'
@@ -728,7 +734,7 @@ export interface ChurchNew {
       }[]
     | null;
   /**
-   * 이미지 전사 작업이 완료되면 자동으로 채워집니다. 공개 페이지의 이미지 아래에 실제 텍스트로 표시됩니다.
+   * 광고 이미지의 제목·구획·불릿 순서를 원문 그대로 기록합니다. 이미지에 없는 정보를 만들지 않으며, 공개 페이지와 검색 결과에 사용됩니다.
    */
   accessibleContent?: {
     summary?: string | null;
@@ -774,6 +780,86 @@ export interface ChurchVideo {
   status: 'draft' | 'published';
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * 행사별 사진 앨범을 등록하고 공개 여부를 관리합니다.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-albums".
+ */
+export interface GalleryAlbum {
+  id: number;
+  title: string;
+  eventDate: string;
+  /**
+   * 체크하면 로그인 없이 행사갤러리에 표시됩니다. 해제하면 관리자 화면에서만 보입니다.
+   */
+  isPublic?: boolean | null;
+  description?: string | null;
+  /**
+   * 관리 화면에서는 앨범 첫 번째 사진이 대표 사진으로 자동 설정됩니다.
+   */
+  coverImage?: (number | null) | GalleryMedia;
+  /**
+   * 첫 번째 사진이 앨범 대표 사진이 됩니다.
+   */
+  images?:
+    | {
+        image: number | GalleryMedia;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * 행사갤러리 전용 사진입니다. Cloudflare R2 저장소를 사용합니다.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-media".
+ */
+export interface GalleryMedia {
+  id: number;
+  alt?: string | null;
+  contentHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    display?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * 주보 파일만 올려도 날짜와 제목은 자동으로 채워집니다.
@@ -1346,6 +1432,14 @@ export interface PayloadLockedDocument {
         value: number | ChurchVideo;
       } | null)
     | ({
+        relationTo: 'gallery-albums';
+        value: number | GalleryAlbum;
+      } | null)
+    | ({
+        relationTo: 'gallery-media';
+        value: number | GalleryMedia;
+      } | null)
+    | ({
         relationTo: 'bulletins';
         value: number | Bulletin;
       } | null)
@@ -1659,6 +1753,79 @@ export interface ChurchVideosSelect<T extends boolean = true> {
   status?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-albums_select".
+ */
+export interface GalleryAlbumsSelect<T extends boolean = true> {
+  title?: T;
+  eventDate?: T;
+  isPublic?: T;
+  description?: T;
+  coverImage?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-media_select".
+ */
+export interface GalleryMediaSelect<T extends boolean = true> {
+  alt?: T;
+  contentHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        display?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2396,6 +2563,7 @@ export interface Header {
                 | '/sermon'
                 | '/announcements'
                 | '/church-news'
+                | '/gallery'
                 | '/church-news/videos'
                 | '/bulletins'
                 | '/newcomer'
@@ -2431,6 +2599,7 @@ export interface Header {
                       | '/sermon'
                       | '/announcements'
                       | '/church-news'
+                      | '/gallery'
                       | '/church-news/videos'
                       | '/bulletins'
                       | '/newcomer'
@@ -2474,6 +2643,7 @@ export interface Footer {
                 | '/sermon'
                 | '/announcements'
                 | '/church-news'
+                | '/gallery'
                 | '/church-news/videos'
                 | '/bulletins'
                 | '/newcomer'

@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer'
 import sharp from 'sharp'
 
 // All manage-form image uploads are normalized to WebP and capped in size before they
-// reach storage (Vercel Blob), keeping the gallery cheap to host. Non-images pass through.
+// reach object storage, keeping uploads compact. Non-images pass through.
 export const UPLOAD_IMAGE_MAX_WIDTH = 1600
 export const UPLOAD_IMAGE_MAX_HEIGHT = 2000
 export const UPLOAD_IMAGE_WEBP_QUALITY = 80

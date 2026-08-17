@@ -30,6 +30,7 @@ const internalPathOptions = [
   { label: '설교영상', value: '/sermon' },
   { label: '공지사항', value: '/announcements' },
   { label: '교회소식', value: '/church-news' },
+  { label: '행사갤러리', value: '/gallery' },
   { label: '동영상', value: '/church-news/videos' },
   { label: '헌금안내', value: '/offering' },
 ]
@@ -41,7 +42,7 @@ const publicMenuStructure = [
   },
   { label: '설교영상' },
   { label: '교회로그' },
-  { children: ['교회소식', '동영상', '주보'], label: '교회소식' },
+  { children: ['교회소식', '행사갤러리', '동영상', '주보'], label: '교회소식' },
 ]
 
 export default async function ManageMenuPage({ searchParams }: { searchParams: MenuSearchParams }) {
