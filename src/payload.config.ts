@@ -37,15 +37,13 @@ const r2EnvironmentReady = Boolean(
   process.env.R2_ACCESS_KEY_ID &&
     process.env.R2_BUCKET &&
     process.env.R2_ENDPOINT &&
-    process.env.R2_PUBLIC_URL &&
     process.env.R2_SECRET_ACCESS_KEY,
 )
 
-function r2PublicFileURL(collectionPrefix: string) {
+function r2ProtectedFileURL() {
   return ({ filename, prefix }: { filename: string; prefix?: string | null }): string => {
-    const base = (process.env.R2_PUBLIC_URL || '').replace(/\/$/, '')
-    const key = [collectionPrefix, prefix, filename].filter(Boolean).join('/')
-    return `${base}/${key}`
+    const query = prefix ? `?prefix=${encodeURIComponent(prefix)}` : ''
+    return `/api/gallery-media/${encodeURIComponent(filename)}${query}`
   }
 }
 
@@ -138,8 +136,7 @@ export default buildConfig({
             bucket: process.env.R2_BUCKET || '',
             collections: {
               'gallery-media': {
-                disablePayloadAccessControl: true,
-                generateFileURL: r2PublicFileURL('gallery'),
+                generateFileURL: r2ProtectedFileURL(),
                 prefix: 'gallery',
               },
             },

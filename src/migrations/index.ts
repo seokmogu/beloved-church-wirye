@@ -18,6 +18,7 @@ import * as migration_20260707_000000_instagram_display_count from './20260707_0
 import * as migration_20260810_000000_sermon_transcripts from './20260810_000000_sermon_transcripts';
 import * as migration_20260810_000000_accessible_content from './20260810_000000_accessible_content';
 import * as migration_20260817_000000_gallery_r2 from './20260817_000000_gallery_r2';
+import * as migration_20260818_000000_gallery_media_prefix from './20260818_000000_gallery_media_prefix';
 
 export const migrations = [
   {
@@ -119,5 +120,10 @@ export const migrations = [
     up: migration_20260817_000000_gallery_r2.up,
     down: migration_20260817_000000_gallery_r2.down,
     name: '20260817_000000_gallery_r2',
+  },
+  {
+    up: migration_20260818_000000_gallery_media_prefix.up,
+    down: migration_20260818_000000_gallery_media_prefix.down,
+    name: '20260818_000000_gallery_media_prefix',
   },
 ];
