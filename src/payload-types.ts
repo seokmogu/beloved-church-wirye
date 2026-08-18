@@ -823,6 +823,7 @@ export interface GalleryMedia {
   id: number;
   alt?: string | null;
   contentHash?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1781,6 +1782,7 @@ export interface GalleryAlbumsSelect<T extends boolean = true> {
 export interface GalleryMediaSelect<T extends boolean = true> {
   alt?: T;
   contentHash?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

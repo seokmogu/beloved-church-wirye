@@ -12,7 +12,6 @@ declare global {
       R2_BUCKET?: string
       R2_ENDPOINT?: string
       R2_GALLERY_STORAGE_LIMIT_BYTES?: string
-      R2_PUBLIC_URL?: string
       R2_SECRET_ACCESS_KEY?: string
       INSTAGRAM_PUSH_SECRET?: string
       IMAGE_TRANSCRIPTION_WORKER_SECRET?: string

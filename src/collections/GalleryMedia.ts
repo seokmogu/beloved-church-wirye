@@ -12,8 +12,8 @@ const dirname = path.dirname(filename)
  * 행사갤러리 전용 업로드 컬렉션입니다.
  *
  * 공용 Media와 분리해 R2의 작은 이미지 파생본 정책을 적용합니다. 이 컬렉션의
- * 파일 URL은 R2 공개 도메인으로 직접 제공되므로, 비공개 앨범은 "공개 갤러리에
- * 표시하지 않음"을 뜻하며 민감 사진의 접근 제어 기능은 아닙니다.
+ * 파일은 R2 비공개 버킷에 저장하고, 앨범의 공개 여부와 관리자 인증을 확인하는
+ * 애플리케이션 경유 URL로만 제공합니다.
  */
 export const GalleryMedia: CollectionConfig = {
   slug: 'gallery-media',
@@ -50,6 +50,14 @@ export const GalleryMedia: CollectionConfig = {
       index: true,
       admin: {
         hidden: true,
+      },
+    },
+    {
+      name: 'prefix',
+      type: 'text',
+      admin: {
+        hidden: true,
+        readOnly: true,
       },
     },
   ],

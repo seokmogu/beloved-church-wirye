@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@aws-sdk/client-s3':
+        specifier: 3.1111.0
+        version: 3.1111.0
       '@neondatabase/auth':
         specifier: 0.4.2-beta
         version: 0.4.2-beta(b3791c7a9a576d2d4f3724084e22e478)
