@@ -11,7 +11,7 @@ const getPagesSitemap = unstable_cache(
       process.env.VERCEL_PROJECT_PRODUCTION_URL ||
       'https://example.com'
 
-    const [pages, announcements, bulletins, churchNews, sermons, churchVideos] = await Promise.all([
+    const [pages, announcements, bulletins, churchNews, galleryAlbums, sermons, churchVideos] = await Promise.all([
       payload.find({
         collection: 'pages',
         overrideAccess: false,
@@ -53,6 +53,15 @@ const getPagesSitemap = unstable_cache(
         select: { id: true, date: true, updatedAt: true },
       }),
       payload.find({
+        collection: 'gallery-albums',
+        overrideAccess: false,
+        depth: 0,
+        limit: 1000,
+        pagination: false,
+        where: { isPublic: { equals: true } },
+        select: { id: true, eventDate: true, updatedAt: true },
+      }),
+      payload.find({
         collection: 'sermons',
         overrideAccess: false,
         depth: 0,
@@ -82,6 +91,7 @@ const getPagesSitemap = unstable_cache(
       '/announcements',
       '/bulletins',
       '/church-news',
+      '/gallery',
       '/church-news/videos',
       '/worship',
       '/newcomer',
@@ -110,6 +120,11 @@ const getPagesSitemap = unstable_cache(
       lastmod: news.updatedAt || news.date || dateFallback,
     }))
 
+    const gallerySitemap = galleryAlbums.docs.map((album) => ({
+      loc: `${SITE_URL}/gallery/${album.id}`,
+      lastmod: album.updatedAt || album.eventDate || dateFallback,
+    }))
+
     const sermonSitemap = sermons.docs
       .filter((sermon) => Boolean(sermon.youtubeId))
       .map((sermon) => ({
@@ -128,6 +143,7 @@ const getPagesSitemap = unstable_cache(
       ...announcementSitemap,
       ...bulletinSitemap,
       ...churchNewsSitemap,
+      ...gallerySitemap,
       ...sermonSitemap,
       ...churchVideoSitemap,
     ]

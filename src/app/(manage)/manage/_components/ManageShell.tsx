@@ -6,6 +6,7 @@ import {
   HandCoins,
   HelpCircle,
   Home,
+  Images,
   Info,
   Instagram,
   LayoutDashboard,
@@ -32,6 +33,7 @@ type ActiveKey =
   | 'bulletins'
   | 'churchNews'
   | 'dashboard'
+  | 'gallery'
   | 'guide'
   | 'home'
   | 'instagram'
@@ -89,6 +91,7 @@ const navSections: {
       {
         items: [
           { href: '/manage/church-news', icon: Newspaper, key: 'churchNews', label: '교회소식' },
+          { href: '/manage/gallery', icon: Images, key: 'gallery', label: '행사갤러리' },
           { href: '/manage/videos', icon: Video, key: 'videos', label: '동영상' },
         ],
         label: '교회소식',

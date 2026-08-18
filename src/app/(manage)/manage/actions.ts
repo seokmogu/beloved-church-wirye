@@ -21,6 +21,7 @@ const publicPaths = [
   '/announcements',
   '/newcomer',
   '/church-news',
+  '/gallery',
   '/church-news/videos',
   '/sermon',
   '/worship',
@@ -304,6 +305,46 @@ export async function deleteChurchNewsAction(formData: FormData) {
   await payload.delete({ collection: 'church-news', id })
   revalidateManageAndPublic('/manage/church-news')
   redirect('/manage/church-news')
+}
+
+export async function saveGalleryAlbumAction(formData: FormData) {
+  await requireManageActionUser()
+  const payload = await getManagePayload()
+  const id = optionalNumber(formData, 'id')
+
+  try {
+    const images = parseGalleryImages(formData)
+    const data = {
+      coverImage: images[0]?.image || null,
+      description: optionalString(formData, 'description'),
+      eventDate: dateInputToISO(stringValue(formData, 'eventDate')),
+      images,
+      isPublic: checkboxValue(formData, 'isPublic'),
+      title: requiredString(formData, 'title'),
+    }
+
+    if (id) {
+      await payload.update({ collection: 'gallery-albums', data: data as any, id })
+    } else {
+      await payload.create({ collection: 'gallery-albums', data: data as any })
+    }
+  } catch (error) {
+    console.error('Failed to save gallery album:', error)
+    redirect(galleryErrorPath(id, 'save'))
+  }
+
+  revalidateManageAndPublic('/manage/gallery')
+  redirect('/manage/gallery')
+}
+
+export async function deleteGalleryAlbumAction(formData: FormData) {
+  await requireManageActionUser()
+  const id = requiredNumber(formData, 'id')
+  const payload = await getManagePayload()
+
+  await payload.delete({ collection: 'gallery-albums', id })
+  revalidateManageAndPublic('/manage/gallery')
+  redirect('/manage/gallery')
 }
 
 export async function saveBannerAction(formData: FormData) {
@@ -737,6 +778,11 @@ function churchNewsErrorPath(id: number | undefined, error: 'storage' | 'upload'
   return `${path}?error=${error}`
 }
 
+function galleryErrorPath(id: number | undefined, error: 'save' | 'storage' | 'upload'): string {
+  const path = id ? `/manage/gallery/${id}` : '/manage/gallery/new'
+  return `${path}?error=${error}`
+}
+
 function formErrorPath(basePath: string, id: number | undefined): string {
   const path = id ? `${basePath}/${id}` : `${basePath}/new`
   return `${path}?error=save`
@@ -988,6 +1034,31 @@ function parseExistingImageRows(formData: FormData, prefix: string) {
       return { caption, image: relationValueFromString(imageId) }
     })
     .filter((row): row is { caption: string | null; image: number | string } => Boolean(row))
+}
+
+function parseGalleryImages(formData: FormData) {
+  const rowIds = stringValues(formData, 'galleryImageRowId')
+  const imageIds = stringValues(formData, 'galleryImageId')
+  const captions = stringValues(formData, 'galleryImageCaption')
+  const existingImages = imageIds
+    .map((imageId, index) => {
+      if (!imageId || formData.get(`galleryRemoveImage-${index}`) === 'on') return null
+
+      const item: { caption: string | null; id?: string; image: number | string } = {
+        caption: captions[index] || null,
+        image: relationValueFromString(imageId),
+      }
+      if (rowIds[index]) item.id = rowIds[index]
+      return item
+    })
+    .filter((item): item is { caption: string | null; id?: string; image: number | string } =>
+      Boolean(item),
+    )
+  const uploadedImages = stringValues(formData, 'uploadedGalleryImageId')
+    .filter(Boolean)
+    .map((imageId) => ({ caption: null, image: relationValueFromString(imageId) }))
+
+  return [...existingImages, ...uploadedImages]
 }
 
 async function parseLeaders(

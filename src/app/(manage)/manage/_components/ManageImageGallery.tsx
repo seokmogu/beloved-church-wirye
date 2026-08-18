@@ -1,6 +1,4 @@
 'use client'
-
-import Image from 'next/image'
 import { useState } from 'react'
 
 export type ManageGalleryItem = {
@@ -94,7 +92,8 @@ export function ManageImageGallery({
               title="끌어서 순서 변경"
             >
               {item.url ? (
-                <Image alt={item.alt} fill sizes="220px" src={item.url} unoptimized />
+                // eslint-disable-next-line @next/next/no-img-element -- R2 custom host is configured at deployment time.
+                <img alt={item.alt} className="h-full w-full object-cover" src={item.url} />
               ) : (
                 <span>이미지 미리보기 없음</span>
               )}
