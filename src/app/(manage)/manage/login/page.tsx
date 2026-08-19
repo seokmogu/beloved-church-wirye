@@ -18,9 +18,8 @@ export default async function ManageLoginPage({
   searchParams: LoginSearchParams
 }) {
   const params = await searchParams
-  // The Neon proxy deliberately skips this public login endpoint. Protected
-  // /manage routes validate sessions before rendering, so avoid trusting or
-  // refreshing any stale session cache from this Server Component.
+  // The proxy deliberately skips this public login endpoint. Protected
+  // /manage routes validate Better Auth sessions before rendering.
   const state = await getManageAuthState({ includeUser: false })
   const next = getStringParam(params.next) || '/manage'
   const error = getStringParam(params.error)

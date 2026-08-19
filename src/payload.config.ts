@@ -1,4 +1,4 @@
-import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
+import { postgresAdapter } from '@payloadcms/db-postgres'
 import sharp from 'sharp'
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
@@ -39,7 +39,6 @@ const r2EnvironmentReady = Boolean(
     process.env.R2_ENDPOINT &&
     process.env.R2_SECRET_ACCESS_KEY,
 )
-
 function r2ProtectedFileURL() {
   return ({ filename, prefix }: { filename: string; prefix?: string | null }): string => {
     const query = prefix ? `?prefix=${encodeURIComponent(prefix)}` : ''
@@ -93,9 +92,14 @@ export default buildConfig({
   },
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
-  db: vercelPostgresAdapter({
+  db: postgresAdapter({
     pool: {
       connectionString: process.env.POSTGRES_URL || '',
+      connectionTimeoutMillis: 5_000,
+      idleTimeoutMillis: 10_000,
+      max: 2,
+      // Pin Payload's schema before it issues unqualified CMS queries.
+      onConnect: (client) => client.query('SET search_path TO public'),
     },
     push: false,
   }),
