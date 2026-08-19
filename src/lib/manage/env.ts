@@ -1,48 +1,24 @@
 import 'server-only'
 
-export type ManageAuthProvider = 'neon' | 'supabase'
-
-export type ManageSupabaseConfig = {
-  key?: string
-  keyName?: string
-  url?: string
-}
-
-export type ManageNeonAuthConfig = {
+export type ManageAuthConfig = {
   baseUrl?: string
-  cookieSecret?: string
+  secret?: string
 }
 
-export function getManageAuthProvider(): ManageAuthProvider | null {
-  const configuredProvider = process.env.MANAGE_AUTH_PROVIDER?.trim().toLowerCase()
-
-  if (!configuredProvider || configuredProvider === 'supabase') return 'supabase'
-  if (configuredProvider === 'neon') return 'neon'
-
-  return null
-}
-
-export function getManageSupabaseConfig(): ManageSupabaseConfig {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
-  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim()
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()
-
+export function getManageAuthConfig(): ManageAuthConfig {
   return {
-    key: publishableKey || anonKey,
-    keyName: publishableKey
-      ? 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'
-      : anonKey
-        ? 'NEXT_PUBLIC_SUPABASE_ANON_KEY'
-        : undefined,
-    url,
+    baseUrl: process.env.NEXT_PUBLIC_SERVER_URL?.trim(),
+    secret: process.env.MANAGE_AUTH_SECRET?.trim(),
   }
 }
 
-export function getManageNeonAuthConfig(): ManageNeonAuthConfig {
-  return {
-    baseUrl: process.env.NEON_AUTH_BASE_URL?.trim(),
-    cookieSecret: process.env.NEON_AUTH_COOKIE_SECRET?.trim(),
-  }
+export function getManageTrustedOrigins(): string[] {
+  const candidates = [
+    process.env.NEXT_PUBLIC_SERVER_URL,
+    ...(process.env.PAYLOAD_PUBLIC_ORIGINS || '').split(','),
+  ]
+
+  return [...new Set(candidates.map((value) => value?.trim()).filter(isHttpUrl))]
 }
 
 export function getManageAdminEmails(): string[] {
@@ -77,33 +53,14 @@ export function resolveManageLoginIdentifier(identifier: string): string {
 }
 
 export function getManageMissingEnv(): string[] {
-  const provider = getManageAuthProvider()
   const missing: string[] = []
+  const { baseUrl, secret } = getManageAuthConfig()
 
-  if (!provider) {
-    missing.push('MANAGE_AUTH_PROVIDER (supabase 또는 neon)')
-  } else if (provider === 'supabase') {
-    const { key, url } = getManageSupabaseConfig()
+  if (!baseUrl) missing.push('NEXT_PUBLIC_SERVER_URL')
+  else if (!isHttpUrl(baseUrl)) missing.push('NEXT_PUBLIC_SERVER_URL (http 또는 https URL)')
 
-    if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL')
-    if (!key) missing.push('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY')
-  } else {
-    const { baseUrl, cookieSecret } = getManageNeonAuthConfig()
-
-    if (!baseUrl) missing.push('NEON_AUTH_BASE_URL')
-    else {
-      try {
-        if (new URL(baseUrl).protocol !== 'https:') missing.push('NEON_AUTH_BASE_URL (https URL)')
-      } catch {
-        missing.push('NEON_AUTH_BASE_URL (https URL)')
-      }
-    }
-
-    if (!cookieSecret) missing.push('NEON_AUTH_COOKIE_SECRET')
-    else if (cookieSecret.length < 32) {
-      missing.push('NEON_AUTH_COOKIE_SECRET (32자 이상)')
-    }
-  }
+  if (!secret) missing.push('MANAGE_AUTH_SECRET')
+  else if (secret.length < 32) missing.push('MANAGE_AUTH_SECRET (32자 이상)')
 
   if (getManageAdminEmails().length === 0) missing.push('MANAGE_ADMIN_EMAILS')
 
@@ -113,4 +70,15 @@ export function getManageMissingEnv(): string[] {
 export function isManageAdminEmail(email: string | null | undefined): boolean {
   if (!email) return false
   return getManageAdminEmails().includes(email.trim().toLowerCase())
+}
+
+function isHttpUrl(value: string | undefined): value is string {
+  if (!value) return false
+
+  try {
+    const protocol = new URL(value).protocol
+    return protocol === 'http:' || protocol === 'https:'
+  } catch {
+    return false
+  }
 }

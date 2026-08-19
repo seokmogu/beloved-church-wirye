@@ -1,4 +1,4 @@
-import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-vercel-postgres'
+import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres'
 
 // Hand-written, idempotent (this project does not keep migrate:create snapshots).
 // Adds the array tables for: Bulletins.images, Announcements.images, SiteSettings.leaders.

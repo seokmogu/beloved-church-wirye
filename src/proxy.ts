@@ -1,39 +1,27 @@
-import { createNeonAuth } from '@neondatabase/auth/next/server'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const isNeonManageAuth = process.env.MANAGE_AUTH_PROVIDER?.trim().toLowerCase() === 'neon'
-const neonAuthBaseUrl = process.env.NEON_AUTH_BASE_URL?.trim()
-const neonAuthCookieSecret = process.env.NEON_AUTH_COOKIE_SECRET?.trim()
+import { manageAuth } from '@/lib/manage/better-auth'
+import { getManageMissingEnv, isManageAdminEmail } from '@/lib/manage/env'
 
-function isHttpsUrl(value: string | undefined): value is string {
-  if (!value) return false
-
-  try {
-    return new URL(value).protocol === 'https:'
-  } catch {
-    return false
+export async function proxy(request: NextRequest) {
+  // Login and Server Action requests perform their own full checks. Redirecting
+  // an Action here would turn its expected RSC response into an opaque error.
+  if (request.nextUrl.pathname === '/manage/login' || request.headers.get('next-action')) {
+    return NextResponse.next()
   }
-}
 
-const neonManageProxy =
-  isNeonManageAuth &&
-  isHttpsUrl(neonAuthBaseUrl) &&
-  neonAuthCookieSecret &&
-  neonAuthCookieSecret.length >= 32
-    ? createNeonAuth({
-        baseUrl: neonAuthBaseUrl,
-        cookies: { secret: neonAuthCookieSecret },
-      }).middleware({ loginUrl: '/manage/login' })
-    : null
+  if (getManageMissingEnv().length > 0) {
+    return NextResponse.redirect(new URL('/manage/login?error=config', request.url))
+  }
 
-export function proxy(request: NextRequest) {
-  // Neon middleware redirects an unauthenticated POST to an HTML login page.
-  // Next Server Actions expect an RSC response, so that redirect becomes an
-  // opaque client error even when the signed manager session is valid. Actions
-  // verify that signed session in requireManageActionUser instead.
-  if (request.headers.get('next-action')) return NextResponse.next()
+  const session = await manageAuth.api.getSession({ headers: request.headers })
+  const email = session?.user?.email?.toLowerCase()
 
-  return neonManageProxy ? neonManageProxy(request) : NextResponse.next()
+  if (!email || !isManageAdminEmail(email)) {
+    return NextResponse.redirect(new URL('/manage/login', request.url))
+  }
+
+  return NextResponse.next()
 }
 
 export const config = {
