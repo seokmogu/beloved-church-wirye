@@ -3,11 +3,14 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
+import { cache } from 'react'
 
 import { FormattedText } from '@/components/FormattedText'
 import { PageHero } from '@/components/PageHero'
+import { GalleryAlbumStructuredData } from '@/components/StructuredData/GalleryStructuredData'
 import type { GalleryAlbum, GalleryMedia } from '@/payload-types'
 import { canonicalAlternates } from '@/utilities/canonical'
+import { getServerSideURL } from '@/utilities/getURL'
 
 import { GalleryPhotoGrid, type GalleryPhoto } from '../GalleryPhotoGrid'
 import { galleryImageURL } from '../galleryMediaImage'
@@ -21,22 +24,62 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const album = await findGalleryAlbum((await params).id)
+  const title = album ? `${album.title} | 행사갤러리 | 사랑하는교회` : '행사갤러리 | 사랑하는교회'
+  const description = album ? albumDescription(album) : '사랑하는교회 위례 행사 사진 앨범'
+  const cover = album ? toGalleryPhotos(album)[0] : null
+
   return album
     ? {
         alternates: canonicalAlternates(`/gallery/${album.id}`),
-        description: album.description || '사랑하는교회 위례 행사 사진 앨범',
-        title: `${album.title} | 행사갤러리 | 사랑하는교회`,
+        description,
+        openGraph: {
+          description,
+          images: [
+            {
+              alt: cover?.alt || album.title,
+              url: cover?.displaySrc || '/logo-beloved.png',
+            },
+          ],
+          locale: 'ko_KR',
+          siteName: '사랑하는교회 Beloved Church Wirye',
+          title,
+          type: 'article',
+          url: `/gallery/${album.id}`,
+        },
+        title,
+        twitter: {
+          card: 'summary_large_image',
+          description,
+          images: [cover?.displaySrc || '/logo-beloved.png'],
+          title,
+        },
       }
-    : { title: '행사갤러리 | 사랑하는교회' }
+    : { description, title }
 }
 
 export default async function GalleryAlbumPage({ params }: PageProps) {
   const album = await findGalleryAlbum((await params).id)
   if (!album) notFound()
   const images = toGalleryPhotos(album)
+  const siteURL = getServerSideURL().replace(/\/$/, '')
+  const albumURL = `${siteURL}/gallery/${album.id}`
 
   return (
     <main className="min-h-screen bg-[#fbfaf6]">
+      <GalleryAlbumStructuredData
+        album={{
+          dateCreated: album.eventDate,
+          description: albumDescription(album),
+          images: images.map((image) => ({
+            alt: image.alt,
+            caption: image.caption,
+            contentUrl: absoluteURL(image.displaySrc, siteURL),
+          })),
+          name: album.title,
+          url: albumURL,
+        }}
+        galleryURL={`${siteURL}/gallery`}
+      />
       <PageHero label="PHOTO JOURNAL" subtitle={formatDate(album.eventDate)} title={album.title} />
       <div className="container max-w-6xl py-8 sm:py-12">
         <Link
@@ -63,7 +106,7 @@ export default async function GalleryAlbumPage({ params }: PageProps) {
   )
 }
 
-async function findGalleryAlbum(id: string): Promise<GalleryAlbum | null> {
+const findGalleryAlbum = cache(async (id: string): Promise<GalleryAlbum | null> => {
   const numericId = Number(id)
   if (!Number.isInteger(numericId)) return null
 
@@ -82,7 +125,7 @@ async function findGalleryAlbum(id: string): Promise<GalleryAlbum | null> {
     console.error('Failed to fetch gallery album:', error)
     return null
   }
-}
+})
 
 function toGalleryPhotos(album: GalleryAlbum): GalleryPhoto[] {
   return (album.images || []).flatMap((item, index) => {
@@ -93,7 +136,7 @@ function toGalleryPhotos(album: GalleryAlbum): GalleryPhoto[] {
 
     return [
       {
-        alt: media?.alt || item.caption || `${album.title} 사진 ${index + 1}`,
+        alt: item.caption || media?.alt || `${album.title} 사진 ${index + 1}`,
         caption: item.caption,
         cardSrc,
         displaySrc,
@@ -116,4 +159,12 @@ function formatDate(value: string | null | undefined): string {
     timeZone: 'Asia/Seoul',
     year: 'numeric',
   }).format(date)
+}
+
+function albumDescription(album: GalleryAlbum): string {
+  return album.description || `${album.title} 행사 사진 ${album.images?.length || 0}장`
+}
+
+function absoluteURL(pathname: string, siteURL: string): string {
+  return new URL(pathname, `${siteURL}/`).toString()
 }

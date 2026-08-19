@@ -3,6 +3,9 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 
+import { galleryImageURL } from '@/app/(frontend)/gallery/galleryMediaImage'
+import type { GalleryAlbum, GalleryMedia } from '@/payload-types'
+
 const getPagesSitemap = unstable_cache(
   async () => {
     const payload = await getPayload({ config })
@@ -11,75 +14,86 @@ const getPagesSitemap = unstable_cache(
       process.env.VERCEL_PROJECT_PRODUCTION_URL ||
       'https://example.com'
 
-    const [pages, announcements, bulletins, churchNews, galleryAlbums, sermons, churchVideos] = await Promise.all([
-      payload.find({
-        collection: 'pages',
-        overrideAccess: false,
-        draft: false,
-        depth: 0,
-        limit: 1000,
-        pagination: false,
-        where: {
-          _status: {
-            equals: 'published',
+    const [pages, announcements, bulletins, churchNews, galleryAlbums, sermons, churchVideos] =
+      await Promise.all([
+        payload.find({
+          collection: 'pages',
+          overrideAccess: false,
+          draft: false,
+          depth: 0,
+          limit: 1000,
+          pagination: false,
+          where: {
+            _status: {
+              equals: 'published',
+            },
           },
-        },
-        select: { slug: true, updatedAt: true },
-      }),
-      payload.find({
-        collection: 'announcements',
-        overrideAccess: false,
-        depth: 0,
-        limit: 1000,
-        pagination: false,
-        select: { id: true, publishedAt: true, updatedAt: true },
-      }),
-      payload.find({
-        collection: 'bulletins',
-        overrideAccess: false,
-        depth: 0,
-        limit: 1000,
-        pagination: false,
-        where: { isPublic: { equals: true } },
-        select: { id: true, date: true, updatedAt: true },
-      }),
-      payload.find({
-        collection: 'church-news',
-        overrideAccess: false,
-        depth: 0,
-        limit: 1000,
-        pagination: false,
-        where: { isPublic: { equals: true } },
-        select: { id: true, date: true, updatedAt: true },
-      }),
-      payload.find({
-        collection: 'gallery-albums',
-        overrideAccess: false,
-        depth: 0,
-        limit: 1000,
-        pagination: false,
-        where: { isPublic: { equals: true } },
-        select: { id: true, eventDate: true, updatedAt: true },
-      }),
-      payload.find({
-        collection: 'sermons',
-        overrideAccess: false,
-        depth: 0,
-        limit: 1000,
-        pagination: false,
-        where: { status: { equals: 'published' } },
-        select: { youtubeId: true, sermonDate: true, updatedAt: true },
-      }),
-      payload.find({
-        collection: 'church-videos',
-        overrideAccess: false,
-        depth: 0,
-        limit: 1000,
-        pagination: false,
-        where: { status: { equals: 'published' } },
-        select: { id: true, videoDate: true, updatedAt: true },
-      }),
-    ])
+          select: { slug: true, updatedAt: true },
+        }),
+        payload.find({
+          collection: 'announcements',
+          overrideAccess: false,
+          depth: 0,
+          limit: 1000,
+          pagination: false,
+          select: { id: true, publishedAt: true, updatedAt: true },
+        }),
+        payload.find({
+          collection: 'bulletins',
+          overrideAccess: false,
+          depth: 0,
+          limit: 1000,
+          pagination: false,
+          where: { isPublic: { equals: true } },
+          select: { id: true, date: true, updatedAt: true },
+        }),
+        payload.find({
+          collection: 'church-news',
+          overrideAccess: false,
+          depth: 0,
+          limit: 1000,
+          pagination: false,
+          where: { isPublic: { equals: true } },
+          select: { id: true, date: true, updatedAt: true },
+        }),
+        payload.find({
+          collection: 'gallery-albums',
+          // The query is limited to public albums. Expand their linked media here so
+          // the sitemap can advertise only the same protected, public image URLs
+          // that the gallery page renders.
+          overrideAccess: true,
+          depth: 1,
+          limit: 1000,
+          pagination: false,
+          where: { isPublic: { equals: true } },
+          select: {
+            description: true,
+            eventDate: true,
+            id: true,
+            images: true,
+            title: true,
+            updatedAt: true,
+          },
+        }),
+        payload.find({
+          collection: 'sermons',
+          overrideAccess: false,
+          depth: 0,
+          limit: 1000,
+          pagination: false,
+          where: { status: { equals: 'published' } },
+          select: { youtubeId: true, sermonDate: true, updatedAt: true },
+        }),
+        payload.find({
+          collection: 'church-videos',
+          overrideAccess: false,
+          depth: 0,
+          limit: 1000,
+          pagination: false,
+          where: { status: { equals: 'published' } },
+          select: { id: true, videoDate: true, updatedAt: true },
+        }),
+      ])
 
     const dateFallback = new Date().toISOString()
 
@@ -121,6 +135,7 @@ const getPagesSitemap = unstable_cache(
     }))
 
     const gallerySitemap = galleryAlbums.docs.map((album) => ({
+      images: gallerySitemapImages(album, SITE_URL),
       loc: `${SITE_URL}/gallery/${album.id}`,
       lastmod: album.updatedAt || album.eventDate || dateFallback,
     }))
@@ -159,4 +174,27 @@ export async function GET() {
   const sitemap = await getPagesSitemap()
 
   return getServerSideSitemap(sitemap)
+}
+
+function gallerySitemapImages(album: GalleryAlbum, siteURL: string) {
+  return (album.images || []).flatMap((item, index) => {
+    const media = resolveGalleryMedia(item)
+    const source = galleryImageURL(media, ['display', 'card', 'thumbnail'])
+    if (!source) return []
+
+    const caption = item.caption || album.description || undefined
+    return [
+      {
+        ...(caption ? { caption } : {}),
+        loc: new URL(source, `${siteURL.replace(/\/$/, '')}/`),
+        title: item.caption || `${album.title} 사진 ${index + 1}`,
+      },
+    ]
+  })
+}
+
+function resolveGalleryMedia(
+  item: NonNullable<GalleryAlbum['images']>[number],
+): GalleryMedia | null {
+  return typeof item.image === 'object' && item.image ? item.image : null
 }

@@ -1,13 +1,14 @@
 'use client'
 
 import { ImagePlus, LoaderCircle, X } from 'lucide-react'
-import { type ChangeEvent, useEffect, useRef, useState } from 'react'
+import { Fragment, type ChangeEvent, useEffect, useRef, useState } from 'react'
 
 const MAX_HEIGHT = 2000
 const MAX_WIDTH = 1600
 const WEBP_QUALITY = 0.8
 
 type Preview = {
+  caption: string
   error?: string
   file: File
   id: string
@@ -32,7 +33,9 @@ export function GalleryImagePicker() {
   const removedRef = useRef(new Set<string>())
   const [previews, setPreviews] = useState<Preview[]>([])
 
-  const uploading = previews.some((item) => item.status === 'pending' || item.status === 'uploading')
+  const uploading = previews.some(
+    (item) => item.status === 'pending' || item.status === 'uploading',
+  )
   const failed = previews.some((item) => item.status === 'error')
   const complete = previews.filter((item) => item.status === 'uploaded').length
 
@@ -73,12 +76,15 @@ export function GalleryImagePicker() {
   }
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.currentTarget.files || []).filter((file) => file.type.startsWith('image/'))
+    const files = Array.from(event.currentTarget.files || []).filter((file) =>
+      file.type.startsWith('image/'),
+    )
     if (!files.length) return
 
     const nextPreviews = [
       ...previewsRef.current,
       ...files.map((file, index) => ({
+        caption: '',
         file,
         id: `${Date.now()}-${index}-${file.name}-${file.size}`,
         name: file.name,
@@ -152,13 +158,17 @@ export function GalleryImagePicker() {
         type="file"
       />
       <span className="manage-muted">
-        여러 장을 선택할 수 있습니다. 휴대폰 사진은 저장 전 WebP로 압축해 R2 용량과 전송량을 줄입니다.
+        여러 장을 선택할 수 있습니다. 사진 설명을 쓰면 공개 화면의 대체 텍스트와 이미지 검색 정보에
+        함께 반영됩니다. 휴대폰 사진은 저장 전 WebP로 압축해 R2 용량과 전송량을 줄입니다.
       </span>
 
       {previews
         .filter((preview) => preview.status === 'uploaded' && preview.imageId)
         .map((preview) => (
-          <input key={preview.id} name="uploadedGalleryImageId" type="hidden" value={preview.imageId} />
+          <Fragment key={preview.id}>
+            <input name="uploadedGalleryImageId" type="hidden" value={preview.imageId} />
+            <input name="uploadedGalleryImageCaption" type="hidden" value={preview.caption} />
+          </Fragment>
         ))}
 
       {previews.length ? (
@@ -175,10 +185,17 @@ export function GalleryImagePicker() {
           </div>
           <div className="manage-new-image-preview-grid">
             {previews.map((preview, index) => (
-              <figure className={`manage-new-image-preview-item is-${preview.status}`} key={preview.id}>
+              <figure
+                className={`manage-new-image-preview-item is-${preview.status}`}
+                key={preview.id}
+              >
                 <div className="manage-new-image-preview-frame">
                   {/* eslint-disable-next-line @next/next/no-img-element -- Local object URL previews are not supported by next/image. */}
-                  <img alt="" className="manage-new-image-preview-thumb object-cover" src={preview.url} />
+                  <img
+                    alt=""
+                    className="manage-new-image-preview-thumb object-cover"
+                    src={preview.url}
+                  />
                   <button
                     aria-label={`${index + 1}번째 새 사진 제거`}
                     className="manage-new-image-remove"
@@ -192,7 +209,19 @@ export function GalleryImagePicker() {
                   <span>{index + 1}</span>
                   <small>{statusLabel(preview)}</small>
                 </figcaption>
-                {preview.error ? <small className="manage-new-image-error">{preview.error}</small> : null}
+                <label className="sr-only" htmlFor={`gallery-image-caption-${preview.id}`}>
+                  {index + 1}번째 사진 설명
+                </label>
+                <input
+                  id={`gallery-image-caption-${preview.id}`}
+                  onChange={(event) => updatePreview(preview.id, { caption: event.target.value })}
+                  placeholder="사진 설명 (권장)"
+                  type="text"
+                  value={preview.caption}
+                />
+                {preview.error ? (
+                  <small className="manage-new-image-error">{preview.error}</small>
+                ) : null}
               </figure>
             ))}
           </div>
@@ -219,7 +248,9 @@ async function uploadImage(file: File): Promise<UploadResult> {
   formData.append('alt', file.name.replace(/\.[^.]+$/, ''))
 
   const response = await fetch('/manage/gallery/upload-image', { method: 'POST', body: formData })
-  const result = (await response.json().catch(() => ({}))) as Partial<UploadResult> & { error?: string }
+  const result = (await response.json().catch(() => ({}))) as Partial<UploadResult> & {
+    error?: string
+  }
   if (!response.ok || !result.id || !result.contentHash) {
     throw new GalleryUploadError(result.error, response.status)
   }

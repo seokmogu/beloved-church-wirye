@@ -78,7 +78,9 @@ export function ManageImageGallery({
               endDrag()
             }}
           >
-            {names.rowId ? <input name={names.rowId} type="hidden" value={item.rowId || ''} /> : null}
+            {names.rowId ? (
+              <input name={names.rowId} type="hidden" value={item.rowId || ''} />
+            ) : null}
             <input name={names.imageId} type="hidden" value={item.imageId} />
 
             <div
@@ -126,7 +128,7 @@ export function ManageImageGallery({
             <input
               defaultValue={item.caption}
               name={withIndex(names.caption, index)}
-              placeholder="이미지 설명 (선택)"
+              placeholder="사진 설명·대체 텍스트 (권장)"
               type="text"
             />
             <label className="manage-checkbox compact">

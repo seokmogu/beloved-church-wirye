@@ -1055,10 +1055,15 @@ function parseGalleryImages(formData: FormData) {
       Boolean(item),
     )
   const uploadedImages = stringValues(formData, 'uploadedGalleryImageId')
-    .filter(Boolean)
-    .map((imageId) => ({ caption: null, image: relationValueFromString(imageId) }))
+  const uploadedCaptions = stringValues(formData, 'uploadedGalleryImageCaption')
+  const newImages = uploadedImages
+    .map((imageId, index) => ({
+      caption: uploadedCaptions[index] || null,
+      image: relationValueFromString(imageId),
+    }))
+    .filter((item) => Boolean(item.image))
 
-  return [...existingImages, ...uploadedImages]
+  return [...existingImages, ...newImages]
 }
 
 async function parseLeaders(
