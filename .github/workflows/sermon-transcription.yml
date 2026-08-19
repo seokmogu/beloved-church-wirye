@@ -31,7 +31,9 @@ jobs:
     name: Transcribe newly published sermons
     if: github.ref == 'refs/heads/main' || inputs.site_url != '' || vars.DEV_SERMON_TRANSCRIPTION_SITE_URL != ''
     runs-on: [self-hosted, macstudio, image-transcription]
-    timeout-minutes: 90
+    # Chrome capture runs in real time when YouTube rejects direct media downloads.
+    # Leave enough room for a long service plus Whisper and transcript validation.
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
         with:
