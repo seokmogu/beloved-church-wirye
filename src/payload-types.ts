@@ -792,7 +792,7 @@ export interface GalleryAlbum {
   title: string;
   eventDate: string;
   /**
-   * 체크하면 로그인 없이 행사갤러리에 표시됩니다. 해제하면 관리자 화면에서만 보입니다.
+   * 체크하면 로그인 없이 사진첩에 표시됩니다. 해제하면 관리자 화면에서만 보입니다.
    */
   isPublic?: boolean | null;
   description?: string | null;
@@ -814,7 +814,7 @@ export interface GalleryAlbum {
   createdAt: string;
 }
 /**
- * 행사갤러리 전용 사진입니다. Cloudflare R2 저장소를 사용합니다.
+ * 사진첩 전용 사진입니다. Cloudflare R2 저장소를 사용합니다.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "gallery-media".

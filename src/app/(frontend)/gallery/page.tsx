@@ -2,49 +2,82 @@ import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getPayload } from 'payload'
+import { cache } from 'react'
 
 import { EmptyState } from '@/components/EmptyState'
 import { PageHero } from '@/components/PageHero'
+import { GalleryCollectionStructuredData } from '@/components/StructuredData/GalleryStructuredData'
 import type { GalleryAlbum, GalleryMedia } from '@/payload-types'
 import { canonicalAlternates } from '@/utilities/canonical'
+import { getServerSideURL } from '@/utilities/getURL'
 
 import { galleryImageURL } from './galleryMediaImage'
-
-export const metadata: Metadata = {
-  alternates: canonicalAlternates('/gallery'),
-  description: '사랑하는교회 위례의 예배와 행사 순간을 사진으로 나눕니다.',
-  title: '행사갤러리 | 사랑하는교회',
-}
 
 export const revalidate = 300
 export const dynamic = 'force-dynamic'
 
-export default async function GalleryPage() {
-  let albums: GalleryAlbum[] = []
-  let hasError = false
+const title = '사진첩 | 사랑하는교회'
+const description = '사랑하는교회 위례의 예배와 행사 순간을 모은 사진첩입니다.'
 
-  try {
-    const payload = await getPayload({ config: configPromise })
-    const result = await payload.find({
-      collection: 'gallery-albums',
-      depth: 1,
-      limit: 60,
-      sort: '-eventDate',
-      where: { isPublic: { equals: true } },
-    })
-    albums = result.docs
-  } catch (error) {
-    console.error('Failed to fetch gallery albums:', error)
-    hasError = true
+export async function generateMetadata(): Promise<Metadata> {
+  const { albums } = await findPublicGalleryAlbums()
+  const cover = albums
+    .map((album) => galleryImageURL(coverMedia(album), ['card', 'thumbnail']))
+    .find(Boolean)
+
+  return {
+    alternates: canonicalAlternates('/gallery'),
+    description,
+    openGraph: {
+      description,
+      images: [{ alt: '사랑하는교회 위례 사진첩', url: cover || '/logo-beloved.png' }],
+      locale: 'ko_KR',
+      siteName: '사랑하는교회 Beloved Church Wirye',
+      title,
+      type: 'website',
+      url: '/gallery',
+    },
+    title,
+    twitter: {
+      card: 'summary_large_image',
+      description,
+      images: [cover || '/logo-beloved.png'],
+      title,
+    },
   }
+}
+
+export default async function GalleryPage() {
+  const result = await findPublicGalleryAlbums()
+  const albums = result.albums
+  const hasError = result.hasError
+  const siteURL = getServerSideURL().replace(/\/$/, '')
 
   return (
     <main className="min-h-screen bg-[#fbfaf6]">
       <PageHero
         label="PHOTO JOURNAL"
         subtitle="사랑하는교회 위례의 예배와 함께한 날들을 사진으로 나눕니다"
-        title="행사갤러리"
+        title="사진첩"
       />
+      {albums.length ? (
+        <GalleryCollectionStructuredData
+          albums={albums.map((album) => {
+            const cover = coverMedia(album)
+            const coverURL = galleryImageURL(cover, ['display', 'card', 'thumbnail'])
+            return {
+              description: album.description,
+              images: coverURL
+                ? [{ alt: album.title, contentUrl: absoluteURL(coverURL, siteURL) }]
+                : [],
+              name: album.title,
+              url: `${siteURL}/gallery/${album.id}`,
+            }
+          })}
+          description={description}
+          url={`${siteURL}/gallery`}
+        />
+      ) : null}
 
       <div className="container py-10 sm:py-14">
         <div className="mb-8 flex flex-col gap-3 border-b border-border/80 pb-6 sm:flex-row sm:items-end sm:justify-between">
@@ -54,7 +87,9 @@ export default async function GalleryPage() {
               함께한 순간들
             </h2>
           </div>
-          <p className="text-sm text-muted-foreground">앨범을 열면 사진을 한 장씩 크게 볼 수 있습니다.</p>
+          <p className="text-sm text-muted-foreground">
+            앨범을 열면 사진을 한 장씩 크게 볼 수 있습니다.
+          </p>
         </div>
 
         {hasError ? (
@@ -63,7 +98,7 @@ export default async function GalleryPage() {
             ctaText="홈으로 돌아가기"
             description="일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
             icon="error"
-            title="행사갤러리를 불러올 수 없습니다"
+            title="사진첩을 불러올 수 없습니다"
           />
         ) : albums.length === 0 ? (
           <EmptyState
@@ -71,7 +106,7 @@ export default async function GalleryPage() {
             ctaText="예배안내 보기"
             description="사랑하는교회의 다음 이야기를 사진으로 전해드릴 예정입니다."
             icon="announcement"
-            title="공개된 행사갤러리가 없습니다"
+            title="공개된 사진첩이 없습니다"
           />
         ) : (
           <section className="grid grid-cols-2 gap-x-3 gap-y-7 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-10 lg:grid-cols-4">
@@ -84,7 +119,7 @@ export default async function GalleryPage() {
                     {src ? (
                       // eslint-disable-next-line @next/next/no-img-element -- R2 serves the pre-generated card size without an image-optimizer hop.
                       <img
-                        alt={media?.alt || album.title}
+                        alt={album.title}
                         className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
                         loading="lazy"
                         src={src}
@@ -121,6 +156,25 @@ export default async function GalleryPage() {
   )
 }
 
+const findPublicGalleryAlbums = cache(
+  async (): Promise<{ albums: GalleryAlbum[]; hasError: boolean }> => {
+    try {
+      const payload = await getPayload({ config: configPromise })
+      const result = await payload.find({
+        collection: 'gallery-albums',
+        depth: 1,
+        limit: 60,
+        sort: '-eventDate',
+        where: { isPublic: { equals: true } },
+      })
+      return { albums: result.docs, hasError: false }
+    } catch (error) {
+      console.error('Failed to fetch gallery albums:', error)
+      return { albums: [], hasError: true }
+    }
+  },
+)
+
 function coverMedia(album: GalleryAlbum): GalleryMedia | null {
   if (typeof album.coverImage === 'object' && album.coverImage) return album.coverImage
   const first = album.images?.[0]
@@ -137,4 +191,8 @@ function formatDate(value: string | null | undefined): string {
     timeZone: 'Asia/Seoul',
     year: 'numeric',
   }).format(date)
+}
+
+function absoluteURL(pathname: string, siteURL: string): string {
+  return new URL(pathname, `${siteURL}/`).toString()
 }

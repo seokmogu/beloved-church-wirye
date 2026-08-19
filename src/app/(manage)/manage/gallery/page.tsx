@@ -16,7 +16,7 @@ export default async function ManageGalleryPage() {
         actionHref="/manage/gallery/new"
         actionLabel="앨범 추가"
         description="행사 사진을 앨범별로 등록하고 사이트 공개 여부를 관리합니다. 사진은 R2 전용 저장소에 보관됩니다."
-        title="행사갤러리"
+        title="사진첩"
       />
       <div className="manage-table-wrap">
         <table className="manage-table">
@@ -53,7 +53,7 @@ export default async function ManageGalleryPage() {
             ) : (
               <tr>
                 <td className="manage-empty" colSpan={5}>
-                  등록된 행사갤러리 앨범이 없습니다.
+                  등록된 사진첩 앨범이 없습니다.
                 </td>
               </tr>
             )}

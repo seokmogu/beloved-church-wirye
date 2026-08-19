@@ -44,11 +44,20 @@ export function GalleryAlbumForm({ doc, error }: { doc?: GalleryAlbum; error?: s
           </label>
         </div>
         <p className="manage-field-hint" style={{ marginTop: -8 }}>
-          공개를 해제하면 사이트 행사갤러리에는 표시되지 않고 관리자 화면에서만 관리할 수 있습니다.
+          공개를 해제하면 사이트 사진첩에는 표시되지 않고 관리자 화면에서만 관리할 수 있습니다.
         </p>
         <div className="manage-field">
           <label htmlFor="description">앨범 소개</label>
-          <textarea defaultValue={doc?.description || ''} id="description" name="description" rows={3} />
+          <textarea
+            defaultValue={doc?.description || ''}
+            id="description"
+            name="description"
+            rows={3}
+          />
+          <p className="manage-field-hint">
+            행사명·날짜·무엇을 함께했는지를 한두 문장으로 적어 주세요. 공개 페이지의 검색 설명과
+            공유 미리보기에 사용됩니다.
+          </p>
         </div>
 
         <GalleryImagePicker />
@@ -57,12 +66,14 @@ export function GalleryAlbumForm({ doc, error }: { doc?: GalleryAlbum; error?: s
           <h2 className="text-base font-bold text-foreground">등록된 사진</h2>
           <p className="manage-field-hint" style={{ marginTop: 8 }}>
             사진을 끌거나 좌우 버튼으로 순서를 바꿀 수 있습니다. 맨 첫 사진이 앨범 대표 사진입니다.
+            사진 설명에는 예배·행사 내용이 드러나게 적어 주세요.
           </p>
           <ManageImageGallery
             items={images.map((item, index) => {
               const media = resolveMedia(item)
               return {
-                alt: media?.alt || item.caption || `${doc?.title || '행사갤러리'} 사진 ${index + 1}`,
+                alt:
+                  media?.alt || item.caption || `${doc?.title || '사진첩'} 사진 ${index + 1}`,
                 caption: item.caption || '',
                 imageId: mediaRelationId(item),
                 rowId: item.id || '',

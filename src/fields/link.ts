@@ -23,7 +23,7 @@ export const internalLinkOptions = [
   { label: '설교영상 - 설교에서 관리', value: '/sermon' },
   { label: '공지사항 - 공지사항에서 관리', value: '/announcements' },
   { label: '교회소식 - 교회소식에서 관리', value: '/church-news' },
-  { label: '행사갤러리 - 행사갤러리에서 관리', value: '/gallery' },
+  { label: '사진첩 - 사진첩에서 관리', value: '/gallery' },
   { label: '동영상 - 동영상에서 관리', value: '/church-news/videos' },
   { label: '주보 - 주보에서 관리', value: '/bulletins' },
   { label: '새가족등록 - 신청 내역은 새가족에서 확인', value: '/newcomer' },

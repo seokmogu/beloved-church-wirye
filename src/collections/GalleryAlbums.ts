@@ -3,8 +3,8 @@ import type { CollectionConfig } from 'payload'
 export const GalleryAlbums: CollectionConfig = {
   slug: 'gallery-albums',
   labels: {
-    singular: '행사갤러리 앨범',
-    plural: '행사갤러리',
+    singular: '사진첩 앨범',
+    plural: '사진첩',
   },
   admin: {
     useAsTitle: 'title',
@@ -48,7 +48,7 @@ export const GalleryAlbums: CollectionConfig = {
       label: '공개 여부',
       defaultValue: false,
       admin: {
-        description: '체크하면 로그인 없이 행사갤러리에 표시됩니다. 해제하면 관리자 화면에서만 보입니다.',
+        description: '체크하면 로그인 없이 사진첩에 표시됩니다. 해제하면 관리자 화면에서만 보입니다.',
         position: 'sidebar',
       },
     },

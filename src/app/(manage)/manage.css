@@ -1894,6 +1894,12 @@ textarea {
   font-size: 11px;
   font-weight: 700;
 }
+.manage-new-image-preview-item input[type='text'] {
+  font-size: 11px;
+  min-width: 0;
+  padding: 6px 7px;
+  width: 100%;
+}
 .manage-new-image-error {
   color: #c2410c;
   display: block;

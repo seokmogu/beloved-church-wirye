@@ -341,8 +341,32 @@ export async function deleteGalleryAlbumAction(formData: FormData) {
   await requireManageActionUser()
   const id = requiredNumber(formData, 'id')
   const payload = await getManagePayload()
+  const album = await payload.findByID({ collection: 'gallery-albums', depth: 0, id })
+  const mediaIds = new Set(
+    [album.coverImage, ...(album.images || []).map((item) => item.image)]
+      .map(galleryMediaRelationId)
+      .filter((mediaId): mediaId is number | string => mediaId !== null),
+  )
 
   await payload.delete({ collection: 'gallery-albums', id })
+
+  // Images can be deliberately reused in more than one album. Only remove an
+  // R2-backed media record once no remaining album refers to it; the Payload
+  // storage adapter then removes its original and generated WebP variants.
+  for (const mediaId of mediaIds) {
+    const usage = await payload.find({
+      collection: 'gallery-albums',
+      depth: 0,
+      limit: 1,
+      where: {
+        or: [{ coverImage: { equals: mediaId } }, { 'images.image': { equals: mediaId } }],
+      } as any,
+    })
+    if (!usage.docs.length) {
+      await payload.delete({ collection: 'gallery-media', id: mediaId })
+    }
+  }
+
   revalidateManageAndPublic('/manage/gallery')
   redirect('/manage/gallery')
 }
@@ -697,6 +721,19 @@ function requiredNumber(formData: FormData, key: string): number {
   const value = optionalNumber(formData, key)
   if (!value) throw new Error(`${key} 값이 필요합니다.`)
   return value
+}
+
+function galleryMediaRelationId(value: unknown): number | string | null {
+  if (typeof value === 'number' || typeof value === 'string') return value
+  if (
+    value &&
+    typeof value === 'object' &&
+    'id' in value &&
+    (typeof value.id === 'number' || typeof value.id === 'string')
+  ) {
+    return value.id
+  }
+  return null
 }
 
 function checkboxValue(formData: FormData, key: string): boolean {
@@ -1055,10 +1092,15 @@ function parseGalleryImages(formData: FormData) {
       Boolean(item),
     )
   const uploadedImages = stringValues(formData, 'uploadedGalleryImageId')
-    .filter(Boolean)
-    .map((imageId) => ({ caption: null, image: relationValueFromString(imageId) }))
+  const uploadedCaptions = stringValues(formData, 'uploadedGalleryImageCaption')
+  const newImages = uploadedImages
+    .map((imageId, index) => ({
+      caption: uploadedCaptions[index] || null,
+      image: relationValueFromString(imageId),
+    }))
+    .filter((item) => Boolean(item.image))
 
-  return [...existingImages, ...uploadedImages]
+  return [...existingImages, ...newImages]
 }
 
 async function parseLeaders(

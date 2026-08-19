@@ -10,7 +10,7 @@ export default async function NewGalleryAlbumPage({ searchParams }: { searchPara
   const params = await searchParams
   return (
     <ManageShell active="gallery" user={user}>
-      <PageHeader title="행사갤러리 앨범 추가" />
+      <PageHeader title="사진첩 앨범 추가" />
       <GalleryAlbumForm error={firstParam(params.error)} />
     </ManageShell>
   )

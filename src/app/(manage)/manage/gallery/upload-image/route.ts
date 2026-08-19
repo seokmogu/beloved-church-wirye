@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
     const formData = await request.formData()
     const file = formData.get('file')
-    const alt = String(formData.get('alt') || '행사갤러리 사진')
+    const alt = String(formData.get('alt') || '사진첩 사진')
     if (!isUploadableFile(file) || !file.size) {
       return NextResponse.json({ error: 'file_required' }, { status: 400 })
     }

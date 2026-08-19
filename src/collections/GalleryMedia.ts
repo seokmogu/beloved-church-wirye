@@ -9,7 +9,7 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 /**
- * 행사갤러리 전용 업로드 컬렉션입니다.
+ * 사진첩 전용 업로드 컬렉션입니다.
  *
  * 공용 Media와 분리해 R2의 작은 이미지 파생본 정책을 적용합니다. 이 컬렉션의
  * 파일은 R2 비공개 버킷에 저장하고, 앨범의 공개 여부와 관리자 인증을 확인하는
@@ -18,12 +18,12 @@ const dirname = path.dirname(filename)
 export const GalleryMedia: CollectionConfig = {
   slug: 'gallery-media',
   labels: {
-    singular: '행사갤러리 사진',
-    plural: '행사갤러리 사진',
+    singular: '사진첩 사진',
+    plural: '사진첩 사진',
   },
   admin: {
     defaultColumns: ['filename', 'alt', 'updatedAt'],
-    description: '행사갤러리 전용 사진입니다. Cloudflare R2 저장소를 사용합니다.',
+    description: '사진첩 전용 사진입니다. Cloudflare R2 저장소를 사용합니다.',
     group: '5. 이미지/파일',
     useAsTitle: 'filename',
   },
