@@ -19,6 +19,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 300
 
 const YOUTUBE_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/
+const YOUTUBE_METADATA_VIDEO_COUNT = 50
 
 function formatYouTubeUploadDateTime(dateString: string | null | undefined) {
   if (!dateString) return null
@@ -83,7 +84,9 @@ export default async function SermonDetailPage({ params: paramsPromise }: Args) 
               {title}
             </h2>
             {sermonDate && (
-              <p className="mt-2 text-sm text-muted-foreground">YouTube 업로드 일시 · {sermonDate}</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                YouTube 업로드 일시 · {sermonDate}
+              </p>
             )}
           </div>
 
@@ -237,9 +240,18 @@ const querySermonByVideoId = cache(
         },
       })
       const doc = result.docs[0]
+      const settings = await payload.findGlobal({ slug: 'site-settings', depth: 0 })
+      const video = (
+        await fetchLatestVideos(
+          YOUTUBE_METADATA_VIDEO_COUNT,
+          settings.youtubeChannelId,
+          settings.youtubeChannelUrl,
+        )
+      ).find((item) => item.id === videoId)
+
       if (doc?.title) {
         return {
-          publishedAt: doc.sermonDate,
+          publishedAt: video?.publishedAt ?? doc.sermonDate,
           publicTranscript: doc.publicTranscript,
           title: doc.title,
           transcriptStatus: doc.transcriptStatus,

@@ -8,8 +8,6 @@ import {
   normalizeSermonTranscriptionResult,
   parseYouTubeVideoId,
 } from '@/lib/sermonTranscription'
-import { fetchLatestVideos } from '@/lib/youtube'
-import type { SiteSetting } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,20 +36,11 @@ export async function POST(request: NextRequest) {
     where: { youtubeId: { equals: videoId } },
   })
   const sermon = existing.docs[0]
-  const settings = await payload.findGlobal({ slug: 'site-settings', depth: 0 })
-  const sourceVideo = (
-    await fetchLatestVideos(
-      getVideoCount(settings),
-      settings.youtubeChannelId,
-      settings.youtubeChannelUrl,
-      { cache: 'no-store' },
-    )
-  ).find((video) => video.id === videoId)
 
-  if (!sermon && !sourceVideo) {
+  if (!sermon) {
     return NextResponse.json(
-      { error: 'video is no longer available from this channel', ok: false },
-      { status: 404 },
+      { error: 'sermon must be registered in CMS before transcription', ok: false },
+      { status: 409 },
     )
   }
 
@@ -63,36 +52,15 @@ export async function POST(request: NextRequest) {
     transcriptUpdatedAt: new Date().toISOString(),
   }
 
-  if (sermon) {
-    await payload.update({
-      collection: 'sermons',
-      data: transcription,
-      id: sermon.id,
-    })
-  } else if (sourceVideo) {
-    await payload.create({
-      collection: 'sermons',
-      data: {
-        ...transcription,
-        sermonDate: sourceVideo.publishedAt,
-        status: 'published',
-        thumbnail: sourceVideo.thumbnail,
-        title: sourceVideo.title,
-        youtubeId: sourceVideo.id,
-        youtubeUrl: `https://www.youtube.com/watch?v=${sourceVideo.id}`,
-      },
-    })
-  }
+  await payload.update({
+    collection: 'sermons',
+    data: transcription,
+    id: sermon.id,
+  })
 
   revalidatePath('/')
   revalidatePath('/sermon')
   revalidatePath(`/sermon/${videoId}`)
 
   return NextResponse.json({ ok: true, videoId })
-}
-
-function getVideoCount(settings: SiteSetting) {
-  const configured =
-    typeof settings.youtubeVideoCount === 'number' ? settings.youtubeVideoCount : 12
-  return Math.min(Math.max(configured, 12), 50)
 }
