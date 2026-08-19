@@ -3,8 +3,8 @@ import 'server-only'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-import { manageAuth } from '@/lib/manage/better-auth'
-import { getManageMissingEnv, isManageAdminEmail } from '@/lib/manage/env'
+import { getManageAdminByEmail, getManageAdminForUser, manageAuth } from '@/lib/manage/better-auth'
+import { getManageMissingEnv } from '@/lib/manage/env'
 
 export type ManageUser = {
   email: string
@@ -19,11 +19,16 @@ export type ManageAuthState = {
 
 export type ManageSignInResult = 'configuration' | 'forbidden' | 'invalid' | 'ok'
 
-function toManageUser(user: { email?: string | null; id?: string | null } | null | undefined): ManageUser | null {
+async function toManageUser(
+  user: { email?: string | null; id?: string | null } | null | undefined,
+): Promise<ManageUser | null> {
   const email = user?.email?.toLowerCase()
   const id = user?.id
 
-  if (!email || !id || !isManageAdminEmail(email)) return null
+  if (!email || !id) return null
+
+  const admin = await getManageAdminForUser({ email, id })
+  if (!admin) return null
 
   return { email, id }
 }
@@ -52,7 +57,7 @@ export async function getManageAuthState({ includeUser = true }: { includeUser?:
   return {
     configured: true,
     missingEnv: [],
-    user: toManageUser(session?.user),
+    user: await toManageUser(session?.user),
   }
 }
 
@@ -61,7 +66,9 @@ export async function signInManageUser(
   password: string,
 ): Promise<ManageSignInResult> {
   if (getManageMissingEnv().length > 0) return 'configuration'
-  if (!isManageAdminEmail(email)) return 'forbidden'
+
+  const admin = await getManageAdminByEmail(email)
+  if (!admin?.isActive) return 'forbidden'
 
   try {
     const result = await manageAuth.api.signInEmail({
@@ -69,7 +76,7 @@ export async function signInManageUser(
       headers: await headers(),
     })
 
-    return toManageUser(result.user) ? 'ok' : 'invalid'
+    return (await toManageUser(result.user)) ? 'ok' : 'invalid'
   } catch {
     return 'invalid'
   }

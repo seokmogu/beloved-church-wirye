@@ -2069,6 +2069,49 @@ textarea {
   gap: 8px;
   justify-content: flex-end;
 }
+.manage-admin-create-form {
+  margin-bottom: 18px;
+}
+.manage-section-title {
+  font-size: 18px;
+  line-height: 1.3;
+  margin: 0 0 5px;
+}
+.manage-admin-current {
+  color: var(--manage-muted);
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 3px;
+}
+.manage-admin-actions {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.manage-admin-password summary {
+  color: var(--manage-accent);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 0;
+}
+.manage-admin-password form {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  min-width: 240px;
+}
+.manage-admin-password input {
+  background: #fffdf9;
+  border: 1px solid var(--manage-border);
+  border-radius: 8px;
+  color: var(--manage-ink);
+  min-height: 38px;
+  padding: 8px 10px;
+  width: 100%;
+}
 .manage-alert {
   background: #fff6e8;
   border: 1px solid #efd3a5;

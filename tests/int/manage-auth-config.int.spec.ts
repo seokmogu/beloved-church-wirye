@@ -7,7 +7,6 @@ import {
 } from '@/lib/manage/env'
 
 const managedEnvironmentNames = [
-  'MANAGE_ADMIN_EMAILS',
   'MANAGE_ADMIN_LOGIN_ALIASES',
   'MANAGE_AUTH_SECRET',
   'NEXT_PUBLIC_SERVER_URL',
@@ -32,7 +31,6 @@ afterEach(() => {
 
 describe('Neon 관리자 인증 설정', () => {
   it('Supabase 값 없이 독립적인 관리자 인증 설정을 검증한다', () => {
-    process.env.MANAGE_ADMIN_EMAILS = 'admin@example.com'
     process.env.MANAGE_AUTH_SECRET = 'a-secure-manager-auth-secret-that-is-longer-than-32-characters'
     process.env.NEXT_PUBLIC_SERVER_URL = 'https://www.belovedchurch.co.kr'
     process.env.PAYLOAD_PUBLIC_ORIGINS = 'https://belovedchurch.co.kr,https://www.belovedchurch.co.kr'
@@ -45,7 +43,6 @@ describe('Neon 관리자 인증 설정', () => {
   })
 
   it('필수값 누락을 정확하게 알린다', () => {
-    process.env.MANAGE_ADMIN_EMAILS = 'admin@example.com'
     Reflect.deleteProperty(process.env, 'MANAGE_AUTH_SECRET')
     Reflect.deleteProperty(process.env, 'NEXT_PUBLIC_SERVER_URL')
 
@@ -56,7 +53,6 @@ describe('Neon 관리자 인증 설정', () => {
   })
 
   it('짧은 인증 비밀값은 실행 전에 설정 오류로 처리한다', () => {
-    process.env.MANAGE_ADMIN_EMAILS = 'admin@example.com'
     process.env.NEXT_PUBLIC_SERVER_URL = 'https://www.belovedchurch.co.kr'
     process.env.MANAGE_AUTH_SECRET = 'too-short'
 
