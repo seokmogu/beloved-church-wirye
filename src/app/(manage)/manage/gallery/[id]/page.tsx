@@ -26,7 +26,7 @@ export default async function EditGalleryAlbumPage({
 
   return (
     <ManageShell active="gallery" user={user}>
-      <PageHeader title="행사갤러리 앨범 편집" />
+      <PageHeader title="사진첩 앨범 편집" />
       <GalleryAlbumForm doc={doc} error={firstParam(query.error)} />
     </ManageShell>
   )

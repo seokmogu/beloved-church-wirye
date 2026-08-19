@@ -44,7 +44,7 @@ export function GalleryAlbumForm({ doc, error }: { doc?: GalleryAlbum; error?: s
           </label>
         </div>
         <p className="manage-field-hint" style={{ marginTop: -8 }}>
-          공개를 해제하면 사이트 행사갤러리에는 표시되지 않고 관리자 화면에서만 관리할 수 있습니다.
+          공개를 해제하면 사이트 사진첩에는 표시되지 않고 관리자 화면에서만 관리할 수 있습니다.
         </p>
         <div className="manage-field">
           <label htmlFor="description">앨범 소개</label>
@@ -73,7 +73,7 @@ export function GalleryAlbumForm({ doc, error }: { doc?: GalleryAlbum; error?: s
               const media = resolveMedia(item)
               return {
                 alt:
-                  media?.alt || item.caption || `${doc?.title || '행사갤러리'} 사진 ${index + 1}`,
+                  media?.alt || item.caption || `${doc?.title || '사진첩'} 사진 ${index + 1}`,
                 caption: item.caption || '',
                 imageId: mediaRelationId(item),
                 rowId: item.id || '',

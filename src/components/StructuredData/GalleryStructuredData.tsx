@@ -46,7 +46,7 @@ export function GalleryCollectionStructuredData({
       })),
       numberOfItems: albums.length,
     },
-    name: '사랑하는교회 위례 행사갤러리',
+    name: '사랑하는교회 위례 사진첩',
     url,
   }
 
@@ -95,7 +95,7 @@ export function GalleryAlbumStructuredData({
           {
             '@type': 'ListItem',
             item: galleryURL,
-            name: '행사갤러리',
+            name: '사진첩',
             position: 1,
           },
           {

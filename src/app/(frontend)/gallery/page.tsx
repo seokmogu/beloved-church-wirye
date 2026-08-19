@@ -16,8 +16,8 @@ import { galleryImageURL } from './galleryMediaImage'
 export const revalidate = 300
 export const dynamic = 'force-dynamic'
 
-const title = '행사갤러리 | 사랑하는교회'
-const description = '사랑하는교회 위례의 예배와 행사 순간을 사진으로 나눕니다.'
+const title = '사진첩 | 사랑하는교회'
+const description = '사랑하는교회 위례의 예배와 행사 순간을 모은 사진첩입니다.'
 
 export async function generateMetadata(): Promise<Metadata> {
   const { albums } = await findPublicGalleryAlbums()
@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     openGraph: {
       description,
-      images: [{ alt: '사랑하는교회 위례 행사갤러리', url: cover || '/logo-beloved.png' }],
+      images: [{ alt: '사랑하는교회 위례 사진첩', url: cover || '/logo-beloved.png' }],
       locale: 'ko_KR',
       siteName: '사랑하는교회 Beloved Church Wirye',
       title,
@@ -58,7 +58,7 @@ export default async function GalleryPage() {
       <PageHero
         label="PHOTO JOURNAL"
         subtitle="사랑하는교회 위례의 예배와 함께한 날들을 사진으로 나눕니다"
-        title="행사갤러리"
+        title="사진첩"
       />
       {albums.length ? (
         <GalleryCollectionStructuredData
@@ -98,7 +98,7 @@ export default async function GalleryPage() {
             ctaText="홈으로 돌아가기"
             description="일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
             icon="error"
-            title="행사갤러리를 불러올 수 없습니다"
+            title="사진첩을 불러올 수 없습니다"
           />
         ) : albums.length === 0 ? (
           <EmptyState
@@ -106,7 +106,7 @@ export default async function GalleryPage() {
             ctaText="예배안내 보기"
             description="사랑하는교회의 다음 이야기를 사진으로 전해드릴 예정입니다."
             icon="announcement"
-            title="공개된 행사갤러리가 없습니다"
+            title="공개된 사진첩이 없습니다"
           />
         ) : (
           <section className="grid grid-cols-2 gap-x-3 gap-y-7 sm:grid-cols-3 sm:gap-x-5 sm:gap-y-10 lg:grid-cols-4">

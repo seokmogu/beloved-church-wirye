@@ -24,7 +24,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const album = await findGalleryAlbum((await params).id)
-  const title = album ? `${album.title} | 행사갤러리 | 사랑하는교회` : '행사갤러리 | 사랑하는교회'
+  const title = album ? `${album.title} | 사진첩 | 사랑하는교회` : '사진첩 | 사랑하는교회'
   const description = album ? albumDescription(album) : '사랑하는교회 위례 행사 사진 앨범'
   const cover = album ? toGalleryPhotos(album)[0] : null
 
@@ -86,7 +86,7 @@ export default async function GalleryAlbumPage({ params }: PageProps) {
           className="mb-7 inline-flex text-sm font-medium text-primary underline-offset-4 hover:underline"
           href="/gallery"
         >
-          행사갤러리 목록으로
+          사진첩 목록으로
         </Link>
         {album.description ? (
           <FormattedText className="mb-8 max-w-3xl text-[15px] leading-7 text-muted-foreground">
