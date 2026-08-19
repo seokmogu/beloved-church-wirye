@@ -25,7 +25,6 @@ const internalPathOptions = [
   { label: '교회소개', value: '/about' },
   { label: '섬기는 사람들', value: '/about/leaders' },
   { label: '예배안내', value: '/worship' },
-  { label: '새가족등록', value: '/newcomer' },
   { label: '주보', value: '/bulletins' },
   { label: '설교영상', value: '/sermon' },
   { label: '공지사항', value: '/announcements' },

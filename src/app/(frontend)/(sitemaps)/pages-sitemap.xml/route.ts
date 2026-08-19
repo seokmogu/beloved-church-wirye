@@ -108,7 +108,6 @@ const getPagesSitemap = unstable_cache(
       '/gallery',
       '/church-news/videos',
       '/worship',
-      '/newcomer',
       '/offering',
     ].map((path) => ({ loc: `${SITE_URL}${path}` }))
 

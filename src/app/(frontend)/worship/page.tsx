@@ -150,13 +150,6 @@ export default async function WorshipPage() {
                         <li key={note.id ?? note.text}>- {note.text}</li>
                       ))}
                     </ul>
-                    <Link
-                      data-analytics-id="worship_newcomer_registration"
-                      href="/newcomer"
-                      className="mt-6 inline-flex rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
-                    >
-                      새가족등록하기
-                    </Link>
                   </div>
                 )}
               </div>

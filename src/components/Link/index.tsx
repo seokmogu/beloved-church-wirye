@@ -1,4 +1,5 @@
 import { Button, type ButtonProps } from '@/components/ui/button'
+import { isPublicRouteEnabled } from '@/lib/publicRoutes'
 import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 import React from 'react'
@@ -44,7 +45,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
           }`
         : url
 
-  if (!href) return null
+  if (!href || !isPublicRouteEnabled(href)) return null
 
   const size = appearance === 'link' ? 'clear' : sizeFromProps
   const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}

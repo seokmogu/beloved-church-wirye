@@ -1,4 +1,5 @@
 import type { Header as HeaderType } from '@/payload-types'
+import { isPublicRouteEnabled } from '@/lib/publicRoutes'
 import { resolveCMSLink } from '@/utilities/resolveCMSLink'
 
 type ResolvedNavLink = NonNullable<ReturnType<typeof resolveCMSLink>>
@@ -8,7 +9,7 @@ export type HeaderNavItem = ResolvedNavLink & {
 }
 
 function isResolvedNavLink(item: ResolvedNavLink | null): item is ResolvedNavLink {
-  return Boolean(item)
+  return Boolean(item && isPublicRouteEnabled(item.href))
 }
 
 function isHeaderNavItem(item: HeaderNavItem | null): item is HeaderNavItem {

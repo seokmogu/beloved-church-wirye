@@ -65,14 +65,6 @@ const fixedPages = [
     editHref: '/admin/globals/offering-page',
     publicHref: '/offering',
   },
-  {
-    title: '새가족등록',
-    type: '고정 폼',
-    path: '/newcomer',
-    editLabel: '고정 폼 페이지',
-    editHref: '/admin/collections/newcomers',
-    publicHref: '/newcomer',
-  },
 ]
 
 export function FixedPagesPanel() {
