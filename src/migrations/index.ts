@@ -20,6 +20,7 @@ import * as migration_20260810_000000_accessible_content from './20260810_000000
 import * as migration_20260817_000000_gallery_r2 from './20260817_000000_gallery_r2';
 import * as migration_20260818_000000_gallery_media_prefix from './20260818_000000_gallery_media_prefix';
 import * as migration_20260819_000000_manage_auth from './20260819_000000_manage_auth';
+import * as migration_20260820_000000_manage_admins from './20260820_000000_manage_admins';
 
 export const migrations = [
   {
@@ -131,5 +132,10 @@ export const migrations = [
     up: migration_20260819_000000_manage_auth.up,
     down: migration_20260819_000000_manage_auth.down,
     name: '20260819_000000_manage_auth',
+  },
+  {
+    up: migration_20260820_000000_manage_admins.up,
+    down: migration_20260820_000000_manage_admins.down,
+    name: '20260820_000000_manage_admins',
   },
 ];

@@ -9,7 +9,7 @@
 - Approved Vercel target: `seokmogus-projects/beloved-church-wirye`.
 - Vercel project ID: `prj_rlSbDEXCQBanqqOZorCnYKL6BTnH`.
 - Approved deployment path: GitHub -> Vercel Git integration. Use GitHub CLI to push/PR/merge `seokmogu/beloved-church-wirye`; Vercel should build from Git. Never run `vercel deploy`, `vercel --prod`, or any other direct Vercel CLI deployment for this project. Vercel CLI may be used only for read-only diagnostics such as logs/status/env inspection.
-- Production admin path is the custom `/manage` app; `/admin` redirects to `/manage`. Admin login uses Better Auth in the Neon `manage_auth` schema, bcrypt verification, `MANAGE_AUTH_SECRET`, and the `MANAGE_ADMIN_EMAILS` allowlist.
+- Production admin path is the custom `/manage` app; `/admin` redirects to `/manage`. Admin login uses Better Auth in the Neon `manage_auth` schema, bcrypt verification, `MANAGE_AUTH_SECRET`, and active administrator records managed at `/manage/admins`.
 - `.env.production` may be tracked for non-secret production defaults only. Do not add passwords, service-role keys, database URLs, or private tokens there; keep those in Vercel Project Settings or git-ignored `.deploy/` files.
 - Production branch: `main` after Vercel Git settings confirm this repository and branch.
 - The former Supabase project `fpiqbslkwcyqpbrnbkhr` is a legacy migration and rollback source only; it is not a production dependency. Do not modify or delete it without a separate explicit user approval.
@@ -18,7 +18,7 @@
 - Do not run Supabase link, push, reset, migration, seed, or deletion commands. Legacy Supabase access is read-only and limited to a scoped backup, rollback, or final migration comparison.
 - Before any production deploy, explicitly verify the Vercel scope/project, Git integration mode, production branch, required Vercel env vars, Neon connection string and target branch, Better Auth migration, and Payload migrations. If any of these are unknown, stop and ask.
 - GitHub-to-Vercel auto-deploy only applies if the Vercel project has Git integration and automatic deployments enabled for the relevant branch. If that is not configured, configure/fix the Git integration rather than falling back to direct Vercel CLI deployment without explicit approval.
-- Required production env names include `POSTGRES_URL`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`, `PAYLOAD_SERVER_URL`, `PAYLOAD_PUBLIC_ORIGINS`, `CRON_SECRET`, `PREVIEW_SECRET`, `MANAGE_AUTH_SECRET`, `MANAGE_ADMIN_EMAILS`, and any enabled integration vars such as `BLOB_READ_WRITE_TOKEN`, `NEXT_PUBLIC_NAVER_MAP_CLIENT_ID`, `OPENCLAW_API_URL`, and `OPENCLAW_GATEWAY_TOKEN`. Do not print, commit, or copy secret values.
+- Required production env names include `POSTGRES_URL`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`, `PAYLOAD_SERVER_URL`, `PAYLOAD_PUBLIC_ORIGINS`, `CRON_SECRET`, `PREVIEW_SECRET`, `MANAGE_AUTH_SECRET`, and any enabled integration vars such as `BLOB_READ_WRITE_TOKEN`, `NEXT_PUBLIC_NAVER_MAP_CLIENT_ID`, `OPENCLAW_API_URL`, and `OPENCLAW_GATEWAY_TOKEN`. Do not print, commit, or copy secret values.
 - All other deployment destinations are on hold unless the user explicitly approves and this file is updated first.
 
 You are an expert Payload CMS developer. When working with Payload projects, follow these rules:

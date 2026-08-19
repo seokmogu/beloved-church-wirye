@@ -29,6 +29,7 @@ import type { ManageUser } from '@/lib/manage/auth'
 type ActiveKey =
   | 'about'
   | 'announcements'
+  | 'admins'
   | 'banner'
   | 'bulletins'
   | 'churchNews'
@@ -106,6 +107,7 @@ const navSections: {
       { href: '/manage/offering', icon: HandCoins, key: 'offering', label: '헌금안내' },
       { href: '/manage/banner', icon: Megaphone, key: 'banner', label: '상단배너' },
       { href: '/manage/menu', icon: Menu, key: 'menu', label: '메뉴관리' },
+      { href: '/manage/admins', icon: UserRound, key: 'admins', label: '관리자 관리' },
     ],
     label: '사이트관리',
   },

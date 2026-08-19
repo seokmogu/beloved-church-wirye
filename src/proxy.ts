@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
-import { manageAuth } from '@/lib/manage/better-auth'
-import { getManageMissingEnv, isManageAdminEmail } from '@/lib/manage/env'
+import { getManageAdminForUser, manageAuth } from '@/lib/manage/better-auth'
+import { getManageMissingEnv } from '@/lib/manage/env'
 
 export async function proxy(request: NextRequest) {
   // Login and Server Action requests perform their own full checks. Redirecting
@@ -15,9 +15,9 @@ export async function proxy(request: NextRequest) {
   }
 
   const session = await manageAuth.api.getSession({ headers: request.headers })
-  const email = session?.user?.email?.toLowerCase()
+  const admin = await getManageAdminForUser(session?.user)
 
-  if (!email || !isManageAdminEmail(email)) {
+  if (!admin) {
     return NextResponse.redirect(new URL('/manage/login', request.url))
   }
 

@@ -21,13 +21,6 @@ export function getManageTrustedOrigins(): string[] {
   return [...new Set(candidates.map((value) => value?.trim()).filter(isHttpUrl))]
 }
 
-export function getManageAdminEmails(): string[] {
-  return (process.env.MANAGE_ADMIN_EMAILS || '')
-    .split(',')
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean)
-}
-
 export function getManageAdminLoginAliases(): Record<string, string> {
   return (process.env.MANAGE_ADMIN_LOGIN_ALIASES || '')
     .split(',')
@@ -62,14 +55,7 @@ export function getManageMissingEnv(): string[] {
   if (!secret) missing.push('MANAGE_AUTH_SECRET')
   else if (secret.length < 32) missing.push('MANAGE_AUTH_SECRET (32자 이상)')
 
-  if (getManageAdminEmails().length === 0) missing.push('MANAGE_ADMIN_EMAILS')
-
   return missing
-}
-
-export function isManageAdminEmail(email: string | null | undefined): boolean {
-  if (!email) return false
-  return getManageAdminEmails().includes(email.trim().toLowerCase())
 }
 
 function isHttpUrl(value: string | undefined): value is string {
