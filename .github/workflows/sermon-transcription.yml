@@ -8,8 +8,9 @@ on:
       - .github/workflows/sermon-transcription.yml
       - scripts/sermon-transcription-worker.mjs
   schedule:
-    # GitHub Actions cron is UTC: Sunday 17:17 UTC = Monday 02:17 KST.
-    - cron: '17 17 * * 0'
+    # GitHub Actions cron is UTC: 17:17 UTC = the following day 02:17 KST.
+    # Check every day so videos uploaded after a run are transcribed the next day.
+    - cron: '17 17 * * *'
   workflow_dispatch:
     inputs:
       video_id:

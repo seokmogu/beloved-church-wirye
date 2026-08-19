@@ -20,16 +20,15 @@ export const revalidate = 300
 
 const YOUTUBE_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/
 
-function formatDate(dateString: string | null | undefined) {
+function formatYouTubeUploadDateTime(dateString: string | null | undefined) {
   if (!dateString) return null
   const date = new Date(dateString)
   if (Number.isNaN(date.getTime())) return null
-  return date.toLocaleDateString('ko-KR', {
-    day: 'numeric',
-    month: 'long',
+  return new Intl.DateTimeFormat('ko-KR', {
+    dateStyle: 'long',
+    timeStyle: 'short',
     timeZone: 'Asia/Seoul',
-    year: 'numeric',
-  })
+  }).format(date)
 }
 
 export default async function SermonDetailPage({ params: paramsPromise }: Args) {
@@ -38,7 +37,7 @@ export default async function SermonDetailPage({ params: paramsPromise }: Args) 
 
   const sermon = await querySermonByVideoId(videoId)
   const title = sermon?.title ?? '설교영상'
-  const sermonDate = formatDate(sermon?.publishedAt)
+  const sermonDate = formatYouTubeUploadDateTime(sermon?.publishedAt)
   const transcript = sermon?.publicTranscript?.trim()
   const hasTranscript = Boolean(transcript && sermon?.transcriptStatus !== 'unavailable')
   const transcriptPreview = transcript ? createTranscriptPreview(transcript) : ''
@@ -83,7 +82,9 @@ export default async function SermonDetailPage({ params: paramsPromise }: Args) 
             <h2 className="text-2xl font-semibold leading-tight text-foreground md:text-3xl">
               {title}
             </h2>
-            {sermonDate && <p className="mt-2 text-sm text-muted-foreground">{sermonDate}</p>}
+            {sermonDate && (
+              <p className="mt-2 text-sm text-muted-foreground">YouTube 업로드 일시 · {sermonDate}</p>
+            )}
           </div>
 
           <div className="border-t border-border bg-muted/25 px-5 py-5 md:px-8">
