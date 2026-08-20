@@ -30,6 +30,33 @@ function withRequiredBannerEndDate(data: Record<string, unknown>): Record<string
   return { ...data, endDate: requiredBannerEndDate(data) }
 }
 
+function headerHasMissingReference(data: Record<string, unknown>): boolean {
+  const navItems = data.navItems
+  if (!Array.isArray(navItems)) return false
+
+  return navItems.some((item) => {
+    if (!item || typeof item !== 'object') return false
+
+    const link = (item as { link?: unknown }).link
+    if (!link || typeof link !== 'object') return false
+
+    const { reference, type } = link as { reference?: unknown; type?: unknown }
+    return type === 'reference' && !reference
+  })
+}
+
+const fallbackHeader = {
+  navItems: [
+    {
+      link: {
+        type: 'internal' as const,
+        internalPath: '/' as const,
+        label: '홈',
+      },
+    },
+  ],
+}
+
 describe('CMS control contract', () => {
   beforeAll(async () => {
     const payloadConfig = await config
@@ -45,6 +72,17 @@ describe('CMS control contract', () => {
       string,
       unknown
     >
+    // A previous interrupted run can leave the shared development database pointing at
+    // a page that its cleanup has already deleted. Restore a valid neutral menu first
+    // so this suite can clean up after itself instead of perpetuating that state.
+    if (headerHasMissingReference(originalHeader)) {
+      await payload.updateGlobal({
+        slug: 'header',
+        data: fallbackHeader,
+        context: disableRevalidate,
+      })
+      originalHeader = fallbackHeader
+    }
     originalSpecialBanner = (await payload.findGlobal({
       slug: 'special-banner',
       depth: 0,
