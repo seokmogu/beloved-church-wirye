@@ -36,7 +36,7 @@ export default async function ManageNewcomersPage() {
 
   return (
     <ManageShell active="newcomers" user={user}>
-      <PageHeader description="공개 새가족등록 폼으로 접수된 신청입니다." title="새가족조회" />
+      <PageHeader description="기존 새가족등록 접수 내역입니다. 공개 등록 화면은 현재 중지되어 있습니다." title="새가족조회" />
       <div className="manage-table-wrap">
         <table className="manage-table">
           <thead>
@@ -94,11 +94,6 @@ export default async function ManageNewcomersPage() {
             )}
           </tbody>
         </table>
-      </div>
-      <div className="manage-page-footnote">
-        <Link className="manage-button secondary" href="/newcomer" target="_blank">
-          등록 폼 열기
-        </Link>
       </div>
     </ManageShell>
   )

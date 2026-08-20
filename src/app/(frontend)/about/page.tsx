@@ -40,11 +40,6 @@ export default async function AboutPage() {
       href: '/worship',
       title: '예배안내',
     },
-    {
-      description: '처음 방문하시는 분의 등록을 돕습니다.',
-      href: '/newcomer',
-      title: '새가족등록',
-    },
     { description: '주일 예배 주보를 확인합니다.', href: '/bulletins', title: '주보' },
   ]
 
@@ -140,9 +135,6 @@ export default async function AboutPage() {
           <div className="grid gap-4 md:grid-cols-2">
             {subPages.map((page) => (
               <Link
-                data-analytics-id={
-                  page.href === '/newcomer' ? 'about_newcomer_registration' : undefined
-                }
                 className="rounded-lg border border-border bg-card p-6 transition-shadow hover:shadow-md"
                 href={page.href}
                 key={page.href}

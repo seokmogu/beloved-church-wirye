@@ -1,4 +1,4 @@
-import { ArrowLeft, ExternalLink, Mail, Phone } from 'lucide-react'
+import { ArrowLeft, Mail, Phone } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
@@ -98,10 +98,6 @@ export default async function ManageNewcomerDetailPage({
         <Link className="manage-button secondary" href="/manage/newcomers">
           <ArrowLeft />
           목록
-        </Link>
-        <Link className="manage-button secondary" href="/newcomer" target="_blank">
-          <ExternalLink />
-          등록 폼
         </Link>
       </PageHeader>
 

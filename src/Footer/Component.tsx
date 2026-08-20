@@ -4,6 +4,7 @@ import type { Footer as FooterType, SiteSetting } from '@/payload-types'
 import { Logo } from '@/components/Logo/Logo'
 import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
 import { getCachedGlobal } from '@/utilities/getGlobals'
+import { isPublicRouteEnabled } from '@/lib/publicRoutes'
 import { resolveCMSLink } from '@/utilities/resolveCMSLink'
 
 function lines(value?: string | null): string[] {
@@ -96,7 +97,7 @@ export async function Footer() {
             <div className="flex flex-col gap-2 text-sm">
               {navItems.map((item, index) => {
                 const resolved = resolveCMSLink(item.link)
-                if (!resolved) return null
+                if (!resolved || !isPublicRouteEnabled(resolved.href)) return null
                 const newTabProps = resolved.newTab
                   ? { rel: 'noopener noreferrer', target: '_blank' }
                   : {}

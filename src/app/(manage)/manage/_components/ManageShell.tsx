@@ -75,7 +75,6 @@ const navSections: {
           { href: '/manage/home', icon: Home, key: 'home', label: '홈화면' },
           { href: '/manage/leaders', icon: UserRound, key: 'leaders', label: '섬기는 사람들' },
           { href: '/manage/worship', icon: MapPin, key: 'worship', label: '예배안내' },
-          { external: true, href: '/newcomer', icon: Plus, label: '새가족등록' },
           {
             href: '/manage/newcomers',
             icon: ClipboardList,

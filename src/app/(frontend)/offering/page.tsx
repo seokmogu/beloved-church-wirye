@@ -88,13 +88,6 @@ export default async function OfferingPage() {
                 <Link href="/worship" className="text-sm font-medium text-primary hover:underline">
                   예배안내·오시는 길 &rarr;
                 </Link>
-                <Link
-                  data-analytics-id="offering_newcomer_registration"
-                  href="/newcomer"
-                  className="text-sm font-medium text-primary hover:underline"
-                >
-                  새가족 등록 &rarr;
-                </Link>
               </div>
             </div>
           </section>
