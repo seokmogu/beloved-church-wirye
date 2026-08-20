@@ -26,6 +26,7 @@ export const internalLinkOptions = [
   { label: '사진첩 - 사진첩에서 관리', value: '/gallery' },
   { label: '동영상 - 동영상에서 관리', value: '/church-news/videos' },
   { label: '주보 - 주보에서 관리', value: '/bulletins' },
+  { label: '새가족등록 (운영 중지됨)', value: '/newcomer' },
   { label: '헌금안내 - 헌금안내페이지에서 관리', value: '/offering' },
 ]
 

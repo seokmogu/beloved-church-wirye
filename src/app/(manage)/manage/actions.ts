@@ -19,6 +19,7 @@ const publicPaths = [
   '/about',
   '/about/leaders',
   '/announcements',
+  '/newcomer',
   '/church-news',
   '/gallery',
   '/church-news/videos',
