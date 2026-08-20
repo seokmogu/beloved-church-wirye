@@ -8,8 +8,9 @@ on:
       - .github/workflows/sermon-transcription.yml
       - scripts/sermon-transcription-worker.mjs
   schedule:
-    # GitHub Actions cron is UTC: Sunday 17:17 UTC = Monday 02:17 KST.
-    - cron: '17 17 * * 0'
+    # GitHub Actions cron is UTC: 17:17 UTC = the following day 02:17 KST.
+    # Check every day so videos uploaded after a run are transcribed the next day.
+    - cron: '17 17 * * *'
   workflow_dispatch:
     inputs:
       video_id:
@@ -30,7 +31,9 @@ jobs:
     name: Transcribe newly published sermons
     if: github.ref == 'refs/heads/main' || inputs.site_url != '' || vars.DEV_SERMON_TRANSCRIPTION_SITE_URL != ''
     runs-on: [self-hosted, macstudio, image-transcription]
-    timeout-minutes: 90
+    # Chrome capture runs in real time when YouTube rejects direct media downloads.
+    # Leave enough room for a long service plus Whisper and transcript validation.
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
         with:
