@@ -49,7 +49,7 @@ export default async function ManageLoginPage({
           <form action={signInAction} className="manage-form">
             <input name="next" type="hidden" value={sanitizeNext(next)} />
             <div className="manage-field">
-              <label htmlFor="login">아이디 또는 이메일</label>
+              <label htmlFor="login">아이디(wirye) 또는 이메일</label>
               <input autoComplete="username" id="login" name="login" required type="text" />
             </div>
             <div className="manage-field">
