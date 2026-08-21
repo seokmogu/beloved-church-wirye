@@ -74,6 +74,16 @@ describe('public media R2 storage', () => {
       }),
     ).toBe('https://church-media.madebysmg.com/media/photo.webp')
   })
+
+  it('기존 미디어의 prefix가 비어 있어도 media 경로를 사용한다', () => {
+    expect(
+      buildPublicMediaR2URL({
+        filename: 'legacy-photo.webp',
+        prefix: null,
+        publicURL: 'https://church-media.madebysmg.com',
+      }),
+    ).toBe('https://church-media.madebysmg.com/media/legacy-photo.webp')
+  })
 })
 
 describe('sanitizeMediaFilename', () => {
