@@ -14,8 +14,7 @@ type ChurchNewsImage = NonNullable<ChurchNew['images']>[number]
 
 const errorMessages: Record<string, string> = {
   generic: '교회소식을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
-  storage:
-    '이미지 저장소 설정이 필요합니다. 운영 Vercel 환경 변수 BLOB_READ_WRITE_TOKEN을 확인해 주세요.',
+  storage: '이미지 저장소 설정이 필요합니다. 운영 R2 이미지 저장소 환경 변수를 확인해 주세요.',
   upload: '이미지를 저장하지 못했습니다. 이미지 파일을 다시 선택해서 저장해 주세요.',
 }
 
@@ -64,7 +63,8 @@ export function ChurchNewsForm({ doc, error }: { doc?: ChurchNew; error?: string
             광고 전사 · 검색 정보
           </summary>
           <p className="manage-field-hint" style={{ marginTop: 10 }}>
-            자동 전사 결과를 보정하는 영역입니다. 이미지의 제목·구획·불릿 순서를 그대로 유지하고, 이미지에 없는 정보는 추가하지 마세요.
+            자동 전사 결과를 보정하는 영역입니다. 이미지의 제목·구획·불릿 순서를 그대로 유지하고,
+            이미지에 없는 정보는 추가하지 마세요.
           </p>
           <div className="manage-field" style={{ marginTop: 14 }}>
             <label htmlFor="accessibleContentSummary">한 줄 요약</label>

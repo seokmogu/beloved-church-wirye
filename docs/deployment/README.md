@@ -100,7 +100,11 @@ The production Vercel project should be checked for these names as applicable:
 - `PAYLOAD_PUBLIC_ORIGINS`
 - `CRON_SECRET`
 - `PREVIEW_SECRET`
-- `BLOB_READ_WRITE_TOKEN`
+- `R2_MEDIA_ACCESS_KEY_ID`
+- `R2_MEDIA_BUCKET`
+- `R2_MEDIA_ENDPOINT`
+- `R2_MEDIA_PUBLIC_URL` (`https://church-media.madebysmg.com`)
+- `R2_MEDIA_SECRET_ACCESS_KEY`
 - `NEXT_PUBLIC_NAVER_MAP_CLIENT_ID`
 - `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 - `MANAGE_AUTH_SECRET`
@@ -114,6 +118,17 @@ The separate development Vercel project's **Preview** environment uses its own N
 - `POSTGRES_URL` (the Neon development connection string)
 - `MANAGE_AUTH_SECRET`
 - `MANAGE_ADMIN_EMAILS` (development-only allowlist)
+
+Public Payload `media` uses a dedicated public Cloudflare R2 bucket. Keep it separate from the
+private gallery bucket configured by the existing `R2_*` variables; exposing that private bucket
+through the public media custom domain would bypass unlisted-album access checks. Preview and
+development must use their own bucket and credentials rather than the production media bucket.
+
+Before changing the production adapter, copy the existing Vercel Blob objects without deleting the
+source. Run `pnpm migrate:media:r2` first for a count/byte dry run, then run
+`pnpm migrate:media:r2 -- --execute` only with the verified source token and bucket-scoped R2
+credentials. The migration refuses nested source paths, never overwrites a different-sized target,
+never deletes the Blob source, and verifies every copied object by size.
 
 Keep the development project's Production environment unchanged unless a separate release decision explicitly approves it.
 

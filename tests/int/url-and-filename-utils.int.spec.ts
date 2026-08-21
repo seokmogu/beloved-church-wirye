@@ -6,6 +6,7 @@ import { normalizeInstagramPostInput } from '@/lib/instagram'
 import { excludeMarkdownSections } from '@/utilities/accessibleContent'
 import { toRelativeInternalURL } from '@/utilities/internalUrl'
 import { sanitizeMediaFilename, toRelativeMediaURL } from '@/utilities/mediaFiles'
+import { buildPublicMediaR2URL, isPublicMediaR2Configured } from '@/utilities/publicMediaStorage'
 
 describe('toRelativeInternalURL', () => {
   it('내부 정식/프리뷰 도메인 절대 URL을 상대경로로 바꾼다', () => {
@@ -36,9 +37,9 @@ describe('toRelativeInternalURL', () => {
 
 describe('toRelativeMediaURL', () => {
   it('media 파일 절대 URL을 /api/media/file/ 상대경로로 자른다', () => {
-    expect(
-      toRelativeMediaURL('https://belovedchurch.co.kr/api/media/file/photo.webp'),
-    ).toBe('/api/media/file/photo.webp')
+    expect(toRelativeMediaURL('https://belovedchurch.co.kr/api/media/file/photo.webp')).toBe(
+      '/api/media/file/photo.webp',
+    )
     expect(toRelativeMediaURL('/api/media/file/photo.webp')).toBe('/api/media/file/photo.webp')
   })
 
@@ -47,6 +48,31 @@ describe('toRelativeMediaURL', () => {
       'https://blob.example.com/x.png',
     )
     expect(toRelativeMediaURL(null)).toBeNull()
+  })
+})
+
+describe('public media R2 storage', () => {
+  it('모든 공개 미디어 R2 환경 변수가 있어야 설정 완료로 본다', () => {
+    const complete = {
+      R2_MEDIA_ACCESS_KEY_ID: 'access-key',
+      R2_MEDIA_BUCKET: 'church-public-media',
+      R2_MEDIA_ENDPOINT: 'https://example.r2.cloudflarestorage.com',
+      R2_MEDIA_PUBLIC_URL: 'https://church-media.madebysmg.com',
+      R2_MEDIA_SECRET_ACCESS_KEY: 'secret-key',
+    }
+
+    expect(isPublicMediaR2Configured(complete)).toBe(true)
+    expect(isPublicMediaR2Configured({ ...complete, R2_MEDIA_BUCKET: ' ' })).toBe(false)
+  })
+
+  it('커스텀 도메인과 media prefix로 공개 URL을 만든다', () => {
+    expect(
+      buildPublicMediaR2URL({
+        filename: 'photo.webp',
+        prefix: '/media/',
+        publicURL: 'https://church-media.madebysmg.com/',
+      }),
+    ).toBe('https://church-media.madebysmg.com/media/photo.webp')
   })
 })
 

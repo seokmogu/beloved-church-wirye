@@ -47,7 +47,7 @@ const nextConfig: NextConfig = {
       { hostname: '*.ytimg.com', protocol: 'https' },
       { hostname: 'img.youtube.com', protocol: 'https' },
       { hostname: '*.cdninstagram.com', protocol: 'https' },
-      { hostname: '*.public.blob.vercel-storage.com', protocol: 'https' },
+      { hostname: 'church-media.madebysmg.com', protocol: 'https' },
     ],
   },
   reactStrictMode: true,
