@@ -62,6 +62,14 @@ export const Media: CollectionConfig = {
         hidden: true,
       },
     },
+    {
+      name: 'prefix',
+      type: 'text',
+      admin: {
+        hidden: true,
+        readOnly: true,
+      },
+    },
   ],
   hooks: {
     beforeOperation: [

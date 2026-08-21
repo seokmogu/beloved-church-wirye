@@ -21,6 +21,7 @@ import * as migration_20260817_000000_gallery_r2 from './20260817_000000_gallery
 import * as migration_20260818_000000_gallery_media_prefix from './20260818_000000_gallery_media_prefix';
 import * as migration_20260819_000000_manage_auth from './20260819_000000_manage_auth';
 import * as migration_20260820_000000_manage_admins from './20260820_000000_manage_admins';
+import * as migration_20260822_000000_media_prefix from './20260822_000000_media_prefix';
 
 export const migrations = [
   {
@@ -137,5 +138,10 @@ export const migrations = [
     up: migration_20260820_000000_manage_admins.up,
     down: migration_20260820_000000_manage_admins.down,
     name: '20260820_000000_manage_admins',
+  },
+  {
+    up: migration_20260822_000000_media_prefix.up,
+    down: migration_20260822_000000_media_prefix.down,
+    name: '20260822_000000_media_prefix',
   },
 ];
