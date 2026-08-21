@@ -26,7 +26,7 @@ export function buildPublicMediaR2URL({
   const baseURL = publicURL?.trim().replace(/\/+$/, '')
   if (!baseURL) throw new Error('R2_MEDIA_PUBLIC_URL is required')
 
-  const normalizedPrefix = prefix?.replace(/^\/+|\/+$/g, '')
-  const key = normalizedPrefix ? `${normalizedPrefix}/${filename}` : filename
+  const normalizedPrefix = (prefix || PUBLIC_MEDIA_R2_PREFIX).replace(/^\/+|\/+$/g, '')
+  const key = `${normalizedPrefix}/${filename}`
   return `${baseURL}/${key}`
 }
