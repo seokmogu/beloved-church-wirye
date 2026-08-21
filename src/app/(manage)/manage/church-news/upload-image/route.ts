@@ -6,12 +6,13 @@ import { NextResponse } from 'next/server'
 import { requireManageActionUser } from '@/lib/manage/auth'
 import { optimizeChurchNewsImage } from '@/lib/manage/churchNewsImage'
 import { getManagePayload } from '@/lib/manage/payload'
+import { isPublicMediaR2Configured } from '@/utilities/publicMediaStorage'
 
 export async function POST(request: Request) {
   try {
     await requireManageActionUser()
 
-    if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN) {
+    if (process.env.VERCEL && !isPublicMediaR2Configured()) {
       return NextResponse.json({ error: 'storage_not_configured' }, { status: 503 })
     }
 

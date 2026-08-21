@@ -10,6 +10,7 @@ import { normalizeInstagramPostInput } from '@/lib/instagram'
 import { toRelativeInternalURL } from '@/utilities/internalUrl'
 import { dateInputToISO } from '@/lib/manage/date'
 import { optimizeUploadImage } from '@/lib/manage/imageOptimize'
+import { isPublicMediaR2Configured } from '@/utilities/publicMediaStorage'
 import { plaintextToLexical } from '@/lib/manage/lexical'
 import { getManagePayload } from '@/lib/manage/payload'
 import { extractYouTubeId } from '@/lib/youtube'
@@ -801,7 +802,7 @@ async function uploadMediaFilesFromForm(
 
 function assertUploadStorageConfigured(fileCount: number) {
   if (fileCount === 0) return
-  if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN) {
+  if (process.env.VERCEL && !isPublicMediaR2Configured()) {
     throw new Error('UPLOAD_STORAGE_NOT_CONFIGURED')
   }
 }

@@ -25,19 +25,24 @@ import { SpecialBanner } from './globals/SpecialBanner'
 import { SiteSettings } from './globals/SiteSettings'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
+import {
+  buildPublicMediaR2URL,
+  isPublicMediaR2Configured,
+  PUBLIC_MEDIA_R2_PREFIX,
+} from './utilities/publicMediaStorage'
 import { getPayloadAllowedOrigins, getPayloadServerURL } from './utilities/getURL'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { s3Storage } from '@payloadcms/storage-s3'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const allowedOrigins = getPayloadAllowedOrigins()
 const serverURL = getPayloadServerURL()
+const publicMediaR2EnvironmentReady = isPublicMediaR2Configured()
 const r2EnvironmentReady = Boolean(
   process.env.R2_ACCESS_KEY_ID &&
-    process.env.R2_BUCKET &&
-    process.env.R2_ENDPOINT &&
-    process.env.R2_SECRET_ACCESS_KEY,
+  process.env.R2_BUCKET &&
+  process.env.R2_ENDPOINT &&
+  process.env.R2_SECRET_ACCESS_KEY,
 )
 function r2ProtectedFileURL() {
   return ({ filename, prefix }: { filename: string; prefix?: string | null }): string => {
@@ -124,13 +129,28 @@ export default buildConfig({
   cors: allowedOrigins,
   plugins: [
     ...plugins,
-    ...(process.env.BLOB_READ_WRITE_TOKEN
+    ...(publicMediaR2EnvironmentReady
       ? [
-          vercelBlobStorage({
+          s3Storage({
+            bucket: process.env.R2_MEDIA_BUCKET || '',
             collections: {
-              media: true,
+              media: {
+                disablePayloadAccessControl: true,
+                generateFileURL: ({ filename, prefix }) =>
+                  buildPublicMediaR2URL({ filename, prefix }),
+                prefix: PUBLIC_MEDIA_R2_PREFIX,
+              },
             },
-            token: process.env.BLOB_READ_WRITE_TOKEN,
+            config: {
+              credentials: {
+                accessKeyId: process.env.R2_MEDIA_ACCESS_KEY_ID || '',
+                secretAccessKey: process.env.R2_MEDIA_SECRET_ACCESS_KEY || '',
+              },
+              endpoint: process.env.R2_MEDIA_ENDPOINT || '',
+              forcePathStyle: true,
+              region: 'auto',
+            },
+            useCompositePrefixes: true,
           }),
         ]
       : []),
