@@ -12,7 +12,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
-    include: ['tests/int/**/*.int.spec.ts'],
+    include: ['tests/int/**/*.int.spec.{ts,tsx}'],
     // 통합 테스트가 원격 Neon DB를 쓸 때 콜드 커넥션이 5초를 넘길 수 있다
     testTimeout: 30_000,
     hookTimeout: 30_000,
