@@ -9,7 +9,7 @@ const eslintConfig = [
     },
   },
   {
-    ignores: ['.next/**', 'playwright-report/**', 'test-results/**'],
+    ignores: ['.next/**', 'playwright-report/**', 'test-results/**', 'src/payload-types.ts'],
   },
 ]
 

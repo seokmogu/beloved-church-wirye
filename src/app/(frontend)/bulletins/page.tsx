@@ -1,6 +1,7 @@
 import configPromise from '@payload-config'
 import { getPayload, type Where } from 'payload'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
@@ -252,7 +253,9 @@ function BulletinFeature({ bulletin }: { bulletin: Bulletin }) {
     >
       <BulletinImage
         alt={bulletin.title || '주보'}
-        className="aspect-[3/4] w-full bg-muted object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+        containerClassName="aspect-[3/4] w-full bg-muted"
+        imageClassName="object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+        sizes="(min-width: 1280px) 480px, (min-width: 768px) 42vw, 100vw"
         src={cover}
       />
       <div className="flex flex-col justify-between p-5 sm:p-7 md:p-9">
@@ -288,7 +291,9 @@ function BulletinCard({ bulletin }: { bulletin: Bulletin }) {
       <div className="overflow-hidden rounded-lg border border-border bg-muted shadow-sm transition-shadow group-hover:shadow-md">
         <BulletinImage
           alt={bulletin.title || '주보'}
-          className="aspect-[3/4] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          containerClassName="aspect-[3/4] w-full bg-muted"
+          imageClassName="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          sizes="(min-width: 1024px) 280px, (min-width: 640px) 33vw, 50vw"
           src={cover}
         />
       </div>
@@ -303,20 +308,29 @@ function BulletinCard({ bulletin }: { bulletin: Bulletin }) {
 
 function BulletinImage({
   alt,
-  className,
+  containerClassName,
+  imageClassName,
+  sizes,
   src,
 }: {
   alt: string
-  className: string
+  containerClassName: string
+  imageClassName: string
+  sizes: string
   src: string | null
 }) {
   if (src) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img alt={alt} className={className} src={src} />
+    return (
+      <div className={`relative overflow-hidden ${containerClassName}`}>
+        <Image alt={alt} className={imageClassName} fill sizes={sizes} src={src} />
+      </div>
+    )
   }
 
   return (
-    <div className={`${className} flex items-center justify-center text-sm text-muted-foreground`}>
+    <div
+      className={`${containerClassName} flex items-center justify-center text-sm text-muted-foreground`}
+    >
       주보 준비 중
     </div>
   )

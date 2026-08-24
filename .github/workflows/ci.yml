@@ -6,9 +6,10 @@ on:
     branches: [main]
 
 concurrency:
-  # dev DB를 공유하므로 통합 테스트가 겹쳐 돌지 않게 한다
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # All branches share one development database. Queue, rather than cancel, so
+  # tests which create or update CMS records cannot overlap across pull requests.
+  group: beloved-church-wirye-dev-db
+  cancel-in-progress: false
 
 jobs:
   check:

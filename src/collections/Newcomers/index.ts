@@ -301,14 +301,5 @@ export const Newcomers: CollectionConfig = {
         return data
       },
     ],
-    afterChange: [
-      async ({ operation, doc, req }) => {
-        // 새 등록 시 담당자에게 이메일 알림 (향후 구현)
-        if (operation === 'create') {
-          req.payload.logger.info(`새가족등록: ${doc.name} (${doc.phone})`)
-          // TODO: 이메일 알림 기능 추가 (Resend API 또는 다른 서비스)
-        }
-      },
-    ],
   },
 }
