@@ -26,6 +26,8 @@ import type { ReactNode } from 'react'
 import { signOutAction } from '@/app/(manage)/manage/login/actions'
 import type { ManageUser } from '@/lib/manage/auth'
 
+import { ManageMobileMenu } from './ManageMobileMenu'
+
 type ActiveKey =
   | 'about'
   | 'announcements'
@@ -123,51 +125,75 @@ export function ManageShell({
 }) {
   return (
     <div className="manage-shell">
+      <header className="manage-mobile-header">
+        <div className="manage-mobile-brand">
+          <strong>사랑하는교회 위례</strong>
+          <span>콘텐츠 관리자</span>
+        </div>
+        <ManageMobileMenu>
+          <div className="manage-mobile-menu-content">
+            <ManageNavigation active={active} label="모바일 관리 메뉴" />
+            <ManageSidebarFooter user={user} />
+          </div>
+        </ManageMobileMenu>
+      </header>
       <aside className="manage-sidebar">
         <div className="manage-brand">
           <strong>사랑하는교회 위례</strong>
           <span>콘텐츠 관리자</span>
         </div>
-        <nav className="manage-nav" aria-label="관리 메뉴">
-          {navSections.map((section) => (
-            <div className="manage-nav-section" key={section.label}>
-              <span className="manage-nav-section-label">{section.label}</span>
-              <div className="manage-nav-section-links">
-                {section.entries.map((entry) =>
-                  'type' in entry ? (
-                    <div className="manage-nav-group" key={entry.label}>
-                      <span className="manage-nav-group-label">{entry.label}</span>
-                      <div className="manage-nav-group-items">
-                        {entry.items.map((item) => (
-                          <NavLink active={active} child item={item} key={item.key ?? item.href} />
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <NavLink active={active} item={entry} key={entry.key ?? entry.href} />
-                  ),
-                )}
-              </div>
-            </div>
-          ))}
-        </nav>
-        <div className="manage-sidebar-footer">
-          <Link className="manage-button ghost" href="/" target="_blank">
-            <BookOpen />
-            사이트 보기
-          </Link>
-          <form action={signOutAction}>
-            <button className="manage-button ghost" type="submit">
-              <LogOut />
-              로그아웃
-            </button>
-          </form>
-          <span className="manage-user">{user.email}</span>
-        </div>
+        <ManageNavigation active={active} label="관리 메뉴" />
+        <ManageSidebarFooter user={user} />
       </aside>
       <main className="manage-main">
         <div className="manage-main-inner">{children}</div>
       </main>
+    </div>
+  )
+}
+
+function ManageNavigation({ active, label }: { active: ActiveKey; label: string }) {
+  return (
+    <nav className="manage-nav" aria-label={label}>
+      {navSections.map((section) => (
+        <div className="manage-nav-section" key={section.label}>
+          <span className="manage-nav-section-label">{section.label}</span>
+          <div className="manage-nav-section-links">
+            {section.entries.map((entry) =>
+              'type' in entry ? (
+                <div className="manage-nav-group" key={entry.label}>
+                  <span className="manage-nav-group-label">{entry.label}</span>
+                  <div className="manage-nav-group-items">
+                    {entry.items.map((item) => (
+                      <NavLink active={active} child item={item} key={item.key ?? item.href} />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <NavLink active={active} item={entry} key={entry.key ?? entry.href} />
+              ),
+            )}
+          </div>
+        </div>
+      ))}
+    </nav>
+  )
+}
+
+function ManageSidebarFooter({ user }: { user: ManageUser }) {
+  return (
+    <div className="manage-sidebar-footer">
+      <Link className="manage-button ghost" href="/" target="_blank">
+        <BookOpen />
+        사이트 보기
+      </Link>
+      <form action={signOutAction}>
+        <button className="manage-button ghost" type="submit">
+          <LogOut />
+          로그아웃
+        </button>
+      </form>
+      <span className="manage-user">{user.email}</span>
     </div>
   )
 }

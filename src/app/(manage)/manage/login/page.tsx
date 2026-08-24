@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getManageAuthState } from '@/lib/manage/auth'
 
 import { signInAction } from './actions'
+import { ManageLoginSubmitButton } from './ManageLoginSubmitButton'
 
 const errorMessages: Record<string, string> = {
   config: '관리자 인증 설정이 아직 완료되지 않았습니다.',
@@ -63,9 +64,7 @@ export default async function ManageLoginPage({
               />
             </div>
             <div className="manage-form-actions">
-              <button className="manage-button" type="submit">
-                로그인
-              </button>
+              <ManageLoginSubmitButton />
             </div>
           </form>
         )}
