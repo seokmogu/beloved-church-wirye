@@ -112,6 +112,29 @@ The production Vercel project should be checked for these names as applicable:
 - `NEXT_PUBLIC_CHAT_ENABLED`
 - `OPENCLAW_API_URL`
 - `OPENCLAW_GATEWAY_TOKEN`
+- `YOUTUBE_PUSH_CALLBACK_URL` (`https://www.belovedchurch.co.kr/api/youtube-push`)
+- `YOUTUBE_PUSH_VERIFY_TOKEN`
+- `YOUTUBE_PUSH_SECRET`
+- `SERMON_TRANSCRIPTION_GITHUB_TOKEN`
+- `SERMON_TRANSCRIPTION_GITHUB_REPOSITORY` (`seokmogu/beloved-church-wirye`)
+
+### Immediate YouTube sermon transcription
+
+New sermon transcription is event-driven: YouTube's push hub verifies
+`/api/youtube-push`, sends a signed Atom notification for the configured channel,
+and the site dispatches that exact video ID to the Mac Studio GitHub Actions runner.
+The runner registers the video in CMS if necessary, transcribes only that ID, and
+publishes an accepted transcript. The daily `/api/youtube-subscription` cron only
+renews the YouTube hub subscription; it never starts a transcription.
+
+Before the first production release, configure the five Vercel variables above
+without recording their values in this repository. The GitHub token must be scoped
+only to this repository with **Actions: write** permission. After the Git-triggered
+deployment is Ready, invoke the protected subscription route once, confirm the hub
+challenge succeeds, then upload an unlisted test video and verify the exact workflow
+run, CMS record, and public transcript. The `sermons_youtube_id_unique` migration
+intentionally stops if old CMS rows contain duplicate YouTube IDs; resolve that
+preflight finding before applying the production migration.
 
 The separate development Vercel project's **Preview** environment uses its own Neon values:
 

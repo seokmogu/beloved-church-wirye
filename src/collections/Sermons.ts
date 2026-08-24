@@ -154,6 +154,7 @@ export const Sermons: CollectionConfig = {
     {
       name: 'youtubeId',
       type: 'text',
+      unique: true,
       label: {
         ko: 'YouTube ID',
         en: 'YouTube Video ID',
