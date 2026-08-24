@@ -23,6 +23,7 @@ import * as migration_20260819_000000_manage_auth from './20260819_000000_manage
 import * as migration_20260820_000000_manage_admins from './20260820_000000_manage_admins';
 import * as migration_20260822_000000_media_prefix from './20260822_000000_media_prefix';
 import * as migration_20260822_010000_media_prefix_backfill from './20260822_010000_media_prefix_backfill';
+import * as migration_20260824_000000_sermon_youtube_push from './20260824_000000_sermon_youtube_push';
 
 export const migrations = [
   {
@@ -149,5 +150,10 @@ export const migrations = [
     up: migration_20260822_010000_media_prefix_backfill.up,
     down: migration_20260822_010000_media_prefix_backfill.down,
     name: '20260822_010000_media_prefix_backfill',
+  },
+  {
+    up: migration_20260824_000000_sermon_youtube_push.up,
+    down: migration_20260824_000000_sermon_youtube_push.down,
+    name: '20260824_000000_sermon_youtube_push',
   },
 ];
