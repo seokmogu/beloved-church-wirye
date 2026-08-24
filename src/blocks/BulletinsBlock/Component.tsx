@@ -1,5 +1,6 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import Image from 'next/image'
 import type { Media } from '@/payload-types'
 
 type BulletinsBlockProps = {
@@ -62,10 +63,12 @@ export async function BulletinsBlockComponent({
                 {/* Preview */}
                 <div className="aspect-[3/4] bg-muted flex items-center justify-center relative overflow-hidden">
                   {isImage && fileUrl ? (
-                    <img
-                      src={fileUrl}
+                    <Image
                       alt={bulletin.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      sizes="(min-width: 1024px) 280px, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      src={fileUrl}
                     />
                   ) : (
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
