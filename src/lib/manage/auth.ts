@@ -5,6 +5,10 @@ import { redirect } from 'next/navigation'
 
 import { getManageAdminByEmail, getManageAdminForUser, manageAuth } from '@/lib/manage/better-auth'
 import { getManageMissingEnv } from '@/lib/manage/env'
+import {
+  clearManagePreviewE2ETestSession,
+  getManagePreviewE2ETestUser,
+} from '@/lib/manage/preview-e2e-auth'
 
 export type ManageUser = {
   email: string
@@ -52,6 +56,15 @@ export async function getManageAuthState({ includeUser = true }: { includeUser?:
     }
   }
 
+  const previewE2ETestUser = await getManagePreviewE2ETestUser()
+  if (previewE2ETestUser) {
+    return {
+      configured: true,
+      missingEnv: [],
+      user: previewE2ETestUser,
+    }
+  }
+
   const session = await manageAuth.api.getSession({ headers: await headers() })
 
   return {
@@ -83,6 +96,7 @@ export async function signInManageUser(
 }
 
 export async function signOutManageUser(): Promise<void> {
+  await clearManagePreviewE2ETestSession()
   await manageAuth.api.signOut({ headers: await headers() })
 }
 

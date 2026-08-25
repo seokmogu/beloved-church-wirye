@@ -2,8 +2,7 @@ import { expect, test } from '@playwright/test'
 
 import { login } from '../helpers/login'
 
-const manageLogin = process.env.E2E_MANAGE_LOGIN
-const managePassword = process.env.E2E_MANAGE_PASSWORD
+const manageTestToken = process.env.E2E_MANAGE_TEST_TOKEN
 
 const managerRoutes = [
   '/manage',
@@ -27,11 +26,11 @@ const managerRoutes = [
 ]
 
 test.describe('관리자 Preview E2E', () => {
-  test.skip(!manageLogin || !managePassword, 'E2E_MANAGE_LOGIN/PASSWORD가 필요합니다.')
+  test.skip(!manageTestToken, 'E2E_MANAGE_TEST_TOKEN이 필요합니다.')
   test.describe.configure({ mode: 'serial' })
 
   test.beforeEach(async ({ page }) => {
-    await login({ page, login: manageLogin!, password: managePassword! })
+    await login({ page, token: manageTestToken! })
   })
 
   test('로그인 후 모든 관리자 최상위 화면을 연다', async ({ page }) => {

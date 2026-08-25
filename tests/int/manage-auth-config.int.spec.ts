@@ -5,12 +5,20 @@ import {
   getManageTrustedOrigins,
   resolveManageLoginIdentifier,
 } from '@/lib/manage/env'
+import {
+  createManagePreviewE2ETestCookieValue,
+  getManagePreviewE2ETestUserFromCookie,
+  isManagePreviewE2ETestAuthEnabled,
+  isValidManagePreviewE2ETestToken,
+} from '@/lib/manage/preview-e2e-auth'
 
 const managedEnvironmentNames = [
   'MANAGE_ADMIN_LOGIN_ALIASES',
   'MANAGE_AUTH_SECRET',
   'NEXT_PUBLIC_SERVER_URL',
   'PAYLOAD_PUBLIC_ORIGINS',
+  'MANAGE_E2E_TEST_TOKEN',
+  'VERCEL_ENV',
 ] as const
 
 const originalEnvironment = Object.fromEntries(
@@ -63,5 +71,29 @@ describe('Neon 관리자 인증 설정', () => {
     process.env.MANAGE_ADMIN_LOGIN_ALIASES = 'pastor=admin@example.com'
 
     expect(resolveManageLoginIdentifier('PaStOr')).toBe('admin@example.com')
+  })
+
+  it('독립 토큰이 있어도 Preview 외 환경에서는 E2E 인증을 열지 않는다', () => {
+    process.env.VERCEL_ENV = 'production'
+    process.env.MANAGE_E2E_TEST_TOKEN = 'a-preview-only-test-token-that-is-longer-than-32-characters'
+
+    expect(isManagePreviewE2ETestAuthEnabled()).toBe(false)
+  })
+
+  it('Preview의 E2E 토큰은 짧은 수명 쿠키 값으로만 인증한다', async () => {
+    const token = 'a-preview-only-test-token-that-is-longer-than-32-characters'
+    process.env.VERCEL_ENV = 'preview'
+    process.env.MANAGE_E2E_TEST_TOKEN = token
+
+    expect(isManagePreviewE2ETestAuthEnabled()).toBe(true)
+    expect(await isValidManagePreviewE2ETestToken(token)).toBe(true)
+    expect(await isValidManagePreviewE2ETestToken('incorrect-token')).toBe(false)
+    const cookieValue = await createManagePreviewE2ETestCookieValue()
+    expect(cookieValue).toBeTypeOf('string')
+    expect(await getManagePreviewE2ETestUserFromCookie(cookieValue!)).toEqual({
+      email: 'preview-e2e@belovedchurch.invalid',
+      id: 'preview-e2e',
+    })
+    expect(await getManagePreviewE2ETestUserFromCookie('not-a-signed-test-cookie')).toBeNull()
   })
 })
