@@ -85,3 +85,12 @@ pnpm test:e2e
 ```
 
 현재 로컬 빌드는 DB 연결이 필요합니다. 홈서버에서 `POSTGRES_URL`이 로컬 Postgres를 가리키는 경우 Postgres가 실행 중이어야 합니다.
+
+관리자 Preview E2E는 실제 `/manage` 인증을 사용합니다. 임시 교회로그 1건을 생성·수정·삭제하며, 비밀번호는 저장하거나 출력하지 않습니다.
+
+```bash
+E2E_BASE_URL=https://<preview-url> \
+E2E_MANAGE_LOGIN=<관리자 아이디 또는 이메일> \
+E2E_MANAGE_PASSWORD=<관리자 비밀번호> \
+pnpm test:e2e
+```

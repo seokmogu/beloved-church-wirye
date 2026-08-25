@@ -3,29 +3,21 @@ import { expect } from '@playwright/test'
 
 export interface LoginOptions {
   page: Page
-  serverURL?: string
-  user: {
-    email: string
-    password: string
-  }
+  login: string
+  password: string
 }
 
 /**
- * Logs the user into the admin panel via the login page.
+ * Logs a permitted manager into the custom /manage application.
  */
-export async function login({
-  page,
-  serverURL = 'http://localhost:3000',
-  user,
-}: LoginOptions): Promise<void> {
-  await page.goto(`${serverURL}/admin/login`)
+export async function login({ page, login: identifier, password }: LoginOptions): Promise<void> {
+  await page.goto('/manage/login?next=/manage')
 
-  await page.fill('#field-email', user.email)
-  await page.fill('#field-password', user.password)
-  await page.click('button[type="submit"]')
+  await page.getByLabel('아이디(wirye) 또는 이메일').fill(identifier)
+  await page.getByLabel('비밀번호').fill(password)
+  await page.getByRole('button', { name: '로그인', exact: true }).click()
 
-  await page.waitForURL(`${serverURL}/admin`)
+  await page.waitForURL(/\/manage$/)
 
-  const dashboardArtifact = page.locator('span[title="Dashboard"]')
-  await expect(dashboardArtifact).toBeVisible()
+  await expect(page.getByRole('heading', { name: '관리 홈', exact: true })).toBeVisible()
 }
