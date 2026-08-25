@@ -3,29 +3,20 @@ import { expect } from '@playwright/test'
 
 export interface LoginOptions {
   page: Page
-  serverURL?: string
-  user: {
-    email: string
-    password: string
-  }
+  token: string
 }
 
 /**
- * Logs the user into the admin panel via the login page.
+ * Starts an isolated, Preview-only E2E manager session. This route is disabled
+ * outside Vercel Preview and requires its own high-entropy test token.
  */
-export async function login({
-  page,
-  serverURL = 'http://localhost:3000',
-  user,
-}: LoginOptions): Promise<void> {
-  await page.goto(`${serverURL}/admin/login`)
+export async function login({ page, token }: LoginOptions): Promise<void> {
+  await page.goto('/manage/e2e-login')
 
-  await page.fill('#field-email', user.email)
-  await page.fill('#field-password', user.password)
-  await page.click('button[type="submit"]')
+  await page.getByLabel('Preview E2E 토큰').fill(token)
+  await page.getByRole('button', { name: '개발 검증 시작', exact: true }).click()
 
-  await page.waitForURL(`${serverURL}/admin`)
+  await page.waitForURL(/\/manage$/)
 
-  const dashboardArtifact = page.locator('span[title="Dashboard"]')
-  await expect(dashboardArtifact).toBeVisible()
+  await expect(page.getByRole('heading', { name: '관리 홈', exact: true })).toBeVisible()
 }

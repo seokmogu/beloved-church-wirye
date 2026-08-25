@@ -85,3 +85,11 @@ pnpm test:e2e
 ```
 
 현재 로컬 빌드는 DB 연결이 필요합니다. 홈서버에서 `POSTGRES_URL`이 로컬 Postgres를 가리키는 경우 Postgres가 실행 중이어야 합니다.
+
+관리자 Preview E2E는 실제 관리자 비밀번호를 사용하지 않습니다. Vercel Preview 브랜치에만 설정한 `MANAGE_E2E_TEST_TOKEN`으로 10분짜리 격리 세션을 만들고, 임시 교회로그 1건을 생성·수정·삭제합니다. 이 경로는 Production과 로컬 개발에서 비활성화됩니다.
+
+```bash
+E2E_BASE_URL=https://<preview-url> \
+E2E_MANAGE_TEST_TOKEN=<Preview 전용 테스트 토큰> \
+pnpm test:e2e
+```
